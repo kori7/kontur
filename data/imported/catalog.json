@@ -1,0 +1,826 @@
+{
+  "schema_version": 1,
+  "source": "reference",
+  "manifest": {
+    "path": "manifest.json",
+    "sha256": "c56e979f5d69580c627ed2d76858a65e746931320d0e6e0b033ecad8f8238acf",
+    "entry_count": 84
+  },
+  "inventory": [
+    {
+      "id": "vibration-001",
+      "category": "vibration",
+      "original_path": "Вибрация\\БД значений (вибрация).xlsx",
+      "path": "vibration/vibration-001.xlsx",
+      "bytes": 24161,
+      "sha256": "a744dbaa8780bfac7c650e3e82449e6e844a6b73984a3a0625aecf7073a8e525"
+    },
+    {
+      "id": "vibration-002",
+      "category": "vibration",
+      "original_path": "Вибрация\\Описание БД (вибрация).docx",
+      "path": "vibration/vibration-002.docx",
+      "bytes": 16069,
+      "sha256": "6e795a63f6b7b201c9455d2173e840f399c64037da264bf123f04b5ee3fa4531"
+    },
+    {
+      "id": "manuals-001",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\1) Насос №1 ПС.pdf",
+      "path": "manuals/manuals-001.pdf",
+      "bytes": 2892679,
+      "sha256": "52b71533cbe41cca80bf72d1baac37b73ccd7f5dee773e6adb1387bb087564f0"
+    },
+    {
+      "id": "manuals-002",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\1) Насос №2 ПС.pdf",
+      "path": "manuals/manuals-002.pdf",
+      "bytes": 2899530,
+      "sha256": "e85d57ec02ba1f5a9c60ea4df2ab7697c8cbfcd0f0cd1919856eb4acb59183ae"
+    },
+    {
+      "id": "manuals-003",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\1) Насос №3 ПС.pdf",
+      "path": "manuals/manuals-003.pdf",
+      "bytes": 2804393,
+      "sha256": "a889bebd47e44d7fde5473e81fa771e9f2c25870436704d5010ecdacbd9abe21"
+    },
+    {
+      "id": "manuals-004",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\1) Насос №4 ПС.pdf",
+      "path": "manuals/manuals-004.pdf",
+      "bytes": 2892649,
+      "sha256": "40dff57cd0097f80f73cf8b4180e3458d25574219a0540660a4cd2ffe685c902"
+    },
+    {
+      "id": "manuals-005",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\2) Редукт, ЭД, ТПП №2 ПС.pdf",
+      "path": "manuals/manuals-005.pdf",
+      "bytes": 3652340,
+      "sha256": "92f4a87dbbdc59df6a15ae36ef0e0da32ab0060769cad2779b56e4a9ff3f6979"
+    },
+    {
+      "id": "manuals-006",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\2) Редукт, ЭД, ТПП №3 ПС.pdf",
+      "path": "manuals/manuals-006.pdf",
+      "bytes": 3501275,
+      "sha256": "fc7651168288b4b3606a2ae22ce2b678ab3e9f7a93636afd94cd9f9325aaa75a"
+    },
+    {
+      "id": "manuals-007",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\2) Редукт, ЭД, ТПП №4 ПС.pdf",
+      "path": "manuals/manuals-007.pdf",
+      "bytes": 3626331,
+      "sha256": "671882320ac5108469a018eceb1ed8f1516de36082c4bf26992abe189649d593"
+    },
+    {
+      "id": "manuals-008",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\Декл серт..pdf",
+      "path": "manuals/manuals-008.pdf",
+      "bytes": 5568263,
+      "sha256": "7d7bc1197f36f8a8842f54eeb391eff05f73c3980094b83762564345e3b7691f"
+    },
+    {
+      "id": "manuals-009",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\Инструкция по ЭиО.pdf",
+      "path": "manuals/manuals-009.pdf",
+      "bytes": 6973428,
+      "sha256": "849c350c671bee44438b0ca5c81a792a9197b408e10865e5ccf715fade9a0b3d"
+    },
+    {
+      "id": "manuals-010",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\Мотор-редукт. РП.pdf",
+      "path": "manuals/manuals-010.pdf",
+      "bytes": 16298891,
+      "sha256": "00ba1669e528cf0522a69950c765f81499941615e1a17a1acd4b770682ffab27"
+    },
+    {
+      "id": "manuals-011",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\ОЛ 0201.pdf",
+      "path": "manuals/manuals-011.pdf",
+      "bytes": 1710820,
+      "sha256": "5281c9696df905eee381c37586e61b3680beefd09299cc55e90b091b673b4dfe"
+    },
+    {
+      "id": "manuals-012",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\ОЛ 0601.pdf",
+      "path": "manuals/manuals-012.pdf",
+      "bytes": 1731865,
+      "sha256": "5106c481d3f5a6d52d3cffe83b942c5461db584bc46dbf1acc4cbdf1debd83ed"
+    },
+    {
+      "id": "manuals-013",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\Перечень док-ов.pdf",
+      "path": "manuals/manuals-013.pdf",
+      "bytes": 582506,
+      "sha256": "70031d5404b047ad384cbf43b006423dd4803078a6295b9a9d966b536d76857c"
+    },
+    {
+      "id": "manuals-014",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\Перечень смазочных мат-ов.pdf",
+      "path": "manuals/manuals-014.pdf",
+      "bytes": 314917,
+      "sha256": "f07eaf35add6f7e7de21b2fad853294a56208edd5744bdf5c772ca5fa2ef2f56"
+    },
+    {
+      "id": "manuals-015",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\Присоед. арматура Горэлтех.pdf",
+      "path": "manuals/manuals-015.pdf",
+      "bytes": 11577347,
+      "sha256": "521393c3b0b0ce489518f845946045f177343b5140aece2b962355bfef069be1"
+    },
+    {
+      "id": "manuals-016",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\РЭ ЭД.pdf",
+      "path": "manuals/manuals-016.pdf",
+      "bytes": 18177051,
+      "sha256": "c9f571c3ce269bd4f8f51cc2d1192efa934b8afe123c2e33dc05b88503df8366"
+    },
+    {
+      "id": "manuals-017",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\СБ, уст. чертеж и др..pdf",
+      "path": "manuals/manuals-017.pdf",
+      "bytes": 3170848,
+      "sha256": "97873cfade9866cad8e440b8bfc17e485e84a47a202386919bf6bc5c4d37d2fa"
+    },
+    {
+      "id": "manuals-018",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\Свид СИ, СС Элемер.pdf",
+      "path": "manuals/manuals-018.pdf",
+      "bytes": 11685765,
+      "sha256": "0fc19e5ef76cf6f37bcc3fef0f109d2b3d4d076abfa308cef27d212a0a24af7c"
+    },
+    {
+      "id": "manuals-019",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\Серты ЭД.pdf",
+      "path": "manuals/manuals-019.pdf",
+      "bytes": 2780004,
+      "sha256": "5ac8a6922547bb1aeaf15aec6c747c89446c48a4cdecd79fe45c18f64aff3bda"
+    },
+    {
+      "id": "manuals-020",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\doc-1794511614.pdf",
+      "path": "manuals/manuals-020.pdf",
+      "bytes": 84475,
+      "sha256": "8b57c9be7a9e05600aaa61cde7609e86b5c88f6d84937abe314f657cea7da885"
+    },
+    {
+      "id": "manuals-021",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\doc-1794511653.pdf",
+      "path": "manuals/manuals-021.pdf",
+      "bytes": 96756,
+      "sha256": "17943e0d384ab5fa1ff94991da60d0c0e54cd45a7a06b450a7b704ebb6894fb6"
+    },
+    {
+      "id": "manuals-022",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\doc-1794511717.pdf",
+      "path": "manuals/manuals-022.pdf",
+      "bytes": 116829,
+      "sha256": "3e71637dd5c829891b90fab00f4e34c53c40513657c3a448b931955569aa95be"
+    },
+    {
+      "id": "manuals-023",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\FCR-15-30.pdf",
+      "path": "manuals/manuals-023.pdf",
+      "bytes": 8424753,
+      "sha256": "a219e241fa1d6e7a8255edda32c37950dd05f79c3daa2583ee5413eea0ce3614"
+    },
+    {
+      "id": "manuals-024",
+      "category": "manuals",
+      "original_path": "Документация\\Паспорта насосов\\HF до 132 м3-час.pdf",
+      "path": "manuals/manuals-024.pdf",
+      "bytes": 2185238,
+      "sha256": "b7a6bca19162808516646747c6eef92c6c64333dacaff8a9a6947aaa3a0cb074"
+    },
+    {
+      "id": "valves-001",
+      "category": "valves",
+      "original_path": "Запорная арматура\\0831c2a9-3a2b-5bf7-b70f-05f1d51f5cdb (1).jpg",
+      "path": "valves/valves-001.jpg",
+      "bytes": 173336,
+      "sha256": "ee496a66f06fb3836f751c6c7a660b3ce81bd67819752825b73c1a6e513576b9"
+    },
+    {
+      "id": "valves-002",
+      "category": "valves",
+      "original_path": "Запорная арматура\\0831c2a9-3a2b-5bf7-b70f-05f1d51f5cdb.jpg",
+      "path": "valves/valves-002.jpg",
+      "bytes": 88168,
+      "sha256": "698a93dc21154d7c11debe06742364f542d72d5f1c89c7828ebe50c3e9fcf952"
+    },
+    {
+      "id": "valves-003",
+      "category": "valves",
+      "original_path": "Запорная арматура\\1396430378_7447321.jpg",
+      "path": "valves/valves-003.jpg",
+      "bytes": 363406,
+      "sha256": "f03b64891b7aff1c0a9f26af0bcc0ff00435fe463e2ed3f704b9198c31985e31"
+    },
+    {
+      "id": "valves-004",
+      "category": "valves",
+      "original_path": "Запорная арматура\\86.PNG",
+      "path": "valves/valves-004.png",
+      "bytes": 552108,
+      "sha256": "a5a84a17726e30fba6243ff50b167319cde07db962f6f361e9530739d2219827"
+    },
+    {
+      "id": "valves-005",
+      "category": "valves",
+      "original_path": "Запорная арматура\\Безымянный.png",
+      "path": "valves/valves-005.png",
+      "bytes": 2553135,
+      "sha256": "ca55cf27a82b27cc77088b16c18b40cfc775db1adb7e39de6d8c8526765f8468"
+    },
+    {
+      "id": "valves-006",
+      "category": "valves",
+      "original_path": "Запорная арматура\\cca9d029-459e-5007-8f88-181843ed8665.jpg",
+      "path": "valves/valves-006.jpg",
+      "bytes": 117733,
+      "sha256": "7af2112188e57a84ed661e7db14fccef83e36ff9c26c6e2ad0621603f98c3c5f"
+    },
+    {
+      "id": "valves-007",
+      "category": "valves",
+      "original_path": "Запорная арматура\\i.jpg",
+      "path": "valves/valves-007.jpg",
+      "bytes": 68756,
+      "sha256": "53f50d385dcbcd4b347fcf87d3bc6bd0183fcf6cbd095f892597e6959586c5e7"
+    },
+    {
+      "id": "valves-008",
+      "category": "valves",
+      "original_path": "Запорная арматура\\IMG_20160324_100411.jpg",
+      "path": "valves/valves-008.jpg",
+      "bytes": 504403,
+      "sha256": "1f024f723634d16ae7b7cabb234cb61d7e0b641a56b7843df0552846b6768d18"
+    },
+    {
+      "id": "valves-009",
+      "category": "valves",
+      "original_path": "Запорная арматура\\IMG_20261113_142550.jpg",
+      "path": "valves/valves-009.jpg",
+      "bytes": 24709,
+      "sha256": "a15c2435c8a622467b998fb2e207f36a5ba25480cb12da6e92cb494374a4f76f"
+    },
+    {
+      "id": "valves-010",
+      "category": "valves",
+      "original_path": "Запорная арматура\\IMG_20261113_142555.jpg",
+      "path": "valves/valves-010.jpg",
+      "bytes": 24920,
+      "sha256": "14cd271abc37ba4490131b9c763a8956dc5ae388cc5d5585906b3235d1bee744"
+    },
+    {
+      "id": "pumps-001",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\16c811b0db124c77b276a1a06bc1d3fb.png",
+      "path": "pumps/pumps-001.png",
+      "bytes": 6907700,
+      "sha256": "3507af9c911f7050e8e37c8b2daf2d4d3d71a167555dcddd3fb9e85e5e1e1d71"
+    },
+    {
+      "id": "pumps-002",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\2c510abd88b648efb8841d297d432aee.png",
+      "path": "pumps/pumps-002.png",
+      "bytes": 6441117,
+      "sha256": "567fa79a755b5934a5b4d32654818b4ba7bb91930f4512bcc3dbddae183677cc"
+    },
+    {
+      "id": "pumps-003",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\4.jpg",
+      "path": "pumps/pumps-003.jpg",
+      "bytes": 97208,
+      "sha256": "5eb24913f1ef45f2b4584288d5545ce3800aeea121626de4f05d856cedd0abfc"
+    },
+    {
+      "id": "pumps-004",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\60cb39e72d7e4bc38d47e945b66900f8.png",
+      "path": "pumps/pumps-004.png",
+      "bytes": 6297627,
+      "sha256": "6a9d2157b9a15b96874dc136550e292b15d5ebf223fcd94e907fff57c1d92689"
+    },
+    {
+      "id": "pumps-005",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\6bd1015378aa4382aedc45fe4b7adda4.png",
+      "path": "pumps/pumps-005.png",
+      "bytes": 9648062,
+      "sha256": "2980cdb77858b89ea26519e0ffa1f1c5376baeda1a716e14deac1a242d169f6d"
+    },
+    {
+      "id": "pumps-006",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\Безымянный.png",
+      "path": "pumps/pumps-006.png",
+      "bytes": 2853406,
+      "sha256": "d317e2910bbebda76780ed9402787730e82ca4224cb4904e3f492033ab43cb82"
+    },
+    {
+      "id": "pumps-007",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\насос.jpg",
+      "path": "pumps/pumps-007.jpg",
+      "bytes": 70951,
+      "sha256": "ce78c2426a2f2fff425ffdbbb5ec2835f4537236149f47b9343128cc042cb81f"
+    },
+    {
+      "id": "pumps-008",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\Сниимок.PNG",
+      "path": "pumps/pumps-008.png",
+      "bytes": 1392855,
+      "sha256": "dc49dd254b4cb1b86cd9d3d142afce15d2d028d5ef72c09bac000fa32325ef02"
+    },
+    {
+      "id": "pumps-009",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\Снимок.PNG",
+      "path": "pumps/pumps-009.png",
+      "bytes": 290287,
+      "sha256": "de8ebcd5f6a66ddff79d2d8946caf74438cc3f2208da67f6ea25a1ade10c6b22"
+    },
+    {
+      "id": "pumps-010",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\Снимок1.PNG",
+      "path": "pumps/pumps-010.png",
+      "bytes": 255579,
+      "sha256": "e6a09635a6c429e76a17f380d62d613d8855d1b75ff1ccf0dadad67b0ceb13b1"
+    },
+    {
+      "id": "pumps-011",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\IMG_20160324_100411.jpg",
+      "path": "pumps/pumps-011.jpg",
+      "bytes": 504403,
+      "sha256": "1f024f723634d16ae7b7cabb234cb61d7e0b641a56b7843df0552846b6768d18"
+    },
+    {
+      "id": "pumps-012",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\kavitacija2.jpg",
+      "path": "pumps/pumps-012.jpg",
+      "bytes": 164234,
+      "sha256": "d91fbbc53316c320e36a29f55de80836e5acc06b538539421e74a1910ac65676"
+    },
+    {
+      "id": "pumps-013",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\obsledovanie-hvs-gvs-2.jpg",
+      "path": "pumps/pumps-013.jpg",
+      "bytes": 188744,
+      "sha256": "c02b8a5466056c6b8e0f3890e6d496d6dafc05571271dc1400d7c293cff75118"
+    },
+    {
+      "id": "pumps-014",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\photo_2026-11-13_12-46-46.jpg",
+      "path": "pumps/pumps-014.jpg",
+      "bytes": 78921,
+      "sha256": "15077563c3e0089bbff8d56388e7382336dcb242719dd0273f836c5ca5c0fdb8"
+    },
+    {
+      "id": "pumps-015",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\photo_2026-11-13_12-48-02.jpg",
+      "path": "pumps/pumps-015.jpg",
+      "bytes": 243104,
+      "sha256": "58333a366f2c532ef3ee231474678a434b96e6904340b0dee7e7ed7cf313f222"
+    },
+    {
+      "id": "pumps-016",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\photo_2026-11-13_12-48-03.jpg",
+      "path": "pumps/pumps-016.jpg",
+      "bytes": 189905,
+      "sha256": "c95e38d1b45c42b74f366fd92e3fdc7d9555d5a144d4f403abe1dfbffc6eb0fa"
+    },
+    {
+      "id": "pumps-017",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\photo_2026-11-13_12-48-48.jpg",
+      "path": "pumps/pumps-017.jpg",
+      "bytes": 168386,
+      "sha256": "e27eedbc8c46298594a43c944da867ac52064ca40994be7689b3887cdc64ad05"
+    },
+    {
+      "id": "pumps-018",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\photo_2026-11-13_12-51-10 (2).jpg",
+      "path": "pumps/pumps-018.jpg",
+      "bytes": 21884,
+      "sha256": "64046245895bb5429b2975970cd70cbde7546682f28818eaf7c6515b610ebac2"
+    },
+    {
+      "id": "pumps-019",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\photo_2026-11-13_12-51-10.jpg",
+      "path": "pumps/pumps-019.jpg",
+      "bytes": 30834,
+      "sha256": "66b2015378463cc783587aafc9f799167a90334deeaa1aa63262cb9a005ddb24"
+    },
+    {
+      "id": "pumps-020",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\photo_2026-11-13_12-53-12.jpg",
+      "path": "pumps/pumps-020.jpg",
+      "bytes": 48711,
+      "sha256": "0673344a7722d1e33ffeec7144546f0ef4521ddad7f9c0f1d83dc0c96b3e33ce"
+    },
+    {
+      "id": "pumps-021",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\silnaja-korrozija-1-450x338.jpg",
+      "path": "pumps/pumps-021.jpg",
+      "bytes": 28701,
+      "sha256": "e021f7ab1445594ca932f677caaeb0d6bce8ff480cac87b8c25c94c6247e5c12"
+    },
+    {
+      "id": "pumps-022",
+      "category": "pumps",
+      "original_path": "Насосные агрегаты\\td_010_02.png",
+      "path": "pumps/pumps-022.png",
+      "bytes": 418237,
+      "sha256": "a7c7393da86cd60a9c883c8372f4b42c6fbb11c647f7f1a5694fc0c5ae03314f"
+    },
+    {
+      "id": "temperature-001",
+      "category": "temperature",
+      "original_path": "Температура\\БД значений (температура).xlsx",
+      "path": "temperature/temperature-001.xlsx",
+      "bytes": 19994,
+      "sha256": "6152e172292429995640b7d148892cf4d89b61d2a04b949671aca6079589de7f"
+    },
+    {
+      "id": "temperature-002",
+      "category": "temperature",
+      "original_path": "Температура\\Описание БД (температура).docx",
+      "path": "temperature/temperature-002.docx",
+      "bytes": 16221,
+      "sha256": "3ba8750a71da6e1a96037530bdc920d9ad0ca2c971f984560db693819a962c72"
+    },
+    {
+      "id": "guides-001",
+      "category": "guides",
+      "original_path": "Типы дефектов промышленного оборудования.docx",
+      "path": "guides/guides-001.docx",
+      "bytes": 18515,
+      "sha256": "b3543ccef7d429fe5a64baf063d3c30e7a8310cf8a0db1b529964e80fce8ef5b"
+    },
+    {
+      "id": "pipes-001",
+      "category": "pipes",
+      "original_path": "Трубопровод\\1corrsia.jpg",
+      "path": "pipes/pipes-001.jpg",
+      "bytes": 40654,
+      "sha256": "1295467678396b402d263c96f506508b9c097d4b8e3533e1fbdc4a573257611b"
+    },
+    {
+      "id": "pipes-002",
+      "category": "pipes",
+      "original_path": "Трубопровод\\354c86b2f75e35fdf90ce044cf02d997-big.jpg",
+      "path": "pipes/pipes-002.jpg",
+      "bytes": 93135,
+      "sha256": "50ad685c58570cf8e12ff2eda16394eaafe4da1fb42586bbed3b856bf83722be"
+    },
+    {
+      "id": "pipes-003",
+      "category": "pipes",
+      "original_path": "Трубопровод\\IMG_20261113_143107.jpg",
+      "path": "pipes/pipes-003.jpg",
+      "bytes": 114174,
+      "sha256": "f633d086f1c156f112d37b1c1625bbbf98b2f826d75112859db83077e3b372f8"
+    },
+    {
+      "id": "pipes-004",
+      "category": "pipes",
+      "original_path": "Трубопровод\\IMG_20261113_143112.jpg",
+      "path": "pipes/pipes-004.jpg",
+      "bytes": 29378,
+      "sha256": "8ceb225d07663c1463ca7ca4e3ab27da2b155b00ec54abfc2765ea607e0d1826"
+    },
+    {
+      "id": "pipes-005",
+      "category": "pipes",
+      "original_path": "Трубопровод\\IMG_20261113_143116.jpg",
+      "path": "pipes/pipes-005.jpg",
+      "bytes": 27798,
+      "sha256": "3701f10352453cc4d80e7a4105f63be05075ad4588737a3c201f0bcf757fc2fd"
+    },
+    {
+      "id": "pipes-006",
+      "category": "pipes",
+      "original_path": "Трубопровод\\IMG_20261113_143119.jpg",
+      "path": "pipes/pipes-006.jpg",
+      "bytes": 34510,
+      "sha256": "ada68e97fe73013b6a1cc0d63056c41575bb647233320c12621b3a595521eebe"
+    },
+    {
+      "id": "pipes-007",
+      "category": "pipes",
+      "original_path": "Трубопровод\\korroziya.png",
+      "path": "pipes/pipes-007.png",
+      "bytes": 1333281,
+      "sha256": "594db51115e3091c6c07a6a73483632c9a7d14b8a1116896603c6cc780e16320"
+    },
+    {
+      "id": "pipes-008",
+      "category": "pipes",
+      "original_path": "Трубопровод\\Photo-9-Mechanically-Damaged-Insulation-on-Chilled-Water-Pipe.jpg",
+      "path": "pipes/pipes-008.jpg",
+      "bytes": 42548,
+      "sha256": "a5f51cc8f99b81c86d9db183321ef2cafe1c413c662debd49877514294f45982"
+    },
+    {
+      "id": "pipes-009",
+      "category": "pipes",
+      "original_path": "Трубопровод\\stock-photo-corroded-flanged-joint-with-peeling-paint-and-oxidation-2738414417.jpg",
+      "path": "pipes/pipes-009.jpg",
+      "bytes": 410911,
+      "sha256": "d21be26baae4080bcc20937084c493f4386885a6d6e66e93665ad447fdba6132"
+    },
+    {
+      "id": "pipes-010",
+      "category": "pipes",
+      "original_path": "Трубопровод\\stock-photo-corroded-industrial-water-pump-flange-joint-covered-in-heavy-mineral-salt-2840981719.jpg",
+      "path": "pipes/pipes-010.jpg",
+      "bytes": 458146,
+      "sha256": "2dd70a93993526adc47fc6f31a4d9c68361b9dc18ed1fc390aa8531ddd8fe903"
+    },
+    {
+      "id": "pipes-011",
+      "category": "pipes",
+      "original_path": "Трубопровод\\stock-photo-rusty-industrial-pipe-and-flange-connection-this-rusty-industrial-pipe-and-flange-connection-2733059369.jpg",
+      "path": "pipes/pipes-011.jpg",
+      "bytes": 289895,
+      "sha256": "6405f1312aad622a865b4ca06479e48cd8d6a1efb8761cd60bae4cf6f16df691"
+    },
+    {
+      "id": "pipes-012",
+      "category": "pipes",
+      "original_path": "Трубопровод\\unnamed.jpg",
+      "path": "pipes/pipes-012.jpg",
+      "bytes": 484668,
+      "sha256": "4450a2c8b9221c448ac3ba42196f77225f217a2da09f2ed100c804879d23dbd1"
+    },
+    {
+      "id": "motors-001",
+      "category": "motors",
+      "original_path": "ЭД\\1.PNG",
+      "path": "motors/motors-001.png",
+      "bytes": 885442,
+      "sha256": "c7505d376d4fb0618aea1a79b1e779ee84f2a3574875d151aa6ad09a4c0ba5d9"
+    },
+    {
+      "id": "motors-002",
+      "category": "motors",
+      "original_path": "ЭД\\3.PNG",
+      "path": "motors/motors-002.png",
+      "bytes": 1292419,
+      "sha256": "e202239dadb60ce27119f4c8e8d8b1695e361dceaf67ae0ee1f1daeaf73c5ddc"
+    },
+    {
+      "id": "motors-003",
+      "category": "motors",
+      "original_path": "ЭД\\55.PNG",
+      "path": "motors/motors-003.png",
+      "bytes": 142852,
+      "sha256": "e42ed4736db10d26665522ddd3cf17adbfc325e6fcfe1e4ffe521a6f3556e93b"
+    },
+    {
+      "id": "motors-004",
+      "category": "motors",
+      "original_path": "ЭД\\65d7bec338d641b8ab2a8718af266a74.png",
+      "path": "motors/motors-004.png",
+      "bytes": 8024831,
+      "sha256": "36d5f3bf309975cafdcd38aaaac13ffca39378c11357706405d801f60162343c"
+    },
+    {
+      "id": "motors-005",
+      "category": "motors",
+      "original_path": "ЭД\\66.PNG",
+      "path": "motors/motors-005.png",
+      "bytes": 1389446,
+      "sha256": "521e3d591fb0169c06dc672cea4cdccb052186d98651f4c7a958a969785ad2d9"
+    },
+    {
+      "id": "motors-006",
+      "category": "motors",
+      "original_path": "ЭД\\8.PNG",
+      "path": "motors/motors-006.png",
+      "bytes": 441231,
+      "sha256": "2683c1cf1fd29b764d3a8ee86d9461cce6b8659c91beb98aae8b43c85f196247"
+    },
+    {
+      "id": "motors-007",
+      "category": "motors",
+      "original_path": "ЭД\\81316b33970247cdbc980ceccd88cb9a.png",
+      "path": "motors/motors-007.png",
+      "bytes": 7499892,
+      "sha256": "c9aaaba9412ed0cba57625bd00f46427a9258f6c8c6090132bdd53a35c28624b"
+    },
+    {
+      "id": "motors-008",
+      "category": "motors",
+      "original_path": "ЭД\\Снимок.PNG",
+      "path": "motors/motors-008.png",
+      "bytes": 1063093,
+      "sha256": "25f2b4b6d8ad6e9140c49f01d644fadb7231b54fc97fba2146dc53d843964a23"
+    },
+    {
+      "id": "motors-009",
+      "category": "motors",
+      "original_path": "ЭД\\эд.PNG",
+      "path": "motors/motors-009.png",
+      "bytes": 1222680,
+      "sha256": "36d5ae35ece35071a773ab9c641cba87c4c57c73ac84a9a2b2318bb4dcc8dfdd"
+    },
+    {
+      "id": "motors-010",
+      "category": "motors",
+      "original_path": "ЭД\\эдд.PNG",
+      "path": "motors/motors-010.png",
+      "bytes": 1197151,
+      "sha256": "6bffa98c3910c7bd5533abd75bef648d17c526477111724168f852a34cc9a5a0"
+    },
+    {
+      "id": "motors-011",
+      "category": "motors",
+      "original_path": "ЭД\\IMG_20261113_142620.jpg",
+      "path": "motors/motors-011.jpg",
+      "bytes": 24922,
+      "sha256": "3f05ed43177f0d16004e70fe0fa1550d38db6c9cbde6f2aff2b6c1972299e2cd"
+    }
+  ],
+  "imported_source_ids": [
+    "vibration-001",
+    "vibration-002",
+    "temperature-001",
+    "temperature-002"
+  ],
+  "series": [
+    {
+      "id": "vibration-001",
+      "title": "Вибрация · данные организатора",
+      "category": "vibration",
+      "source": "reference",
+      "equipment_id": null,
+      "channels": [
+        {
+          "key": "rpm",
+          "label": "Обороты (об/мин)",
+          "unit": "rpm",
+          "raw_header": "Обороты (об/мин)"
+        },
+        {
+          "key": "vibration",
+          "label": "СКЗ общее (мм/с)",
+          "unit": "mm/s",
+          "raw_header": "СКЗ общее (мм/с)"
+        },
+        {
+          "key": "vibration_1x",
+          "label": "Ампл. 1x (мм/с)",
+          "unit": "mm/s",
+          "raw_header": "Ампл. 1x (мм/с)"
+        },
+        {
+          "key": "vibration_2x",
+          "label": "Ампл. 2x (мм/с)",
+          "unit": "mm/s",
+          "raw_header": "Ампл. 2x (мм/с)"
+        },
+        {
+          "key": "high_frequency_acceleration_g",
+          "label": "ВЧ шум (g)",
+          "unit": "g",
+          "raw_header": "ВЧ шум (g)"
+        }
+      ],
+      "record_count": 500,
+      "sheet": "Вибрация",
+      "source_time": {
+        "first_raw": "2026-11-10 08:00",
+        "last_raw": "2026-12-01 03:00",
+        "first": "2026-11-10T08:00:00",
+        "last": "2026-12-01T03:00:00",
+        "timezone": null,
+        "time_basis": "floating_local_unknown_timezone",
+        "sample_interval_seconds": 3600.0,
+        "observed_intervals_seconds": [
+          3600.0
+        ],
+        "missing_timestamp_count": 0
+      },
+      "provenance": {
+        "id": "vibration-001",
+        "category": "vibration",
+        "original_path": "Вибрация\\БД значений (вибрация).xlsx",
+        "path": "vibration/vibration-001.xlsx",
+        "bytes": 24161,
+        "sha256": "a744dbaa8780bfac7c650e3e82449e6e844a6b73984a3a0625aecf7073a8e525"
+      },
+      "limitations": [
+        "Идентификатор оборудования в таблице отсутствует; принадлежность серии конкретному насосу не подтверждена.",
+        "Серии вибрации и температуры независимы: совпадение даты, номера строки или RPM не подтверждает общий агрегат.",
+        "Часовой пояс исходных строк неизвестен. UTC в телеметрии — техническая координата floating clock для расчёта, а не установленный часовой пояс измерений.",
+        "Часовой шаг сохраняется. Такие записи не дают трёх измерений в десятиминутном окне демонстрационных трендов.",
+        "Исходный диагноз — пометка организатора; он не подтверждает визуальный осмотр и не становится наблюдением системы.",
+        "Недоступные датчики, визуальные признаки, наработка и подтверждённые базовые значения остаются неизвестными.",
+        "Уставки DOCX хранятся отдельно как справочные данные и не заменяют демонстрационные правила или паспортные уставки.",
+        "ВЧ шум измерен как ускорение в g; его нельзя подставлять в канал ВЧ виброскорости в мм/с. Амплитуды 1x/2x не задают осевое направление датчика."
+      ],
+      "data_file": "vibration-001.json"
+    },
+    {
+      "id": "temperature-001",
+      "title": "Температура · данные организатора",
+      "category": "temperature",
+      "source": "reference",
+      "equipment_id": null,
+      "channels": [
+        {
+          "key": "rpm",
+          "label": "Обороты (об/мин)",
+          "unit": "rpm",
+          "raw_header": "Обороты (об/мин)"
+        },
+        {
+          "key": "temperature",
+          "label": "Темп. подшипника насоса (°C)",
+          "unit": "degC",
+          "raw_header": "Темп. подшипника насоса (°C)"
+        },
+        {
+          "key": "winding_temperature",
+          "label": "Темп. обмоток ЭД (°C)",
+          "unit": "degC",
+          "raw_header": "Темп. обмоток ЭД (°C)"
+        }
+      ],
+      "record_count": 500,
+      "sheet": "Термометрия",
+      "source_time": {
+        "first_raw": "2026-11-10 08:00",
+        "last_raw": "2026-12-01 03:00",
+        "first": "2026-11-10T08:00:00",
+        "last": "2026-12-01T03:00:00",
+        "timezone": null,
+        "time_basis": "floating_local_unknown_timezone",
+        "sample_interval_seconds": 3600.0,
+        "observed_intervals_seconds": [
+          3600.0
+        ],
+        "missing_timestamp_count": 0
+      },
+      "provenance": {
+        "id": "temperature-001",
+        "category": "temperature",
+        "original_path": "Температура\\БД значений (температура).xlsx",
+        "path": "temperature/temperature-001.xlsx",
+        "bytes": 19994,
+        "sha256": "6152e172292429995640b7d148892cf4d89b61d2a04b949671aca6079589de7f"
+      },
+      "limitations": [
+        "Идентификатор оборудования в таблице отсутствует; принадлежность серии конкретному насосу не подтверждена.",
+        "Серии вибрации и температуры независимы: совпадение даты, номера строки или RPM не подтверждает общий агрегат.",
+        "Часовой пояс исходных строк неизвестен. UTC в телеметрии — техническая координата floating clock для расчёта, а не установленный часовой пояс измерений.",
+        "Часовой шаг сохраняется. Такие записи не дают трёх измерений в десятиминутном окне демонстрационных трендов.",
+        "Исходный диагноз — пометка организатора; он не подтверждает визуальный осмотр и не становится наблюдением системы.",
+        "Недоступные датчики, визуальные признаки, наработка и подтверждённые базовые значения остаются неизвестными.",
+        "Уставки DOCX хранятся отдельно как справочные данные и не заменяют демонстрационные правила или паспортные уставки.",
+        "Температура подшипника насоса и температура обмоток двигателя — отдельные каналы; температура обмоток не заменяет температуру корпуса двигателя."
+      ],
+      "data_file": "temperature-001.json"
+    }
+  ],
+  "thresholds_file": "reference-thresholds.json"
+}

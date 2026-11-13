@@ -1,0 +1,18 @@
+{
+  "source": "Original code-generated schematic, not a real equipment photograph",
+  "license": "Project original asset",
+  "images": [
+    {
+      "id": "normal",
+      "expected": "guard present; no liquid shown"
+    },
+    {
+      "id": "guard-missing",
+      "expected": "coupling guard omitted; shaft visible"
+    },
+    {
+      "id": "leak",
+      "expected": "liquid drawn at seal; guard present"
+    }
+  ]
+}

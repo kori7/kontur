@@ -1,0 +1,23 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>КОНТУР · AR-стенд</title>
+<style>body{margin:0;font-family:system-ui;color:#fff;background:#152b23;overflow:hidden}#notice{position:fixed;inset:12px 12px auto;z-index:20;background:#153e31e8;border:1px solid #789982;border-radius:8px;padding:12px 16px;font-size:13px;line-height:1.7}#detail{position:fixed;bottom:14px;left:14px;right:14px;z-index:20;background:#fff;color:#234834;padding:12px 16px;border-radius:8px;font-size:13px;display:none}#open-camera{margin-top:9px;border:0;border-radius:5px;background:#fff;color:#214e37;padding:8px 13px;cursor:pointer}</style></head><body>
+<div id="notice">AR-метки привязаны к маркеру Hiro демонстрационного стенда.<br><button id="open-camera">Включить AR-камеру</button></div><div id="detail"></div>
+<script>
+const notice=document.getElementById('notice');
+document.getElementById('open-camera').onclick=async()=>{
+ if(!navigator.mediaDevices?.getUserMedia){notice.textContent='Камера требует HTTPS или localhost. Откройте приложение по защищённому адресу.';return;}
+ notice.textContent='Подключаем камеру…';
+ function load(src){return new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=reject;document.head.appendChild(script);});}
+ try{
+  await load('/vendor/aframe.min.js');await load('/vendor/aframe-ar.js');
+  let highlights=[];try{highlights=JSON.parse(new URLSearchParams(location.search).get('highlights')||'[]');}catch{}
+  const scene=document.createElement('a-scene');scene.setAttribute('embedded','');scene.setAttribute('vr-mode-ui','enabled: false');scene.setAttribute('renderer','antialias: true; alpha: true');scene.setAttribute('arjs','sourceType: webcam; debugUIEnabled: false; cameraParametersUrl: /vendor/camera_para.dat;');
+  const marker=document.createElement('a-marker');marker.setAttribute('type','pattern');marker.setAttribute('url','/vendor/patt.hiro');marker.setAttribute('emitevents','true');
+  const nodes=[['motor','Электродвигатель',-.65,-1.74],['guard','Кожух муфты',.61,-1.74],['bearing','Подшипниковый узел',1.28,-1.74],['seal','Уплотнение',1.61,-1.74],['base','Рама и крепление',-.22,-1.20],['gauge','Манометр',1.96,-2.64],['inlet','Всасывающая линия',2.85,-1.75],['coupling','Муфта',.61,-1.48],['impeller','Рабочее колесо (зона корпуса)',2.08,-1.74],['pump','Насосный агрегат (регламент)',.8,-.94]];
+  nodes.forEach(([id,label,x,z])=>{const status=highlights.find(item=>item.id===id)?.severity;const entity=document.createElement('a-sphere');entity.setAttribute('position',`${x} .06 ${z}`);entity.setAttribute('radius','.075');entity.setAttribute('color',status==='critical'?'#e35c45':status==='warning'?'#e9b24c':'#65b785');entity.setAttribute('class','target');entity.addEventListener('click',()=>{const detail=document.getElementById('detail');detail.textContent=label+(status?' · Требуется проверка. ':' · Узел демонстрационного стенда. ');const link=document.createElement('a');link.href='/?component='+encodeURIComponent(id);link.target='_top';link.textContent='Открыть цифровую карточку';detail.appendChild(link);detail.style.display='block';if(parent!==window)parent.postMessage({type:'kontur-component',id},location.origin);});marker.appendChild(entity);});
+  scene.appendChild(marker);const camera=document.createElement('a-entity');camera.setAttribute('camera','');camera.setAttribute('cursor','rayOrigin: mouse');camera.setAttribute('raycaster','objects: .target');scene.appendChild(camera);
+  marker.addEventListener('markerFound',()=>{notice.textContent='Маркер найден · метки соответствуют узлам демонстрационной схемы';});
+  marker.addEventListener('markerLost',()=>{notice.textContent='Маркер потерян · наведите камеру на Hiro';document.getElementById('detail').style.display='none';});
+  window.addEventListener('camera-error',()=>{notice.textContent='Камера недоступна. Проверьте разрешение и защищённый адрес.';});document.body.appendChild(scene);notice.textContent='Наведите камеру на маркер Hiro. Нажмите на метку для названия узла.';
+ }catch{notice.textContent='Не удалось загрузить AR-модуль. Используйте анализ снимка.';}
+};
+</script></body></html>
