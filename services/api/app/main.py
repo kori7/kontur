@@ -12,9 +12,9 @@ from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from app.catalog import DEMO_ID, card, component_ids, equipment_type_of, list_catalog
 from app.demo import get_scenario, get_scenarios
 from app.diagnostics.engine import evaluate
-from app.equipment import COMPONENT_IDS, equipment_card
 from app.storage import Store
 from app.vision import VISUAL_COMPONENTS, VisionClient, VisionError, validate_image
 
@@ -30,7 +30,8 @@ class ManualObservation(BaseModel):
 
 
 class AnalyzeRequest(BaseModel):
-    scenario_id: str = Field(default="normal", max_length=50)
+    equipment_id: str = Field(default=DEMO_ID, max_length=60)
+    scenario_id: str | None = Field(default="normal", max_length=50)
     observations: list[ManualObservation] = Field(default_factory=list, max_length=15)
     vision_id: str | None = None
     image: str | None = Field(default=None, max_length=8_000_000)
@@ -38,6 +39,7 @@ class AnalyzeRequest(BaseModel):
 
 class EventRequest(BaseModel):
     analysis_id: str = Field(max_length=50)
+    equipment_id: str = Field(default=DEMO_ID, max_length=60)
     component_id: str = Field(max_length=30)
     action: Literal["inspection", "defect", "maintenance", "replacement"]
     notes: str = Field(default="", max_length=2000)
@@ -60,7 +62,8 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
 
     @app.get("/api/bootstrap")
     def bootstrap():
-        return {"equipment": equipment_card(store.events()), "scenarios": get_scenarios(),
+        return {"catalog": list_catalog(), "equipment": card(DEMO_ID, store.events(DEMO_ID)),
+                "scenarios": get_scenarios(),
                 "vision": {"configured": True, "model": vision.model, "offline": True,
                            "provider": "llama.cpp · локальный сервер", "supported": list(VISUAL_COMPONENTS)}}
 
@@ -68,17 +71,42 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
     async def vision_status():
         return await vision.status()
 
+    @app.get("/api/catalog")
+    def catalog():
+        return list_catalog()
+
     @app.get("/api/equipment")
     def equipment():
-        return equipment_card(store.events())
+        return card(DEMO_ID, store.events(DEMO_ID))
+
+    @app.get("/api/equipment/{equipment_id}")
+    def equipment_by_id(equipment_id: str):
+        try:
+            return card(equipment_id, store.events(equipment_id))
+        except KeyError as exc:
+            raise HTTPException(404, "Объект не найден в каталоге") from exc
 
     @app.post("/api/analyze")
     def analyze(request: AnalyzeRequest):
         try:
-            scenario = get_scenario(request.scenario_id)
-        except (KeyError, ValueError) as exc:
-            raise HTTPException(404, "Сценарий не найден") from exc
-        observations = list(scenario["observations"])
+            target = card(request.equipment_id)
+            components = component_ids(request.equipment_id)
+            equipment_type = equipment_type_of(request.equipment_id)
+        except KeyError as exc:
+            raise HTTPException(404, "Объект не найден в каталоге") from exc
+        if not target["inspectable"]:
+            raise HTTPException(422, "Это позиция по проекту, а не отдельная машина. "
+                                     "Выберите объект с серийным номером.")
+        if request.scenario_id is not None and not target["scenarios_available"]:
+            raise HTTPException(422, "Демонстрационные сценарии принадлежат объекту pump-101. "
+                                     "Их телеметрию нельзя приписывать другому оборудованию.")
+        scenario = None
+        if request.scenario_id is not None:
+            try:
+                scenario = get_scenario(request.scenario_id)
+            except (KeyError, ValueError) as exc:
+                raise HTTPException(404, "Сценарий не найден") from exc
+        observations = list(scenario["observations"]) if scenario else []
         image_id = None
         if request.image:
             try:
@@ -98,14 +126,20 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
             image_id = saved.get("image_id", image_id)
         now = datetime.now(timezone.utc).isoformat()
         for item in request.observations:
+            component = observation_components[item.kind]
+            if component not in components:
+                raise HTTPException(422, f"Наблюдение «{item.kind}» относится к узлу «{component}», "
+                                         f"которого нет в составе типа «{target['type_name']}». "
+                                         "Словарь ручных наблюдений описан для центробежного агрегата.")
             observations = [old for old in observations if old["kind"] != item.kind]
             observed_at = item.timestamp.isoformat() if item.timestamp else now
             observations.append({**item.model_dump(mode="json"), "source": "manual", "timestamp": observed_at,
-                                 "component_id": observation_components[item.kind]})
-        telemetry = scenario["telemetry"]
-        # Only whole-aggregate maintenance updates the aggregate service counter.
+                                 "component_id": component})
+        telemetry = scenario["telemetry"] if scenario else {"source": "manual", "samples": [],
+                                                           "runtime_hours": None, "last_service_hours": None}
+        # Only whole-aggregate maintenance of this same object updates its service counter.
         runtime = telemetry.get("runtime_hours")
-        maintenance = next((event for event in store.events()
+        maintenance = next((event for event in store.events(request.equipment_id)
                             if event["component_id"] == "pump" and event["action"] == "maintenance"
                             and isinstance(runtime, (int, float))
                             and isinstance(event["analysis"].get("telemetry", {}).get("runtime_hours"), (int, float))
@@ -113,27 +147,37 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
         if maintenance:
             telemetry["last_service_hours"] = max(telemetry["last_service_hours"] or 0,
                                                   maintenance["analysis"]["telemetry"]["runtime_hours"])
-        return store.save_analysis({"type": "inspection", "scenario_id": scenario["id"],
-                                    "scenario_title": scenario["title"], "telemetry": telemetry,
+        return store.save_analysis({"type": "inspection", "equipment_id": request.equipment_id,
+                                    "equipment_type": equipment_type,
+                                    "scenario_id": scenario["id"] if scenario else None,
+                                    "scenario_title": scenario["title"] if scenario else "Осмотр без телеметрии",
+                                    "telemetry": telemetry,
                                     "observations": observations, "vision_id": request.vision_id, "image_id": image_id,
-                                    "evaluation": evaluate(telemetry, observations)})
+                                    "evaluation": evaluate(telemetry, observations, equipment_type=equipment_type)})
 
     @app.get("/api/inspections")
-    def history():
-        return store.events()
+    def history(equipment_id: str | None = None):
+        return store.events(equipment_id)
 
     @app.post("/api/inspections", status_code=201)
     def save_event(request: EventRequest):
-        if request.component_id not in COMPONENT_IDS:
+        try:
+            components = component_ids(request.equipment_id)
+        except KeyError as exc:
+            raise HTTPException(404, "Объект не найден в каталоге") from exc
+        if request.component_id not in components:
             raise HTTPException(422, "Неизвестный компонент")
         try:
             run = store.analysis(request.analysis_id)
-            if run.get("type") != "inspection":
-                raise HTTPException(422, "Сначала выполните диагностику оборудования")
-            return store.add_event(request.analysis_id, request.component_id, request.action,
-                                   request.notes.strip(), request.author.strip())
         except KeyError as exc:
             raise HTTPException(404, "Исходный осмотр не найден") from exc
+        if run.get("type") != "inspection":
+            raise HTTPException(422, "Сначала выполните диагностику оборудования")
+        if run.get("equipment_id", DEMO_ID) != request.equipment_id:
+            raise HTTPException(422, "Осмотр относится к другому объекту: "
+                                     "историю разных объектов смешивать нельзя.")
+        return store.add_event(request.analysis_id, request.equipment_id, request.component_id,
+                               request.action, request.notes.strip(), request.author.strip())
 
     @app.post("/api/vision")
     async def analyze_image(request: ImageRequest):

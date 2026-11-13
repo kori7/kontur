@@ -34,6 +34,7 @@ import type {
   Alert,
   Analysis,
   Bootstrap,
+  Equipment,
   InspectionEvent,
   VisionResult,
 } from "./types";
@@ -85,6 +86,8 @@ const metrics = [
 
 export default function App() {
   const [bootstrap, setBootstrap] = useState<Bootstrap | null>(null);
+  const [equipmentId, setEquipmentId] = useState("pump-101");
+  const [equipment, setEquipment] = useState<Equipment | null>(null);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [screen, setScreen] = useState<Screen>("overview");
   const [dialog, setDialog] = useState<Dialog>(null);
@@ -108,12 +111,13 @@ export default function App() {
     let active = true;
     Promise.all([
       request<Bootstrap>("/bootstrap"),
-      request<Analysis>("/analyze", { scenario_id: "normal" }),
-      request<InspectionEvent[]>("/inspections"),
+      request<Analysis>("/analyze", { equipment_id: "pump-101", scenario_id: "normal" }),
+      request<InspectionEvent[]>("/inspections?equipment_id=pump-101"),
     ])
       .then(([config, initial, history]) => {
         if (active) {
           setBootstrap(config);
+          setEquipment(config.equipment);
           setAnalysis(initial);
           setEvents(history);
           const requestedComponent = new URLSearchParams(location.search).get('component');
@@ -133,6 +137,45 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [toast]);
 
+  async function selectEquipment(nextId: string) {
+    if (nextId === equipmentId) return;
+    setBusy(true);
+    setError("");
+    try {
+      const target = await request<Equipment>(`/equipment/${nextId}`);
+      if (!target.inspectable) {
+        setToast(
+          "Это позиция по проекту, а не отдельная машина. Осмотр ведётся по серийному номеру.",
+        );
+        return;
+      }
+      const nextScenario = target.scenarios_available ? "normal" : null;
+      const [run, history] = await Promise.all([
+        request<Analysis>("/analyze", {
+          equipment_id: nextId,
+          scenario_id: nextScenario,
+        }),
+        request<InspectionEvent[]>(
+          `/inspections?equipment_id=${encodeURIComponent(nextId)}`,
+        ),
+      ]);
+      setEquipment(target);
+      setEquipmentId(nextId);
+      setAnalysis(run);
+      setEvents(history);
+      setScenario(nextScenario ?? "");
+      setPendingScenario("normal");
+      setSelected(null);
+      setVision(null);
+      setInspectionImage(null);
+      setRecordComponent(target.components[0]?.id ?? "");
+      setScreen("overview");
+    } catch (cause) {
+      setError((cause as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
   async function analyze(
     nextScenario: string,
     nextVision?: VisionResult,
@@ -148,7 +191,8 @@ export default function App() {
             ) ?? [])
           : [];
       const run = await request<Analysis>("/analyze", {
-        scenario_id: nextScenario,
+        equipment_id: equipmentId,
+        scenario_id: equipment?.scenarios_available ? nextScenario : null,
         vision_id: nextVision?.id,
         observations: [...previousManual, ...(manual ? [manual] : [])],
         image: manual ? inspectionImage : undefined,
@@ -176,16 +220,19 @@ export default function App() {
     try {
       await request("/inspections", {
         analysis_id: analysis.id,
+        equipment_id: equipmentId,
         component_id: recordComponent,
         action: recordAction,
         notes: note,
       });
-      const [history, config] = await Promise.all([
-        request<InspectionEvent[]>("/inspections"),
-        request<Bootstrap>("/bootstrap"),
+      const [history, card] = await Promise.all([
+        request<InspectionEvent[]>(
+          `/inspections?equipment_id=${encodeURIComponent(equipmentId)}`,
+        ),
+        request<Equipment>(`/equipment/${equipmentId}`),
       ]);
       setEvents(history);
-      setBootstrap(config);
+      setEquipment(card);
       setDialog(null);
       setNote("");
       setToast("Результат осмотра сохранён в журнале");
@@ -198,11 +245,7 @@ export default function App() {
   function exportHistory() {
     const blob = new Blob(
       [
-        JSON.stringify(
-          { equipment: bootstrap?.equipment, history: events },
-          null,
-          2,
-        ),
+        JSON.stringify({ equipment, history: events }, null, 2),
       ],
       { type: "application/json" },
     );
@@ -213,13 +256,17 @@ export default function App() {
     link.click();
     URL.revokeObjectURL(url);
   }
-  const equipment = bootstrap?.equipment;
   const component = equipment?.components.find((item) => item.id === selected);
+  const catalogObjects = bootstrap?.catalog.objects ?? [];
   const alerts = analysis?.evaluation.alerts ?? [];
   const critical = alerts.some((item) => item.severity === "critical");
   const insufficient =
     analysis?.evaluation.rule_results.filter(
       (item) => item.status === "insufficient",
+    ).length ?? 0;
+  const evaluated =
+    analysis?.evaluation.rule_results.filter(
+      (item) => item.status !== "not_applicable",
     ).length ?? 0;
   const last = analysis?.telemetry.samples.at(-1);
   const currentMetric = metrics.find((item) => item.key === metric)!;
@@ -326,20 +373,24 @@ export default function App() {
             </strong>
           </div>
           <div className="topbar-actions">
-            <span className="demo-indicator">
-              <FlaskConical size={13} />
-              Демоданные
-            </span>
-            <button
-              className="button subtle small"
-              onClick={() => {
-                setPendingScenario(scenario);
-                setDialog("demo");
-              }}
-            >
-              <Settings2 size={15} />
-              Демосценарии
-            </button>
+            {equipment?.scenarios_available && (
+              <>
+                <span className="demo-indicator">
+                  <FlaskConical size={13} />
+                  Демоданные
+                </span>
+                <button
+                  className="button subtle small"
+                  onClick={() => {
+                    setPendingScenario(scenario);
+                    setDialog("demo");
+                  }}
+                >
+                  <Settings2 size={15} />
+                  Демосценарии
+                </button>
+              </>
+            )}
           </div>
         </header>
         <main>
@@ -373,8 +424,8 @@ export default function App() {
               <div className="page-heading">
                 <div>
                   <div className="eyebrow">
-                    <span className="online-dot" /> ОБОРУДОВАНИЕ /{" "}
-                    {equipment.serial}
+                    <span className="online-dot" /> {equipment.type_name.toUpperCase()} /{" "}
+                    {equipment.serial ?? "без серийного номера"}
                   </div>
                   <h1>
                     {screen === "history"
@@ -387,6 +438,36 @@ export default function App() {
                     <MapPin size={14} />
                     {equipment.location}
                   </p>
+                  <label className="object-picker">
+                    <span>Объект осмотра</span>
+                    <select
+                      value={equipmentId}
+                      disabled={busy}
+                      onChange={(event) => selectEquipment(event.target.value)}
+                    >
+                      {catalogObjects.map((item) => (
+                        <option
+                          key={item.id}
+                          value={item.id}
+                          disabled={!item.inspectable}
+                        >
+                          {item.serial ?? item.id} · {item.type_name}
+                          {item.documented ? "" : " · демо"}
+                          {item.inspectable ? "" : " · позиция по проекту"}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  {!equipment.documented && (
+                    <p className="object-note">
+                      <CircleHelp size={14} /> {equipment.notice}
+                    </p>
+                  )}
+                  {(equipment.limitations ?? []).map((text) => (
+                    <p className="object-note" key={text}>
+                      <TriangleAlert size={14} /> {text}
+                    </p>
+                  ))}
                 </div>
                 <div className="page-actions">
                   <button
@@ -409,10 +490,10 @@ export default function App() {
               {screen === "overview" && (
                 <>
                   <div
-                    className={`status-strip ${critical ? "critical" : alerts.length || insufficient ? "warning" : "normal"}`}
+                    className={`status-strip ${critical ? "critical" : alerts.length || insufficient || evaluated === 0 ? "warning" : "normal"}`}
                   >
                     <div className="status-copy">
-                      {alerts.length || insufficient ? (
+                      {alerts.length || insufficient || evaluated === 0 ? (
                         <TriangleAlert size={19} />
                       ) : (
                         <CheckCircle2 size={19} />
@@ -422,14 +503,20 @@ export default function App() {
                           ? "Обнаружены признаки высокого риска"
                           : alerts.length
                             ? "Рекомендуется проверка"
-                            : insufficient === 12 ? "Данных недостаточно для оценки"
-                              : insufficient ? "Часть проверок недоступна"
-                              : "Отклонений по доступным данным нет"}
+                            : evaluated === 0
+                              ? "Правил для этого типа оборудования пока нет"
+                              : insufficient === evaluated
+                                ? "Данных недостаточно для оценки"
+                                : insufficient
+                                  ? "Часть проверок недоступна"
+                                  : "Отклонений по доступным данным нет"}
                       </strong>
                       <span>
                         {alerts.length
                           ? `${alerts.length} предупрежд. · откройте основания`
-                          : "Предварительный анализ · исправность не подтверждена"}
+                          : evaluated === 0
+                            ? "Насосные правила к этому типу не применяются · осмотр ведётся вручную"
+                            : "Предварительный анализ · исправность не подтверждена"}
                       </span>
                     </div>
                     <span className="updated">
@@ -487,15 +574,46 @@ export default function App() {
                           <h2>Карта состояния</h2>
                           <p>Выберите узел, чтобы посмотреть подробности</p>
                         </div>
-                        <span className="tag">Н-101</span>
+                        <span className="tag">{equipment.serial ?? equipment.id}</span>
                       </div>
-                      <PumpDiagram
-                        components={equipment.components}
-                        alerts={alerts}
-                        onSelect={setSelected}
-                        guardMissing={missingGuard}
-                        leak={leak}
-                      />
+                      {equipment.components.some((item) => item.position) ? (
+                        <PumpDiagram
+                          components={equipment.components}
+                          alerts={alerts}
+                          onSelect={setSelected}
+                          guardMissing={missingGuard}
+                          leak={leak}
+                        />
+                      ) : (
+                        <div className="component-grid">
+                          <p className="object-note">
+                            <CircleHelp size={14} /> Схемы этого типа оборудования
+                            нет: установочный и сборочный чертежи в переданный
+                            комплект не вошли. Узлы показаны списком.
+                          </p>
+                          {equipment.components.map((item) => (
+                            <button
+                              key={item.id}
+                              type="button"
+                              className={`component-chip${
+                                alerts.some((alert) => alert.component_id === item.id)
+                                  ? " warning"
+                                  : ""
+                              }${item.externally_visible ? "" : " hidden-part"}`}
+                              onClick={() => setSelected(item.id)}
+                            >
+                              <strong>{item.name}</strong>
+                              <small>
+                                {item.code}
+                                {item.quantity && item.quantity > 1
+                                  ? ` · ${item.quantity} шт`
+                                  : ""}
+                                {item.externally_visible ? "" : " · снаружи не виден"}
+                              </small>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                       <div className="diagram-footer">
                         <div className="legend">
                           <span>
@@ -557,9 +675,11 @@ export default function App() {
                       </div>
                       <div className="findings-footer">
                         <span>
-                          {insufficient
-                            ? `${insufficient} правил: недостаточно данных`
-                            : "Все правила оценены"}
+                          {evaluated === 0
+                            ? "Применимых правил нет"
+                            : insufficient
+                              ? `${insufficient} правил: недостаточно данных`
+                              : "Все применимые правила оценены"}
                         </span>
                         <button
                           className="text-button"
@@ -684,12 +804,12 @@ export default function App() {
                   <section className="panel passport">
                     <div>
                       <div className="eyebrow">ЦИФРОВАЯ КАРТОЧКА</div>
-                      <h2>{equipment.model}</h2>
+                      <h2>{equipment.model ?? equipment.name}</h2>
                       <p>{equipment.notice}</p>
                       <div className="passport-grid">
                         <div>
                           <small>Заводской номер</small>
-                          <strong>{equipment.serial}</strong>
+                          <strong>{equipment.serial ?? "не указан"}</strong>
                         </div>
                         <div>
                           <small>Среда</small>
@@ -697,13 +817,41 @@ export default function App() {
                         </div>
                         <div>
                           <small>Мощность</small>
-                          <strong>{equipment.power_kw} кВт</strong>
+                          <strong>
+                            {equipment.power_kw === null
+                              ? "не указана"
+                              : `${number(equipment.power_kw, 0)} кВт`}
+                          </strong>
                         </div>
                         <div>
                           <small>Частота вращения</small>
-                          <strong>{equipment.speed_rpm} об/мин</strong>
+                          <strong>
+                            {equipment.speed_rpm === null
+                              ? "не указана"
+                              : `${number(equipment.speed_rpm, 0)} об/мин`}
+                          </strong>
+                        </div>
+                        <div>
+                          <small>Ввод в эксплуатацию</small>
+                          <strong>
+                            {equipment.commissioned_at ?? "неизвестен"}
+                          </strong>
+                        </div>
+                        <div>
+                          <small>Источник карточки</small>
+                          <strong>
+                            {equipment.documented
+                              ? "Паспорт изготовителя"
+                              : "Демонстрационные данные"}
+                          </strong>
                         </div>
                       </div>
+                      {(equipment.documents ?? []).length > 0 && (
+                        <p className="tiny muted" style={{ marginTop: 14 }}>
+                          Документы в комплекте:{" "}
+                          {(equipment.documents ?? []).join(", ")}
+                        </p>
+                      )}
                     </div>
                     <div className="passport-symbol">
                       <Box size={78} strokeWidth={1} />
@@ -728,9 +876,13 @@ export default function App() {
                           {item.last_replacement
                             ? "Заменён " +
                               date(item.last_replacement.created_at)
-                            : "Ввод: " + item.installed_at}
+                            : "Ввод: " + (item.installed_at ?? "неизвестен")}
                         </span>
-                        <span>{number(item.norm_hours, 0)} ч</span>
+                        <span>
+                          {item.norm_hours === null
+                            ? "норматив не задан"
+                            : `${number(item.norm_hours, 0)} ч`}
+                        </span>
                         <ChevronRight size={17} />
                       </button>
                     ))}
@@ -872,13 +1024,16 @@ export default function App() {
                                 Нет данных: {rule.missing.join(", ")}
                               </small>
                             )}
+                            {rule.reason && <small>{rule.reason}</small>}
                           </div>
                           <span className={`rule-status ${rule.status}`}>
                             {rule.status === "triggered"
                               ? "Сработало"
                               : rule.status === "clear"
                                 ? "Не сработало"
-                                : "Нет данных"}
+                                : rule.status === "not_applicable"
+                                  ? "Неприменимо"
+                                  : "Нет данных"}
                           </span>
                         </article>
                       );
@@ -1034,7 +1189,13 @@ export default function App() {
             configured={bootstrap?.vision.configured ?? false}
             model={bootstrap?.vision.model ?? "gpt-6-astra"}
             alerts={alerts}
+            objects={catalogObjects}
+            currentId={equipmentId}
             onImage={setInspectionImage}
+            onSelectObject={(id) => {
+              setDialog(null);
+              selectEquipment(id);
+            }}
             onComponent={(id) => {
               if (equipment?.components.some(item=>item.id===id)) {
                 setDialog(null);
@@ -1198,14 +1359,18 @@ export default function App() {
           <div className="detail-facts">
             <div>
               <small>Нормативный срок</small>
-              <strong>{number(component.norm_hours, 0)} ч</strong>
+              <strong>
+                {component.norm_hours === null
+                  ? "не задан"
+                  : `${number(component.norm_hours, 0)} ч`}
+              </strong>
             </div>
             <div>
               <small>Установка / замена</small>
               <strong>
                 {component.last_replacement
                   ? date(component.last_replacement.created_at)
-                  : component.installed_at}
+                  : (component.installed_at ?? "дата неизвестна")}
               </strong>
             </div>
           </div>

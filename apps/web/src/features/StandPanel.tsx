@@ -5,29 +5,42 @@ import { PumpSvg } from "../components/PumpDiagram";
 
 export function StandPanel({ equipment }: { equipment: Equipment }) {
   const [qr, setQr] = useState("");
+  const value = `kontur:${equipment.id}`;
   useEffect(() => {
+    let active = true;
     import("qrcode")
       .then((module) =>
-        module.default.toDataURL("kontur:pump-101", {
+        module.default.toDataURL(value, {
           width: 220,
           margin: 2,
           color: { dark: "#233b31", light: "#ffffff" },
         }),
       )
-      .then(setQr);
-  }, []);
+      .then((result) => {
+        if (active) setQr(result);
+      });
+    return () => {
+      active = false;
+    };
+  }, [value]);
   return (
     <>
       <div className="stand-card">
-        {qr && <img src={qr} alt="QR-код насоса Н-101" />}
+        {qr && <img src={qr} alt={`QR-код объекта ${equipment.id}`} />}
         <div>
           <h3>{equipment.name}</h3>
           <p>
-            QR-код идентифицирует цифровую карточку. Маркер Hiro ниже
-            используется отдельно для положения AR-меток.
+            QR-код идентифицирует цифровую карточку этого объекта. Маркер Hiro
+            ниже используется отдельно для положения AR-меток.
           </p>
           <p className="tiny muted">
-            Один поддерживаемый агрегат · идентификатор pump-101
+            {equipment.serial
+              ? `Серийный номер ${equipment.serial} · идентификатор ${equipment.id}`
+              : `Идентификатор ${equipment.id}`}
+          </p>
+          <p className="tiny muted">
+            Каждому объекту каталога соответствует свой QR-код. Распечатанный код
+            относится только к тому объекту, для которого он сформирован.
           </p>
         </div>
       </div>
@@ -39,7 +52,9 @@ export function StandPanel({ equipment }: { equipment: Equipment }) {
         />
         <p>
           Для AR откройте или распечатайте стенд целиком. Относительное
-          положение схемы и маркера должно сохраняться.
+          положение схемы и маркера должно сохраняться. Схема на стенде построена
+          для демонстрационного центробежного агрегата и другим типам
+          оборудования не соответствует.
         </p>
       </div>
       <div className="modal-actions">

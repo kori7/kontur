@@ -37,6 +37,8 @@
         "dimensions_mm": {"length": 2742, "width": 360, "height": 605},
         "mass_kg": 430,
         "pump_speed_rpm": 260,
+        "motor_power_kw": 11,
+        "motor_speed_rpm": 1460,
         "gear_ratio": 5.3,
         "reversible": true,
         "guard_fitted": true
