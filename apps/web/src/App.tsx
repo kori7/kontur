@@ -44,8 +44,16 @@ import { Sparkline, TrendChart } from "./components/Charts";
 import { CameraPanel } from "./features/CameraPanel";
 import { ResourceFacts } from "./components/ResourceFacts";
 import { StandPanel } from "./features/StandPanel";
+import { LibraryPanel } from "./features/LibraryPanel";
+import { SeriesPanel } from "./features/SeriesPanel";
 
-type Screen = "overview" | "history" | "equipment" | "rules";
+type Screen =
+  | "overview"
+  | "history"
+  | "equipment"
+  | "rules"
+  | "series"
+  | "library";
 type Dialog = "demo" | "record" | "camera" | "about" | "stand" | null;
 const actions: Record<string, string> = {
   inspection: "Проверка",
@@ -258,6 +266,8 @@ export default function App() {
   }
   const component = equipment?.components.find((item) => item.id === selected);
   const catalogObjects = bootstrap?.catalog.objects ?? [];
+  // Series and library show the organizer's own data, which belongs to no catalogue object.
+  const objectScreen = screen !== "series" && screen !== "library";
   const alerts = analysis?.evaluation.alerts ?? [];
   const critical = alerts.some((item) => item.severity === "critical");
   const insufficient =
@@ -322,6 +332,8 @@ export default function App() {
               { id: "equipment", label: "Цифровой паспорт", icon: Box },
               { id: "history", label: "Журнал осмотров", icon: ClipboardCheck },
               { id: "rules", label: "Правила диагностики", icon: Cpu },
+              { id: "series", label: "Ряды измерений", icon: Activity },
+              { id: "library", label: "Материалы", icon: BookOpen },
             ] as const
           ).map((item) => (
             <button
@@ -424,67 +436,86 @@ export default function App() {
               <div className="page-heading">
                 <div>
                   <div className="eyebrow">
-                    <span className="online-dot" /> {equipment.type_name.toUpperCase()} /{" "}
-                    {equipment.serial ?? "без серийного номера"}
+                    {objectScreen ? (
+                      <>
+                        <span className="online-dot" />{" "}
+                        {equipment.type_name.toUpperCase()} /{" "}
+                        {equipment.serial ?? "без серийного номера"}
+                      </>
+                    ) : (
+                      "ПЕРЕДАННЫЕ ДАННЫЕ ОРГАНИЗАТОРА"
+                    )}
                   </div>
                   <h1>
                     {screen === "history"
                       ? "Журнал осмотров"
                       : screen === "rules"
                         ? "Правила диагностики"
-                        : equipment.name}
+                        : screen === "series"
+                          ? "Ряды измерений"
+                          : screen === "library"
+                            ? "Переданные материалы"
+                            : equipment.name}
                   </h1>
-                  <p className="location">
-                    <MapPin size={14} />
-                    {equipment.location}
-                  </p>
-                  <label className="object-picker">
-                    <span>Объект осмотра</span>
-                    <select
-                      value={equipmentId}
-                      disabled={busy}
-                      onChange={(event) => selectEquipment(event.target.value)}
-                    >
-                      {catalogObjects.map((item) => (
-                        <option
-                          key={item.id}
-                          value={item.id}
-                          disabled={!item.inspectable}
+                  {objectScreen && (
+                    <>
+                      <p className="location">
+                        <MapPin size={14} />
+                        {equipment.location}
+                      </p>
+                      <label className="object-picker">
+                        <span>Объект осмотра</span>
+                        <select
+                          value={equipmentId}
+                          disabled={busy}
+                          onChange={(event) =>
+                            selectEquipment(event.target.value)
+                          }
                         >
-                          {item.serial ?? item.id} · {item.type_name}
-                          {item.documented ? "" : " · демо"}
-                          {item.inspectable ? "" : " · позиция по проекту"}
-                        </option>
+                          {catalogObjects.map((item) => (
+                            <option
+                              key={item.id}
+                              value={item.id}
+                              disabled={!item.inspectable}
+                            >
+                              {item.serial ?? item.id} · {item.type_name}
+                              {item.documented ? "" : " · демо"}
+                              {item.inspectable ? "" : " · позиция по проекту"}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      {!equipment.documented && (
+                        <p className="object-note">
+                          <CircleHelp size={14} /> {equipment.notice}
+                        </p>
+                      )}
+                      {(equipment.limitations ?? []).map((text) => (
+                        <p className="object-note" key={text}>
+                          <TriangleAlert size={14} /> {text}
+                        </p>
                       ))}
-                    </select>
-                  </label>
-                  {!equipment.documented && (
-                    <p className="object-note">
-                      <CircleHelp size={14} /> {equipment.notice}
-                    </p>
+                    </>
                   )}
-                  {(equipment.limitations ?? []).map((text) => (
-                    <p className="object-note" key={text}>
-                      <TriangleAlert size={14} /> {text}
-                    </p>
-                  ))}
                 </div>
-                <div className="page-actions">
-                  <button
-                    className="button secondary"
-                    onClick={() => setDialog("stand")}
-                  >
-                    <ScanLine size={17} />
-                    QR и AR-стенд
-                  </button>
-                  <button
-                    className="button primary"
-                    onClick={() => setDialog("camera")}
-                  >
-                    <Camera size={17} />
-                    Начать осмотр
-                  </button>
-                </div>
+                {objectScreen && (
+                  <div className="page-actions">
+                    <button
+                      className="button secondary"
+                      onClick={() => setDialog("stand")}
+                    >
+                      <ScanLine size={17} />
+                      QR и AR-стенд
+                    </button>
+                    <button
+                      className="button primary"
+                      onClick={() => setDialog("camera")}
+                    >
+                      <Camera size={17} />
+                      Начать осмотр
+                    </button>
+                  </div>
+                )}
               </div>
 
               {screen === "overview" && (
@@ -1041,6 +1072,11 @@ export default function App() {
                   </div>
                 </section>
               )}
+
+              {screen === "series" && <SeriesPanel />}
+
+              {screen === "library" && <LibraryPanel />}
+
               <footer className="page-footer">
                 <span>КОНТУР · помощник инженера</span>
                 <span>Демонстрационный прототип / Кибер 102</span>
