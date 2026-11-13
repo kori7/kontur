@@ -15,6 +15,8 @@ from pydantic import BaseModel, Field
 from app.catalog import DEMO_ID, card, component_ids, equipment_type_of, list_catalog
 from app.demo import get_scenario, get_scenarios
 from app.diagnostics.engine import evaluate
+from app.library import list_library, resolve as resolve_source
+from app.reference_data import get_reference_window, list_reference_series, organizer_assessment, organizer_thresholds
 from app.storage import Store
 from app.vision import VISUAL_COMPONENTS, VisionClient, VisionError, validate_image
 
@@ -85,6 +87,40 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
             return card(equipment_id, store.events(equipment_id))
         except KeyError as exc:
             raise HTTPException(404, "Объект не найден в каталоге") from exc
+
+    @app.get("/api/reference/series")
+    def reference_series():
+        return {"series": list_reference_series(), "thresholds": organizer_thresholds()}
+
+    @app.get("/api/reference/series/{identifier}")
+    def reference_window(identifier: str, end_index: int | None = None, limit: int = 10):
+        """Replay a window of one supplied series. It is never attached to a catalogue object."""
+        try:
+            window = get_reference_window(identifier, end_index, limit)
+        except KeyError as exc:
+            raise HTTPException(404, "Ряд не найден") from exc
+        except ValueError as exc:
+            raise HTTPException(422, str(exc)) from exc
+        channels = [item["key"] for item in window["channels"]]
+        return {**window,
+                "organizer_assessment": organizer_assessment(window["telemetry"]["samples"], channels)}
+
+    @app.get("/api/library")
+    def library():
+        return list_library()
+
+    @app.get("/api/library/{source_id}/file")
+    def library_file(source_id: str):
+        try:
+            path, media_type, name = resolve_source(source_id)
+        except KeyError as exc:
+            raise HTTPException(404, "Файл не найден в реестре переданных материалов") from exc
+        except ValueError as exc:
+            raise HTTPException(415, str(exc)) from exc
+        # Images and PDFs open in place; office formats are downloaded.
+        inline = media_type in ("image/png", "image/jpeg", "application/pdf")
+        return FileResponse(path, media_type=media_type, filename=name,
+                            content_disposition_type="inline" if inline else "attachment")
 
     @app.post("/api/analyze")
     def analyze(request: AnalyzeRequest):

@@ -149,6 +149,102 @@ export interface InspectionEvent {
   author: string;
   analysis: Analysis;
 }
+export interface SeriesChannel {
+  key: string;
+  label: string;
+  unit: string;
+  raw_header: string;
+}
+export interface ReferenceSeries {
+  id: string;
+  title: string;
+  category: string;
+  source: string;
+  equipment_id: null;
+  channels: SeriesChannel[];
+  record_count: number;
+  sheet: string;
+  source_time: {
+    first_raw: string;
+    last_raw: string;
+    timezone: string | null;
+  };
+  limitations: string[];
+}
+export interface ThresholdChannel {
+  id: string;
+  name: string;
+  unit: string;
+  warning?: number;
+  alarm?: number;
+  baseline?: number;
+  hypothesis?: string;
+}
+export interface OrganizerAssessment extends ThresholdChannel {
+  value: number | null;
+  status: "above_alarm" | "above_warning" | "below_warning" | "unknown";
+  source: string;
+}
+export interface SeriesWindow extends ReferenceSeries {
+  start_index: number;
+  end_index: number;
+  evaluation_time: string;
+  telemetry: {
+    timestamp: string;
+    source: string;
+    time_basis: string;
+    timestamp_is_technical: boolean;
+    samples: (Record<string, number | string | null> & { at: string })[];
+  };
+  records: {
+    index: number;
+    raw_date: string;
+    annotation: string | null;
+    values: Record<string, number | null>;
+  }[];
+  organizer_assessment: OrganizerAssessment[];
+}
+export interface SeriesCatalog {
+  series: ReferenceSeries[];
+  thresholds: {
+    channels: ThresholdChannel[];
+    document_ids: string[];
+    applies_to_status: string;
+    conflicts_with_project: string[];
+  };
+}
+export interface LibraryEntry {
+  id: string;
+  category: string;
+  shows: string;
+  view: string;
+  view_label: string;
+  provenance: string;
+  provenance_label: string;
+  editing: string;
+  training_use: "candidate" | "illustration_only" | "excluded";
+  training_use_label: string;
+  note: string;
+  duplicate_of: string | null;
+  subject?: string | null;
+  bytes: number;
+  media_type: string | null;
+  viewable_in_browser: boolean;
+  original_name: string;
+}
+export interface Library {
+  images: LibraryEntry[];
+  documents: LibraryEntry[];
+  series: LibraryEntry[];
+  totals: {
+    files: number;
+    images: number;
+    unique_images: number;
+    training_candidates: number;
+    documents: number;
+  };
+  notice: string;
+}
 export interface Bootstrap {
   catalog: Catalog;
   equipment: Equipment;
