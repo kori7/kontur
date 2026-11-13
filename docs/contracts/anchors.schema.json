@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kontur.local/contracts/anchors.schema.json",
+  "title": "anchors.json — привязка узлов модели к физическому оборудованию",
+  "description": "Описывает один экспортированный GLB и точки его узлов в системе координат модели, а также преобразование от маркера к модели. Точка узла — это место на объекте, а не область дефекта на кадре; эти две сущности намеренно разведены и в одном поле не смешиваются.",
+  "type": "object",
+  "required": ["schema_version", "model", "coordinate_system", "marker", "anchors", "provenance"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "equipment_type": {
+      "type": "string",
+      "description": "Идентификатор типа из data/registry/equipment-types.json."
+    },
+    "object_id": {
+      "type": ["string", "null"],
+      "description": "Идентификатор конкретного объекта из objects.json, если модель построена по его чертежам. null означает, что модель представляет тип, а не экземпляр."
+    },
+    "model": {
+      "type": "object",
+      "required": ["file", "sha256", "units", "up_axis", "forward_axis", "origin"],
+      "additionalProperties": false,
+      "properties": {
+        "file": {"type": "string", "description": "Путь к GLB относительно корня репозитория."},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "source_scene": {"type": ["string", "null"], "description": "Путь к исходной редактируемой сцене."},
+        "units": {"const": "meter"},
+        "up_axis": {"enum": ["+Y", "+Z"]},
+        "forward_axis": {"enum": ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]},
+        "origin": {
+          "type": "string",
+          "description": "Словесное определение начала координат на самом объекте, например «центр опорной плоскости рамы, со стороны привода»."
+        },
+        "bounding_box_m": {
+          "type": "object",
+          "required": ["min", "max"],
+          "additionalProperties": false,
+          "properties": {
+            "min": {"$ref": "#/$defs/vec3"},
+            "max": {"$ref": "#/$defs/vec3"}
+          }
+        },
+        "dimensional_basis": {
+          "enum": ["manufacturer_drawing", "passport_overall_dimensions", "field_measurement", "estimated"],
+          "description": "estimated означает, что размеры подобраны на глаз. Модель с таким значением нельзя выдавать за цифровую копию и нельзя использовать для метрических выводов."
+        },
+        "dimensional_basis_document": {"type": ["string", "null"]}
+      }
+    },
+    "coordinate_system": {
+      "type": "object",
+      "required": ["handedness"],
+      "additionalProperties": false,
+      "properties": {
+        "handedness": {"enum": ["right", "left"]},
+        "note": {"type": "string"}
+      }
+    },
+    "marker": {
+      "type": "object",
+      "description": "Маркер закрепляется в известном положении относительно физического оборудования. Преобразование переводит систему маркера в систему модели.",
+      "required": ["kind", "id", "size_m", "marker_to_model"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"enum": ["hiro", "barcode", "nft", "aruco"]},
+        "id": {"type": "string"},
+        "size_m": {"type": "number", "exclusiveMinimum": 0},
+        "placement": {
+          "type": "string",
+          "description": "Где маркер физически закреплён на объекте. Без этого описания преобразование невоспроизводимо."
+        },
+        "marker_to_model": {
+          "type": "object",
+          "required": ["translation_m", "rotation_quaternion"],
+          "additionalProperties": false,
+          "properties": {
+            "translation_m": {"$ref": "#/$defs/vec3"},
+            "rotation_quaternion": {
+              "type": "array",
+              "items": {"type": "number"},
+              "minItems": 4,
+              "maxItems": 4,
+              "description": "Порядок [x, y, z, w]."
+            }
+          }
+        },
+        "calibration": {
+          "enum": ["measured", "nominal", "uncalibrated"],
+          "description": "uncalibrated означает, что положение меток относительно реального механизма не проверено; такие метки нельзя подавать как пространственно верные."
+        }
+      }
+    },
+    "anchors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["component_id", "mesh_name", "point_m", "visibility"],
+        "additionalProperties": false,
+        "properties": {
+          "component_id": {
+            "type": "string",
+            "description": "Идентификатор узла из components соответствующего типа в equipment-types.json."
+          },
+          "mesh_name": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$",
+            "description": "Стабильное английское имя mesh в GLB. Локализованные имена запрещены: узел ищется по имени, а оно не должно зависеть от языка интерфейса Blender."
+          },
+          "point_m": {"$ref": "#/$defs/vec3", "description": "Точка метки в системе координат модели."},
+          "normal": {"$ref": "#/$defs/vec3", "description": "Нормаль поверхности в точке метки; определяет, с какой стороны метка читается."},
+          "region_m": {
+            "type": "object",
+            "description": "Область узла для оценки распознавания. Это объём на объекте, а не bbox на кадре.",
+            "required": ["min", "max"],
+            "additionalProperties": false,
+            "properties": {"min": {"$ref": "#/$defs/vec3"}, "max": {"$ref": "#/$defs/vec3"}}
+          },
+          "visibility": {
+            "type": "object",
+            "required": ["externally_visible"],
+            "additionalProperties": false,
+            "properties": {
+              "externally_visible": {
+                "type": "boolean",
+                "description": "false для узлов, которые на смонтированном оборудовании не видны. Такой узел может иметь точку для построения карточки, но метку в живом видео ему не рисуют."
+              },
+              "requires_cover_removal": {"type": "boolean"},
+              "accessible_sides": {
+                "type": "array",
+                "items": {"enum": ["drive_end", "non_drive_end", "top", "bottom", "left", "right"]}
+              }
+            }
+          },
+          "label_offset_m": {"$ref": "#/$defs/vec3", "description": "Смещение подписи от точки, чтобы метка не перекрывала сам узел."}
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["author", "license", "version", "created_at"],
+      "additionalProperties": false,
+      "properties": {
+        "author": {"type": "string"},
+        "license": {"type": "string"},
+        "version": {"type": "string"},
+        "created_at": {"type": "string", "format": "date"},
+        "derived_from": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Идентификаторы сторонних активов и документов, на которых построена модель."
+        },
+        "verified_against_object": {
+          "type": ["string", "null"],
+          "description": "Объект, на котором положение меток сверено в натуре. null значит, что натурной сверки не было."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "vec3": {
+      "type": "array",
+      "items": {"type": "number"},
+      "minItems": 3,
+      "maxItems": 3
+    }
+  }
+}

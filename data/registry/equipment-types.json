@@ -1,0 +1,660 @@
+{
+  "schema_version": 1,
+  "note": "Состав узлов типа pcp_pump_unit взят из спецификации АМС.07.ВН.000.00 (manuals-009). Для valve и pipe_section проектных документов не передано, поэтому их состав остаётся рабочей рубрикацией для разметки, а не нормативным перечнем.",
+  "types": [
+    {
+      "id": "pcp_pump_unit",
+      "name": "Агрегат насосный одновинтовой эксцентриковый",
+      "documented": true,
+      "document_ids": [
+        "manuals-001",
+        "manuals-002",
+        "manuals-003",
+        "manuals-004",
+        "manuals-009",
+        "manuals-013",
+        "manuals-014",
+        "manuals-017"
+      ],
+      "specification": "АМС.07.ВН.000.00",
+      "operating_principle": "Объёмный насос: ротор-винт в эластомерном статоре. Рабочего колеса нет, кавитационные правила центробежного насоса к нему неприменимы.",
+      "components": [
+        {
+          "position": 1,
+          "id": "motor",
+          "name": "Электродвигатель",
+          "quantity": 1,
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "position": 2,
+          "id": "gearbox",
+          "name": "Редуктор",
+          "quantity": 1,
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "position": 3,
+          "id": "adapter",
+          "name": "Адаптер",
+          "quantity": 1,
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "position": 4,
+          "id": "seal_housing",
+          "name": "Корпус торцевого уплотнения",
+          "quantity": 1,
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "position": 5,
+          "id": "mechanical_seal",
+          "name": "Одинарное торцевое уплотнение",
+          "quantity": 1,
+          "externally_visible": false,
+          "ar_anchor": false,
+          "note": "Сам узел закрыт корпусом; наружу выходит только зона возможного подтёка."
+        },
+        {
+          "position": 6,
+          "id": "pump_casing",
+          "name": "Корпус насоса",
+          "quantity": 1,
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "position": 7,
+          "id": "stator",
+          "name": "Статор",
+          "quantity": 1,
+          "externally_visible": true,
+          "ar_anchor": true,
+          "note": "Наружная поверхность эластомерного статора видна; состояние рабочей поверхности изнутри не видно."
+        },
+        {
+          "position": 8,
+          "id": "stud",
+          "name": "Шпилька",
+          "quantity": 4,
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "position": 9,
+          "id": "discharge_flange",
+          "name": "Фланец нагнетательный",
+          "quantity": 1,
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "position": 10,
+          "id": "frame",
+          "name": "Рама насоса",
+          "quantity": 1,
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "position": 11,
+          "id": "rotor",
+          "name": "Ротор",
+          "quantity": 1,
+          "externally_visible": false,
+          "ar_anchor": false
+        },
+        {
+          "position": 12,
+          "id": "connecting_shaft",
+          "name": "Соединительный вал",
+          "quantity": 1,
+          "externally_visible": false,
+          "ar_anchor": false
+        },
+        {
+          "position": 13,
+          "id": "hollow_shaft",
+          "name": "Полый вал",
+          "quantity": 1,
+          "externally_visible": false,
+          "ar_anchor": false
+        },
+        {
+          "position": 14,
+          "id": "sealing_ring_14",
+          "name": "Уплотнительное кольцо",
+          "quantity": 1,
+          "externally_visible": false,
+          "ar_anchor": false
+        },
+        {
+          "position": 15,
+          "id": "drain_plug",
+          "name": "Сливная пробка G3/4",
+          "quantity": 1,
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "position": 16,
+          "id": "hatch_cover",
+          "name": "Крышка люка",
+          "quantity": 1,
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "position": 17,
+          "id": "sealing_ring_17",
+          "name": "Уплотнительное кольцо",
+          "quantity": 1,
+          "externally_visible": false,
+          "ar_anchor": false
+        },
+        {
+          "position": 18,
+          "id": "joint_bush_outer",
+          "name": "Втулка шарнира наружная",
+          "quantity": 2,
+          "externally_visible": false,
+          "ar_anchor": false
+        },
+        {
+          "position": 19,
+          "id": "joint_pin",
+          "name": "Штифт",
+          "quantity": 2,
+          "externally_visible": false,
+          "ar_anchor": false
+        },
+        {
+          "position": 20,
+          "id": "joint_boot",
+          "name": "Пыльник шарнира",
+          "quantity": 2,
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "position": 21,
+          "id": "boot_clamp_ring",
+          "name": "Обсадное кольцо пыльника",
+          "quantity": 2,
+          "externally_visible": true,
+          "ar_anchor": false
+        },
+        {
+          "position": 22,
+          "id": "joint_retaining_ring",
+          "name": "Стопорное кольцо шарнира",
+          "quantity": 2,
+          "externally_visible": false,
+          "ar_anchor": false
+        },
+        {
+          "position": 23,
+          "id": "joint_rubber_ring",
+          "name": "Резиновое кольцо шарнира",
+          "quantity": 4,
+          "externally_visible": false,
+          "ar_anchor": false
+        },
+        {
+          "position": 24,
+          "id": "angle_bracket",
+          "name": "Уголок",
+          "quantity": 1,
+          "externally_visible": true,
+          "ar_anchor": false
+        }
+      ],
+      "attached_equipment": [
+        {
+          "id": "dts_sensor",
+          "name": "Датчик защиты сухого хода DTS (ПТ 0304 Ex-BT)",
+          "externally_visible": true,
+          "ar_anchor": true,
+          "source": "manuals-001"
+        },
+        {
+          "id": "thermistor_relay",
+          "name": "Реле термисторной защиты РТЗ-1М",
+          "externally_visible": false,
+          "ar_anchor": false,
+          "source": "manuals-001",
+          "note": "Устанавливается в шкафу управления, а не на агрегате."
+        },
+        {
+          "id": "guard",
+          "name": "Защитный кожух",
+          "externally_visible": true,
+          "ar_anchor": true,
+          "source": "manuals-001",
+          "note": "В паспорте указан как опция со значением «Да». В спецификации АМС.07.ВН.000.00 отдельной позиции кожуха нет."
+        }
+      ],
+      "applicable_defect_classes": [
+        "guard_missing",
+        "fastener_missing",
+        "fastener_loose",
+        "seal_leak_excessive",
+        "flange_joint_leak",
+        "flange_joint_corrosion",
+        "frame_corrosion",
+        "joint_boot_damage"
+      ],
+      "component_classes_via": {
+        "motor": "induction_motor",
+        "gearbox": "gear_reducer",
+        "note": "Классы клеммной коробки, кабеля, заземления и рёбер охлаждения принадлежат типу induction_motor, а не агрегату: у агрегата двигатель представлен одним узлом. При осмотре они применяются через связанный объект двигателя, и его идентификатор должен быть известен. У объектов pcp-21031004-* связь с конкретным двигателем не подтверждена, поэтому результаты по этим классам нельзя записывать в историю двигателя."
+      },
+      "not_applicable_defect_classes": [
+        {
+          "id": "impeller_erosion",
+          "reason": "У одновинтового насоса нет рабочего колеса."
+        },
+        {
+          "id": "cavitation_signs",
+          "reason": "Кавитационные признаки центробежного насоса к объёмному насосу неприменимы; в паспорте задан только NPSHr 2 м."
+        }
+      ]
+    },
+    {
+      "id": "induction_motor",
+      "name": "Электродвигатель асинхронный взрывозащищённый",
+      "documented": true,
+      "document_ids": [
+        "manuals-005",
+        "manuals-007",
+        "manuals-016",
+        "manuals-019"
+      ],
+      "components": [
+        {
+          "id": "motor_frame",
+          "name": "Корпус",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "terminal_box",
+          "name": "Клеммная коробка",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "power_cable",
+          "name": "Кабельный ввод и кабель",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "cooling_fins",
+          "name": "Рёбра охлаждения",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "fan_cover",
+          "name": "Кожух вентилятора",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "earth_terminal",
+          "name": "Болт заземления",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "end_shield",
+          "name": "Подшипниковый щит",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "feet",
+          "name": "Лапы и крепление",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "nameplate",
+          "name": "Фирменная табличка",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "stator_winding",
+          "name": "Обмотка статора",
+          "externally_visible": false,
+          "ar_anchor": false
+        },
+        {
+          "id": "motor_bearings",
+          "name": "Подшипники",
+          "externally_visible": false,
+          "ar_anchor": false
+        },
+        {
+          "id": "cooling_fan",
+          "name": "Крыльчатка",
+          "externally_visible": false,
+          "ar_anchor": false,
+          "note": "Видна только после снятия кожуха вентилятора."
+        }
+      ],
+      "applicable_defect_classes": [
+        "fastener_missing",
+        "fastener_loose",
+        "frame_corrosion",
+        "earth_conductor_missing",
+        "terminal_box_damage",
+        "cable_insulation_damage",
+        "cooling_fin_damage",
+        "overheat_discoloration"
+      ],
+      "not_applicable_defect_classes": [
+        {
+          "id": "winding_burnout",
+          "reason": "Обмотка видна только на разобранном двигателе; живой камерой на смонтированном агрегате не наблюдается."
+        }
+      ]
+    },
+    {
+      "id": "gear_reducer",
+      "name": "Редуктор / мотор-редуктор",
+      "documented": true,
+      "document_ids": [
+        "manuals-006",
+        "manuals-010",
+        "manuals-014"
+      ],
+      "components": [
+        {
+          "id": "gearbox_housing",
+          "name": "Корпус редуктора",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "gearbox_output_flange",
+          "name": "Выходной фланец",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "gearbox_breather",
+          "name": "Сапун",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "gearbox_oil_plug",
+          "name": "Пробка контроля и слива масла",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "gearbox_nameplate",
+          "name": "Фирменная табличка",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "gearbox_bearings",
+          "name": "Подшипники NSK",
+          "externally_visible": false,
+          "ar_anchor": false
+        },
+        {
+          "id": "gearbox_gears",
+          "name": "Зубчатая передача",
+          "externally_visible": false,
+          "ar_anchor": false
+        }
+      ],
+      "applicable_defect_classes": [
+        "fastener_missing",
+        "fastener_loose",
+        "frame_corrosion",
+        "oil_leak_at_housing",
+        "overheat_discoloration"
+      ],
+      "not_applicable_defect_classes": [
+        {
+          "id": "oil_low",
+          "reason": "Указатель уровня масла на переданных документах не подтверждён; без видимого и читаемого индикатора уровень не размечается."
+        }
+      ]
+    },
+    {
+      "id": "valve",
+      "name": "Запорная и регулирующая арматура",
+      "documented": false,
+      "document_ids": [
+        "guides-001"
+      ],
+      "undocumented_note": "Проектных паспортов, спецификаций, нормативных сроков и уставок для арматуры не передано. Состав ниже — рубрикация для разметки изображений, а не состав конкретного изделия.",
+      "components": [
+        {
+          "id": "valve_body",
+          "name": "Корпус",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "valve_flanges",
+          "name": "Фланцевые соединения",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "valve_stem_gland",
+          "name": "Сальник штока",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "valve_stem",
+          "name": "Шток",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "valve_handwheel",
+          "name": "Маховик или привод",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "valve_position_indicator",
+          "name": "Указатель положения",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "valve_insulation",
+          "name": "Изоляция и обечайка",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "valve_seat",
+          "name": "Затвор и седло",
+          "externally_visible": false,
+          "ar_anchor": false
+        }
+      ],
+      "applicable_defect_classes": [
+        "fastener_missing",
+        "fastener_loose",
+        "flange_joint_leak",
+        "flange_joint_corrosion",
+        "valve_stem_gland_leak",
+        "handwheel_damage",
+        "insulation_cladding_damage"
+      ],
+      "not_applicable_defect_classes": [
+        {
+          "id": "valve_indicator_mismatch",
+          "reason": "Требует одновременно читаемого указателя и известного заданного положения; ни того, ни другого в переданных материалах нет."
+        }
+      ]
+    },
+    {
+      "id": "pipe_section",
+      "name": "Участок трубопровода",
+      "documented": false,
+      "document_ids": [
+        "guides-001"
+      ],
+      "undocumented_note": "Проектных документов на трубопроводы не передано. Нормативы стенки, материала и сроков службы неизвестны.",
+      "components": [
+        {
+          "id": "pipe_body",
+          "name": "Тело трубы",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "pipe_weld",
+          "name": "Сварной шов",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "pipe_flange_joint",
+          "name": "Фланцевое соединение",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "pipe_insulation",
+          "name": "Изоляция и обечайка",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "pipe_support",
+          "name": "Опора",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "pipe_flexible_insert",
+          "name": "Гибкая вставка",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "pipe_wall",
+          "name": "Стенка трубы",
+          "externally_visible": false,
+          "ar_anchor": false
+        }
+      ],
+      "applicable_defect_classes": [
+        "fastener_missing",
+        "fastener_loose",
+        "flange_joint_leak",
+        "flange_joint_corrosion",
+        "insulation_cladding_damage",
+        "pipe_wall_perforation",
+        "weld_crack"
+      ],
+      "not_applicable_defect_classes": [
+        {
+          "id": "wall_thinning",
+          "reason": "Утонение стенки устанавливается толщинометрией или разрушающим контролем, а не камерой."
+        }
+      ]
+    },
+    {
+      "id": "centrifugal_pump_unit",
+      "name": "Агрегат насосный центробежный",
+      "documented": false,
+      "document_ids": [
+        "manuals-023",
+        "manuals-024"
+      ],
+      "undocumented_note": "Переданы только каталоги сторонних серий FCR и HF. Ни одного паспорта на конкретный центробежный агрегат нет. Демонстрационная карточка Н-101 относится к этому типу и остаётся синтетической.",
+      "components": [
+        {
+          "id": "pump",
+          "name": "Насос",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "motor",
+          "name": "Электродвигатель",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "coupling",
+          "name": "Муфта",
+          "externally_visible": false,
+          "ar_anchor": false
+        },
+        {
+          "id": "guard",
+          "name": "Кожух муфты",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "bearing",
+          "name": "Подшипниковый узел",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "seal",
+          "name": "Торцевое уплотнение",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "impeller",
+          "name": "Рабочее колесо",
+          "externally_visible": false,
+          "ar_anchor": false
+        },
+        {
+          "id": "base",
+          "name": "Рама и крепление",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "gauge",
+          "name": "Манометр",
+          "externally_visible": true,
+          "ar_anchor": true
+        },
+        {
+          "id": "inlet",
+          "name": "Всасывающая линия",
+          "externally_visible": true,
+          "ar_anchor": true
+        }
+      ],
+      "applicable_defect_classes": [
+        "guard_missing",
+        "fastener_missing",
+        "seal_leak_excessive",
+        "flange_joint_leak",
+        "frame_corrosion"
+      ],
+      "not_applicable_defect_classes": []
+    }
+  ]
+}

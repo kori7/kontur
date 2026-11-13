@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kontur.local/contracts/ar-overlay.schema.json",
+  "title": "Состояние AR-слоя для одного отрисованного кадра",
+  "description": "Разделяет две независимые сущности: пространственные метки узлов, которые держатся на привязке к оборудованию, и треки областей дефектов, которые живут на кадре. Потеря привязки гасит первые, потеря трека — вторые, и одно не подменяет другое.",
+  "type": "object",
+  "required": ["schema_version", "session_id", "object_id", "rendered_for_frame_id", "anchor_state", "component_labels", "defect_tracks"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "session_id": {"type": "string"},
+    "object_id": {"type": "string"},
+    "rendered_for_frame_id": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Кадр, поверх которого слой отрисован. Результаты других сессий и других объектов в слой не попадают ни при каких условиях."
+    },
+    "anchor_state": {
+      "type": "object",
+      "required": ["status"],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": ["tracking", "lost", "uncalibrated", "no_marker_configured"],
+          "description": "При lost метки узлов не отрисовываются. Удержание их на последнем известном месте запрещено: это создаёт ложное положение."
+        },
+        "lost_since_ms": {"type": ["integer", "null"], "minimum": 0},
+        "marker_id": {"type": ["string", "null"]}
+      }
+    },
+    "component_labels": {
+      "type": "array",
+      "description": "Пустой массив, когда anchor_state.status != tracking.",
+      "items": {
+        "type": "object",
+        "required": ["component_id", "screen_position", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "component_id": {"type": "string"},
+          "screen_position": {
+            "type": "array",
+            "items": {"type": "number", "minimum": 0, "maximum": 1},
+            "minItems": 2,
+            "maxItems": 2,
+            "description": "Проекция точки узла в доли кадра."
+          },
+          "status": {
+            "enum": ["no_visible_problem", "check_recommended", "possible_defect_signs", "insufficient_data"],
+            "description": "Три первые категории соответствуют постановке задачи. insufficient_data добавлена для случая, когда узел не удалось осмотреть; «проблем не обнаружено» вместо неё ставить нельзя."
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 300,
+            "description": "Короткая причина предупреждения, показываемая рядом с меткой."
+          },
+          "depth_m": {"type": ["number", "null"], "description": "Используется для порядка отрисовки и отсечения меток с обратной стороны объекта."},
+          "occluded": {"type": "boolean"}
+        }
+      }
+    },
+    "defect_tracks": {
+      "type": "array",
+      "description": "Область дефекта принадлежит кадру. Её нельзя превращать в точку на объекте без геометрии, калибровки и положения объекта.",
+      "items": {
+        "type": "object",
+        "required": ["track_id", "class_id", "bbox_normalized", "state", "observed_frames", "last_seen_frame_id"],
+        "additionalProperties": false,
+        "properties": {
+          "track_id": {"type": "string"},
+          "class_id": {"type": "string"},
+          "component_id": {"type": ["string", "null"]},
+          "bbox_normalized": {
+            "type": "array",
+            "items": {"type": "number", "minimum": 0, "maximum": 1},
+            "minItems": 4,
+            "maxItems": 4
+          },
+          "state": {
+            "enum": ["preliminary", "confirmed", "lost"],
+            "description": "preliminary — признак виден, но подтверждение по кадрам ещё не набрано; при lost рамка из живого видео убирается, а сохранённое свидетельство остаётся доступным в журнале отдельно, без AR."
+          },
+          "observed_frames": {"type": "integer", "minimum": 1},
+          "required_frames": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Порог подтверждения задаётся по классу. Для класса с немедленным показом он равен 1."
+          },
+          "immediate_signal": {
+            "type": "boolean",
+            "description": "true для классов, которые нельзя прятать до набора подтверждений. Такой признак показывается сразу и помечается как предварительный."
+          },
+          "last_seen_frame_id": {"type": "integer", "minimum": 0},
+          "age_ms": {"type": "integer", "minimum": 0},
+          "journal_event_id": {
+            "type": ["string", "null"],
+            "description": "Событие журнала, созданное по этому треку. Один устойчивый дефект порождает одно событие, а не по событию на кадр; при повторном подтверждении того же трека сюда подставляется прежний идентификатор."
+          }
+        }
+      }
+    },
+    "notices": {
+      "type": "array",
+      "description": "Явные сообщения о состоянии, которые пользователь должен видеть вместо пустого экрана.",
+      "items": {
+        "enum": ["camera_unavailable", "camera_permission_denied", "insecure_context", "model_unavailable",
+                 "frame_unreadable", "marker_lost", "analysis_falling_behind", "session_ended", "object_changed"]
+      }
+    }
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kontur.local/contracts/frame.schema.json",
+  "title": "Кадр, переданный на анализ из сессии живой камеры",
+  "description": "Кадр всегда принадлежит сессии и объекту. Выбор кадров внутри сессии — внутренняя оптимизация, а не пользовательское действие: контракт не предусматривает поля «снимок сделан инженером».",
+  "type": "object",
+  "required": ["schema_version", "session_id", "frame_id", "object_id", "captured_at", "image", "quality"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "session_id": {
+      "type": "string",
+      "description": "Идентификатор сессии осмотра. Завершение сессии делает все её результаты недействительными для отображения."
+    },
+    "frame_id": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Монотонный номер кадра внутри сессии. Ответ с меньшим frame_id, пришедший позже, отбрасывается как устаревший."
+    },
+    "object_id": {
+      "type": "string",
+      "description": "Объект из objects.json, выбранный в сессии. Смена объекта обязана начинать новую сессию."
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Время захвата кадра на устройстве. Отличается от времени получения ответа модели; возраст кадра считается как разница между ними."
+    },
+    "image": {
+      "type": "object",
+      "required": ["width", "height", "encoding"],
+      "additionalProperties": false,
+      "properties": {
+        "width": {"type": "integer", "exclusiveMinimum": 0},
+        "height": {"type": "integer", "exclusiveMinimum": 0},
+        "encoding": {"enum": ["image/jpeg", "image/png", "image/webp"]},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "orientation_degrees": {"enum": [0, 90, 180, 270]}
+      }
+    },
+    "quality": {
+      "type": "object",
+      "description": "Оценка пригодности кадра. Непригодный кадр отправлять в модель не нужно — его отбраковывает планировщик, и пользователь видит причину.",
+      "required": ["verdict"],
+      "additionalProperties": false,
+      "properties": {
+        "verdict": {
+          "enum": ["good", "limited", "unreadable"],
+          "description": "good — наблюдения используются; limited — требуется дополнительная проверка; unreadable — наблюдения не формируются."
+        },
+        "reasons": {
+          "type": "array",
+          "items": {"enum": ["motion_blur", "underexposed", "overexposed", "out_of_focus", "occluded", "too_far", "too_close"]}
+        },
+        "sharpness_score": {"type": ["number", "null"]}
+      }
+    },
+    "camera": {
+      "type": "object",
+      "description": "Нужна только для пространственных расчётов. Без внутренних параметров положение узлов из кадра не восстанавливается.",
+      "additionalProperties": false,
+      "properties": {
+        "intrinsics_available": {"type": "boolean"},
+        "focal_px": {"type": ["number", "null"]},
+        "principal_point_px": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+        "calibration_source": {"enum": ["device_reported", "camera_para_dat", "none"]}
+      }
+    },
+    "pose": {
+      "type": ["object", "null"],
+      "description": "Положение камеры относительно маркера на момент захвата. null означает, что маркер в этом кадре не найден: пространственные метки в таком кадре показывать нельзя.",
+      "required": ["marker_visible"],
+      "additionalProperties": false,
+      "properties": {
+        "marker_visible": {"type": "boolean"},
+        "marker_id": {"type": ["string", "null"]},
+        "camera_to_marker": {
+          "type": ["object", "null"],
+          "required": ["translation_m", "rotation_quaternion"],
+          "additionalProperties": false,
+          "properties": {
+            "translation_m": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+            "rotation_quaternion": {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4}
+          }
+        },
+        "lost_since_ms": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Сколько миллисекунд маркер не виден. Используется только для текста о потере привязки, а не для того, чтобы удерживать метки на последнем известном месте."
+        }
+      }
+    },
+    "scheduler": {
+      "type": "object",
+      "description": "Состояние очереди анализа. Ожидающих кадров не может быть больше одного: новый актуальный кадр вытесняет предыдущий.",
+      "additionalProperties": false,
+      "properties": {
+        "pending_frames": {"type": "integer", "minimum": 0, "maximum": 1},
+        "dropped_since_last_result": {"type": "integer", "minimum": 0},
+        "target_analysis_hz": {"type": "number", "exclusiveMinimum": 0},
+        "measured_analysis_hz": {"type": ["number", "null"]},
+        "measured_render_fps": {"type": ["number", "null"]}
+      }
+    }
+  }
+}
