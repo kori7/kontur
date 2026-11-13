@@ -2,26 +2,64 @@ export interface Component {
   id: string;
   name: string;
   code: string;
-  position: [number, number];
-  norm_hours: number;
-  installed_at: string;
+  position: [number, number] | null;
+  norm_hours: number | null;
+  installed_at: string | null;
   norm_source: string;
   last_replacement: InspectionEvent | null;
   events_count: number;
+  quantity?: number;
+  externally_visible?: boolean;
+  ar_anchor?: boolean;
+  note?: string | null;
 }
 export interface Equipment {
   id: string;
+  equipment_type: string;
+  type_name: string;
   name: string;
-  model: string;
+  model: string | null;
   location: string;
-  serial: string;
+  serial: string | null;
   source: string;
+  documented: boolean;
+  inspectable: boolean;
+  scenarios_available: boolean;
   medium: string;
-  power_kw: number;
-  speed_rpm: number;
-  commissioned_at: string;
+  power_kw: number | null;
+  speed_rpm: number | null;
+  commissioned_at: string | null;
+  commissioned_at_status?: string;
+  commissioned_at_note?: string | null;
+  parameters?: Record<string, unknown>;
+  documents?: string[];
+  limitations?: string[];
   notice: string;
   components: Component[];
+}
+export interface CatalogObject {
+  id: string;
+  equipment_type: string;
+  type_name: string;
+  name: string;
+  model: string | null;
+  serial: string | null;
+  source: string;
+  documented: boolean;
+  inspectable: boolean;
+  scenarios_available: boolean;
+}
+export interface CatalogType {
+  id: string;
+  name: string;
+  documented: boolean;
+  component_count: number;
+  applicable_defect_classes: string[];
+}
+export interface Catalog {
+  types: CatalogType[];
+  objects: CatalogObject[];
+  default_object_id: string;
 }
 export interface Scenario {
   id: string;
@@ -65,7 +103,9 @@ export interface Telemetry {
 export interface Analysis {
   id: string;
   created_at: string;
-  scenario_id: string;
+  equipment_id?: string;
+  equipment_type?: string;
+  scenario_id: string | null;
   scenario_title: string;
   telemetry: Telemetry;
   observations: Observation[];
@@ -75,8 +115,9 @@ export interface Analysis {
     alerts: Alert[];
     rule_results: {
       id: string;
-      status: "triggered" | "clear" | "insufficient";
+      status: "triggered" | "clear" | "insufficient" | "not_applicable";
       missing: string[];
+      reason?: string;
     }[];
     features: Record<string, unknown>;
     source: string;
@@ -101,6 +142,7 @@ export interface InspectionEvent {
   id: string;
   created_at: string;
   analysis_id: string;
+  equipment_id?: string;
   component_id: string;
   action: string;
   notes: string;
@@ -108,6 +150,7 @@ export interface InspectionEvent {
   analysis: Analysis;
 }
 export interface Bootstrap {
+  catalog: Catalog;
   equipment: Equipment;
   scenarios: Scenario[];
   vision: { configured: boolean; model: string; provider: string };

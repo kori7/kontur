@@ -200,10 +200,13 @@ export function PumpDiagram({
   guardMissing?: boolean;
   leak?: boolean;
 }) {
-  const displayed = components.filter((item) =>
-    ["motor", "guard", "bearing", "seal", "base", "gauge", "inlet"].includes(
-      item.id,
-    ),
+  // The схема is drawn for the demo centrifugal unit, so only its узлы carry diagram coordinates.
+  const displayed = components.filter(
+    (item): item is Component & { position: [number, number] } =>
+      item.position !== null &&
+      ["motor", "guard", "bearing", "seal", "base", "gauge", "inlet"].includes(
+        item.id,
+      ),
   );
   return (
     <div className="pump-diagram">

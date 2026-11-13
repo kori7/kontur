@@ -8,23 +8,29 @@ import {
   Sparkles,
   View,
 } from "lucide-react";
-import type { Alert, VisionResult } from "../types";
+import type { Alert, CatalogObject, VisionResult } from "../types";
 import { request } from "../api";
 
 export function CameraPanel({
   configured,
   model,
   alerts,
+  objects,
+  currentId,
   onResult,
   onComponent,
   onImage,
+  onSelectObject,
 }: {
   configured: boolean;
   model: string;
   alerts: Alert[];
+  objects: CatalogObject[];
+  currentId: string;
   onResult: (result: VisionResult) => Promise<void>;
   onComponent: (id: string) => void;
   onImage: (image: string | null) => void;
+  onSelectObject: (id: string) => void;
 }) {
   const video = useRef<HTMLVideoElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
@@ -183,16 +189,36 @@ export function CameraPanel({
         (code) => {
           if (!code) return;
           const text = code.getText();
-          if (text === "kontur:pump-101") {
+          if (!text.startsWith("kontur:")) {
+            setMessage("Этот QR-код не относится к каталогу оборудования КОНТУР.");
+            return;
+          }
+          const identifier = text.slice("kontur:".length);
+          const target = objects.find((item) => item.id === identifier);
+          if (!target) {
             setMessage(
-              "Насос Н-101 идентифицирован. Его цифровая карточка уже открыта в рабочей области.",
+              `Объект «${identifier}» в каталоге не найден. Выберите оборудование вручную.`,
+            );
+            return;
+          }
+          if (!target.inspectable) {
+            setMessage(
+              `${target.name}: это позиция по проекту, а не отдельная машина. ` +
+                "Какой агрегат на ней установлен, документы не указывают.",
             );
             stop();
-          } else {
-            setMessage(
-              "Этот QR-код не относится к поддерживаемому агрегату Н-101.",
-            );
+            return;
           }
+          if (target.id === currentId) {
+            setMessage(
+              `${target.name} идентифицирован. Его цифровая карточка уже открыта в рабочей области.`,
+            );
+            stop();
+            return;
+          }
+          setMessage(`${target.name} идентифицирован. Открываем его карточку.`);
+          stop();
+          onSelectObject(target.id);
         },
       );
     } catch {

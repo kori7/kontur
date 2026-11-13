@@ -1,4 +1,9 @@
-"""Explicitly synthetic equipment card; no manufacturer claims."""
+"""Explicitly synthetic equipment card; no manufacturer claims.
+
+This is the demo object of the catalogue, not the catalogue itself: other objects are assembled from
+the stage A registry in ``app.catalog``. Its узлы carry diagram coordinates because the printed stand
+was drawn for this machine; documented equipment has no such схема.
+"""
 
 COMPONENTS = [
     {"id": "pump", "name": "Насосный агрегат", "code": "Н-101", "position": [50, 60]},
@@ -12,7 +17,6 @@ COMPONENTS = [
     {"id": "gauge", "name": "Манометр", "code": "МН-01", "position": [74.1, 21.4]},
     {"id": "inlet", "name": "Всасывающая линия", "code": "ВС-01", "position": [88, 54]},
 ]
-COMPONENT_IDS = {component["id"] for component in COMPONENTS}
 
 
 def equipment_card(events: list[dict] | None = None) -> dict:

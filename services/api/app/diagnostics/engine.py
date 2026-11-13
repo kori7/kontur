@@ -2,6 +2,7 @@
 
 from datetime import datetime, timezone
 
+from .applicability import applies_to, reason as not_applicable_reason
 from .catalog import CATALOG
 from .constants import RULES_VERSION, THRESHOLDS as T
 from .features import extract, fresh, maintenance, number, timestamp
@@ -65,8 +66,13 @@ class Observations:
                  "source": item["source"]}]
 
 
-def evaluate(telemetry: dict, observations: list, now: datetime | None = None) -> dict:
-    """Return hypotheses, unknown inputs, and normative (not prognostic) hours."""
+def evaluate(telemetry: dict, observations: list, now: datetime | None = None,
+             equipment_type: str = "centrifugal_pump_unit") -> dict:
+    """Return hypotheses, unknown inputs, and normative (not prognostic) hours.
+
+    ``equipment_type`` limits which rules may speak at all: a rule outside its scope reports
+    ``not_applicable`` with a reason instead of a verdict drawn from inputs the equipment lacks.
+    """
     now = now or datetime.now(timezone.utc)
     if now.tzinfo is None:
         now = now.replace(tzinfo=timezone.utc)
@@ -137,6 +143,10 @@ def evaluate(telemetry: dict, observations: list, now: datetime | None = None) -
     evidence_by_rule = _evidence(features, service, obs, evidence)
     results, alerts = [], []
     for rule_id, (triggered, missing) in rules.items():
+        if not applies_to(rule_id, equipment_type):
+            results.append({"id": rule_id, "status": "not_applicable", "missing": [],
+                            "reason": not_applicable_reason(rule_id, equipment_type)})
+            continue
         results.append({"id": rule_id, "status": "insufficient" if triggered is None else ("triggered" if triggered else "clear"), "missing": missing})
         if triggered is not True:
             continue
@@ -154,7 +164,8 @@ def evaluate(telemetry: dict, observations: list, now: datetime | None = None) -
     order = {"critical": 0, "warning": 1, "info": 2}
     alerts.sort(key=lambda alert: (order[alert["severity"]], alert["id"]))
     return {"alerts": alerts, "rule_results": results, "features": features,
-            "maintenance": service, "source": "demo", "rules_version": RULES_VERSION}
+            "maintenance": service, "source": "demo", "rules_version": RULES_VERSION,
+            "equipment_type": equipment_type}
 
 
 def _evidence(features, service, observations, evidence):
