@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "note": "Объект попадает сюда, только если его удостоверяет переданный документ. Связи между объектами записаны со статусом: confirmed — связь прямо указана в документе, unknown — документа, который её устанавливает, в комплекте нет. Неизвестную связь нельзя заменять правдоподобной догадкой.",
+  "objects": [
+    {
+      "id": "pcp-21031004-1",
+      "equipment_type": "pcp_pump_unit",
+      "name": "Агрегат насосный одновинтовой эксцентриковый",
+      "model": "AMS PCP60S12/3 01 Ex B1 HNBR DTS",
+      "serial": "21031004-1",
+      "manufacturer": "ООО «Альтернативные Механические Системы» (АМС), Россия",
+      "specification_document": "ТУ3631-001-23430200-2015",
+      "project": "21031004",
+      "source": "passport",
+      "document_ids": ["manuals-001", "manuals-009", "manuals-013", "manuals-014", "manuals-017"],
+      "manufactured_at": "2023-06",
+      "accepted_at": "2023-06-27",
+      "sold_at": "2023-06-28",
+      "commissioned_at": null,
+      "commissioned_at_status": "unknown",
+      "commissioned_at_note": "Графа «Дата ввода в эксплуатацию» в паспорте не заполнена. Без неё наработку и остаточный ресурс считать не от чего.",
+      "service_life": {"designation": "Срок службы", "value": 20, "unit": "year", "source": "manuals-001"},
+      "resource_to_writeoff": {"designation": "Ресурс до списания", "value": 11000, "unit": "hour", "comparator": ">=", "source": "manuals-001"},
+      "warranty": {"value": 12, "unit": "month", "from": "commissioning", "source": "manuals-001"},
+      "wear_parts_limit": {"components": ["rotor", "stator", "mechanical_seal", "joint_boot"],
+                           "value_months": 12, "value_hours": 3000,
+                           "source": "manuals-001",
+                           "note": "Формулировка паспорта: ограниченный срок использования 12 месяцев при наработке 3000 ч. Это граница гарантии на быстроизнашиваемые детали, а не прогноз отказа."},
+      "parameters": {
+        "flow_m3h": {"min": 5, "max": 20},
+        "pressure_bar": {"max": 10},
+        "npshr_m": 2,
+        "product_temperature_c": {"min": 5, "max": 45},
+        "max_product_temperature_steaming_c": 90,
+        "max_density_kg_m3": 1600,
+        "solids_fraction_percent": {"max": 5},
+        "dimensions_mm": {"length": 2742, "width": 360, "height": 605},
+        "mass_kg": 430,
+        "pump_speed_rpm": 260,
+        "gear_ratio": 5.3,
+        "reversible": true,
+        "guard_fitted": true
+      },
+      "materials": {
+        "rotor": "Коррозионностойкая сталь 40Х13 с закалкой, 50 HRC",
+        "stator": "Эластомер абразивостойкий HNBR",
+        "mechanical_seal": "Одинарное торцевое, карбид вольфрама / карбид кремния",
+        "pump_casing": "Сталь 20 с защитным покрытием"
+      },
+      "service": "Перекачивание обводнённого нефтепродукта",
+      "climate": "У1 по ГОСТ 15150-69",
+      "spare_parts_supplied": [
+        {"designation": "60S1240DTS*", "name": "Статор", "quantity": 1},
+        {"designation": "60S1290", "name": "Торцевое уплотнение", "quantity": 1},
+        {"designation": "60S1226", "name": "Уплотнительное кольцо", "quantity": 1}
+      ],
+      "links": [
+        {"to": "tag-860-P-0201", "relation": "installed_at_tag", "status": "unknown",
+         "note": "Проект 21031004 связан с опросным листом 682 (позиция 860-P-0201-A,B) через пункт 14 перечня документов, но какой из четырёх серийных номеров встал на какую позицию, ни один переданный документ не указывает."},
+        {"to": "motor-230201069", "relation": "has_motor", "status": "unknown",
+         "note": "Паспорт агрегата задаёт тип двигателя BRA160M4ГБУ1, но не его заводской номер. Переданы два паспорта двигателей на четыре агрегата."},
+        {"to": "gearbox-SAL023020084", "relation": "has_gearbox", "status": "unknown",
+         "note": "Паспорт редуктора выписан на 4 шт одной записью, индивидуальных номеров для остальных трёх нет."}
+      ]
+    },
+    {
+      "id": "pcp-21031004-2",
+      "equipment_type": "pcp_pump_unit",
+      "name": "Агрегат насосный одновинтовой эксцентриковый",
+      "model": "AMS PCP60S12/3 01 Ex B1 HNBR DTS",
+      "serial": "21031004-2",
+      "project": "21031004",
+      "source": "passport",
+      "document_ids": ["manuals-002"],
+      "same_type_as": "pcp-21031004-1",
+      "commissioned_at_status": "unknown",
+      "links": [
+        {"to": "tag-860-P-0201", "relation": "installed_at_tag", "status": "unknown"},
+        {"to": "tag-860-P-0601", "relation": "installed_at_tag", "status": "unknown"}
+      ]
+    },
+    {
+      "id": "pcp-21031004-3",
+      "equipment_type": "pcp_pump_unit",
+      "name": "Агрегат насосный одновинтовой эксцентриковый",
+      "model": "AMS PCP60S12/3 01 Ex B1 HNBR DTS",
+      "serial": "21031004-3",
+      "project": "21031004",
+      "source": "passport",
+      "document_ids": ["manuals-003"],
+      "same_type_as": "pcp-21031004-1",
+      "commissioned_at_status": "unknown",
+      "scan_quality": "low",
+      "scan_note": "Скан бледный; значения полей читаются неуверенно и при использовании требуют сверки с оригиналом.",
+      "links": [
+        {"to": "tag-860-P-0201", "relation": "installed_at_tag", "status": "unknown"},
+        {"to": "tag-860-P-0601", "relation": "installed_at_tag", "status": "unknown"}
+      ]
+    },
+    {
+      "id": "pcp-21031004-4",
+      "equipment_type": "pcp_pump_unit",
+      "name": "Агрегат насосный одновинтовой эксцентриковый",
+      "model": "AMS PCP60S12/3 01 Ex B1 HNBR DTS",
+      "serial": "21031004-4",
+      "project": "21031004",
+      "source": "passport",
+      "document_ids": ["manuals-004"],
+      "same_type_as": "pcp-21031004-1",
+      "commissioned_at_status": "unknown",
+      "links": [
+        {"to": "tag-860-P-0201", "relation": "installed_at_tag", "status": "unknown"},
+        {"to": "tag-860-P-0601", "relation": "installed_at_tag", "status": "unknown"}
+      ]
+    },
+    {
+      "id": "motor-230201069",
+      "equipment_type": "induction_motor",
+      "name": "Двигатель трёхфазный асинхронный взрывозащищённый",
+      "model": "BRA160M4 ГБУ1",
+      "serial": "230201069",
+      "manufacturer": "АО «Ярославский электромашиностроительный завод» (ELDIN)",
+      "passport_designation": "ДТ.525000.038 ПС",
+      "source": "passport",
+      "document_ids": ["manuals-005", "manuals-016", "manuals-019"],
+      "manufactured_at": "2023-03-01",
+      "parameters": {
+        "duty": "S1",
+        "power_kw": 11,
+        "voltage_v": 380,
+        "frequency_hz": 50,
+        "current_a": 23,
+        "speed_rpm": 1460,
+        "power_factor": 0.84,
+        "efficiency_percent": 87.8,
+        "protection": "IP55",
+        "explosion_protection": "1Ex d IIB T4 Gb",
+        "mounting": "IM 2001",
+        "rotor_inertia_kgm2": 0.062,
+        "starting_torque_ratio": 1.8,
+        "max_torque_ratio": 2.8,
+        "min_torque_ratio": 1.4,
+        "starting_current_ratio": 6.5,
+        "vibration_category": {"value": "A", "standard": "ГОСТ IEC 60034-14-2014"},
+        "max_vibration_displacement_um": {"value": 35, "applies_to": "двигатели с частотой вращения до 600 мин⁻¹"},
+        "max_vibration_velocity_mm_s": {"value": 2.2, "applies_to": "двигатели с частотой вращения свыше 600 мин⁻¹",
+                                        "note": "Относится к этому двигателю: номинальная частота 1460 мин⁻¹. Это допуск на виброскорость самого двигателя, а не уставка агрегата в сборе."},
+        "sound_pressure_db_a": 67
+      },
+      "thermal_protection": "PTC терморезисторы в обмотке статора",
+      "links": [
+        {"to": "pcp-21031004-1", "relation": "motor_of", "status": "unknown",
+         "note": "Ни в одном переданном документе заводской номер двигателя не сопоставлен с серийным номером агрегата."}
+      ]
+    },
+    {
+      "id": "motor-230201070",
+      "equipment_type": "induction_motor",
+      "name": "Двигатель трёхфазный асинхронный взрывозащищённый",
+      "model": "BRA160M4 ГБУ1",
+      "serial": "230201070",
+      "manufacturer": "АО «Ярославский электромашиностроительный завод» (ELDIN)",
+      "passport_designation": "ДТ.525000.038 ПС",
+      "source": "passport",
+      "document_ids": ["manuals-007"],
+      "manufactured_at": "2023-03-01",
+      "same_type_as": "motor-230201069",
+      "links": [
+        {"to": "pcp-21031004-1", "relation": "motor_of", "status": "unknown"}
+      ]
+    },
+    {
+      "id": "gearbox-SAL023020084",
+      "equipment_type": "gear_reducer",
+      "name": "Редуктор",
+      "model": "WXRF87-AM160-5.30-M1-ø300",
+      "serial": "SAL023020084_001",
+      "manufacturer": "WANSHSIN Seikou (Hunan) Co., Ltd",
+      "supplier": "ООО «ЕВРОПРОМТЕХ»",
+      "source": "passport",
+      "document_ids": ["manuals-006", "manuals-010", "manuals-014"],
+      "delivered_at": "2023-04",
+      "quantity_in_passport": 4,
+      "quantity_note": "Один паспорт выписан на 4 редуктора. Отдельных номеров для трёх из них не передано, поэтому как четыре объекта они здесь не заводятся.",
+      "parameters": {
+        "frame_size": "WXRF87-AM160",
+        "max_output_torque_nm": 910,
+        "max_radial_load_n": 8980,
+        "gear_ratio": 5.3,
+        "output_shaft": "Ø40 мм, длина 80 мм",
+        "mounting_position": "M1",
+        "flange": "B5 — 300 мм",
+        "adapter": "AM160",
+        "mass_kg": 86.5,
+        "bearings": "NSK",
+        "oil": "Синтетическое масло VG220 / Synoil",
+        "oil_volume_l": 3.7,
+        "oil_temperature_range_c": {"min": -45, "max": 40}
+      },
+      "links": [
+        {"to": "pcp-21031004-1", "relation": "gearbox_of", "status": "unknown"}
+      ]
+    },
+    {
+      "id": "tag-860-P-0201",
+      "equipment_type": "pcp_pump_unit",
+      "name": "Позиция 860-P-0201-A,B",
+      "kind": "tag_position",
+      "positions": ["860-P-0201-A", "860-P-0201-B"],
+      "quantity": 2,
+      "site": "ООО «КНГК-ИНПЗ», Комплекс производства автобензинов и ароматических углеводородов, объекты общезаводского хозяйства, канализационные очистные сооружения",
+      "service": "Насос откачки нефтешлама",
+      "drawing": "682.00.00.00.000 ОЛ16",
+      "designer": "ООО «Завод ПРОМСТРОЙМЕТ»",
+      "source": "datasheet",
+      "document_ids": ["manuals-011"],
+      "links": [
+        {"to": "project-21031004", "relation": "belongs_to_project", "status": "confirmed",
+         "note": "Пункт 14 перечня документов проекта №21031004 (manuals-013) прямо называет опросный лист 682.00.00.00.000ОЛ16."}
+      ]
+    },
+    {
+      "id": "tag-860-P-0601",
+      "equipment_type": "pcp_pump_unit",
+      "name": "Позиция 860-P-0601-A,B",
+      "kind": "tag_position",
+      "positions": ["860-P-0601-A", "860-P-0601-B"],
+      "quantity": 2,
+      "site": "ООО «КНГК-ИНПЗ», Комплекс производства автобензинов и ароматических углеводородов, объекты общезаводского хозяйства, канализационные очистные сооружения",
+      "service": "Насос откачки нефтешлама",
+      "drawing": "683.00.00.00.000 ОЛ16",
+      "designer": "ООО «Завод ПРОМСТРОЙМЕТ»",
+      "source": "datasheet",
+      "document_ids": ["manuals-012"],
+      "links": [
+        {"to": "project-21031004", "relation": "belongs_to_project", "status": "unknown",
+         "note": "Перечень документов проекта 21031004 ссылается только на опросный лист 682. Опросный лист 683 в нём не упомянут, поэтому принадлежность этой позиции тому же проекту не подтверждена."}
+      ]
+    },
+    {
+      "id": "pump-101",
+      "equipment_type": "centrifugal_pump_unit",
+      "name": "Насосный агрегат Н-101",
+      "model": "К 100-80-160 · демонстрационная конфигурация",
+      "serial": "DEMO-2026-001",
+      "source": "demo",
+      "document_ids": [],
+      "demo_note": "Синтетический объект прежнего прототипа. Сохраняется как регрессионный сценарий. Его паспортные значения, нормативы и телеметрия выдуманы и не относятся ни к одному переданному документу.",
+      "links": []
+    }
+  ],
+  "projects": [
+    {
+      "id": "project-21031004",
+      "name": "Проект №21031004",
+      "customer_facing_document_count": 17,
+      "document_ids": ["manuals-013"],
+      "supplied_items": 19,
+      "missing_from_supply": [
+        "Программа и методика приёмо-сдаточных испытаний",
+        "Графики рабочих характеристик AMS PCP60S12",
+        "Установочный чертёж №21031004",
+        "Сборочный чертёж Ду100.01.00.СБ и спецификация Ду100.01.00.00",
+        "Паспорт механического уплотнения Графлекс-М.1101.00С06.065.0303.111.6",
+        "Схема электрическая №21031004 Э. и спецификация №21031004 СП",
+        "Сертификат ГОСТ Р ИСО 9001-2015 и ИСО 14001-2016",
+        "Сертификат сейсмоустойчивости на агрегат"
+      ],
+      "missing_note": "Перечень документов проекта называет 17 позиций. Сопоставление с переданными файлами показывает, какие из них в комплект не вошли; установочный и сборочный чертежи нужны для геометрии 3D-модели и точек anchors."
+    }
+  ]
+}

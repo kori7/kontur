@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kontur.local/contracts/observation.schema.json",
+  "title": "Результат распознавания по одному кадру",
+  "description": "Ответ модели всегда возвращается вместе со ссылкой на кадр, объект и версию весов. Без этих полей результат нельзя ни отбросить как устаревший, ни воспроизвести.",
+  "type": "object",
+  "required": ["schema_version", "session_id", "frame_id", "object_id", "captured_at", "completed_at", "model", "status", "observations"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "session_id": {"type": "string"},
+    "frame_id": {"type": "integer", "minimum": 0},
+    "object_id": {"type": "string"},
+    "captured_at": {"type": "string", "format": "date-time"},
+    "completed_at": {"type": "string", "format": "date-time"},
+    "frame_age_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "completed_at минус captured_at. Показывается пользователю: по устаревшему кадру решение не принимают."
+    },
+    "model": {
+      "type": "object",
+      "required": ["id", "version", "runtime"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string"},
+        "version": {"type": "string"},
+        "weights_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "runtime": {"type": "string"},
+        "trained_on_project_data": {
+          "type": "boolean",
+          "description": "false для любой предобученной модели без нашего дообучения. Интерфейс обязан показывать это различие: подбор промпта обучением не является."
+        },
+        "class_thresholds_frozen_at": {"type": ["string", "null"], "format": "date"}
+      }
+    },
+    "status": {
+      "enum": ["ok", "frame_unreadable", "model_unavailable", "timeout", "invalid_response", "object_mismatch"],
+      "description": "Любое значение кроме ok означает, что наблюдений нет. Отсутствие наблюдений исправностью оборудования не является и так не показывается."
+    },
+    "status_detail": {"type": ["string", "null"]},
+    "observations": {
+      "type": "array",
+      "description": "Пустой массив при status != ok, а также когда модель ничего не нашла на пригодном кадре.",
+      "items": {
+        "type": "object",
+        "required": ["class_id", "component_id", "present", "region", "evidence"],
+        "additionalProperties": false,
+        "properties": {
+          "class_id": {
+            "type": "string",
+            "description": "Класс из data/registry/defect-classes.json. Классы из excluded_classes в ответе недопустимы."
+          },
+          "component_id": {
+            "type": ["string", "null"],
+            "description": "Узел, к которому отнесён признак. null означает, что модель увидела признак, но не смогла отнести его к узлу карточки; такой результат не превращается в предупреждение по узлу."
+          },
+          "present": {"type": "boolean"},
+          "region": {
+            "type": ["object", "null"],
+            "description": "Область на кадре, а не точка на объекте. Привязана к frame_id и переносится между кадрами только трекером.",
+            "required": ["kind", "bbox_normalized"],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {"enum": ["bbox", "mask"]},
+              "bbox_normalized": {
+                "type": "array",
+                "items": {"type": "number", "minimum": 0, "maximum": 1},
+                "minItems": 4,
+                "maxItems": 4,
+                "description": "[x0, y0, x1, y1] в долях кадра; x0 < x1 и y0 < y1."
+              },
+              "mask_rle": {"type": ["string", "null"]}
+            }
+          },
+          "score": {
+            "type": ["number", "null"],
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Только измеренный моделью score. Если метод его не даёт, здесь null, и процент уверенности не придумывается и не показывается."
+          },
+          "score_is_calibrated": {
+            "type": "boolean",
+            "description": "false означает, что score — внутренняя величина модели, а не вероятность. Вероятностью исправности он не является ни при каком значении."
+          },
+          "evidence": {
+            "type": "string",
+            "maxLength": 700,
+            "description": "Что именно видно на кадре. Формулируется как наблюдение, а не как диагноз."
+          },
+          "not_applicable_reason": {
+            "type": ["string", "null"],
+            "description": "Заполняется, если класс к этому типу оборудования неприменим: ответ сохраняется, но предупреждение не формируется."
+          }
+        }
+      }
+    },
+    "unreadable_components": {
+      "type": "array",
+      "description": "Узлы, которые в этом кадре закрыты или не попали в поле зрения. Их отсутствие в observations не означает, что с ними всё в порядке.",
+      "items": {
+        "type": "object",
+        "required": ["component_id", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "component_id": {"type": "string"},
+          "reason": {"enum": ["out_of_frame", "occluded", "cover_closed", "too_far", "not_externally_visible"]}
+        }
+      }
+    }
+  }
+}
