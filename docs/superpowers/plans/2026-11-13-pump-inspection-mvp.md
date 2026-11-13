@@ -1,5 +1,9 @@
 # Pump Inspection MVP Implementation Plan
 
+Historical plan for the initial single-pump prototype. The current overall
+scope, status and roadmap are defined in [plan_to_do.md](../../plan_to_do.md):
+four equipment groups, video AR, 3D test stands and trained defect recognition.
+
 > **For agentic workers:** Use the executing-plans skill after the user requests implementation. Work task-by-task with checkbox tracking. Do not commit, push, deploy to production, or delegate without applicable authorization.
 
 **Goal:** За три дня подготовить демонстрационный помощник инженера для одного насосного агрегата: идентификация, телеметрия, предварительный визуальный анализ, объяснимые предупреждения, AR-метки и история осмотров.

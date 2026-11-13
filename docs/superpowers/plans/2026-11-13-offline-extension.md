@@ -1,5 +1,9 @@
 # Offline extension to the approved inspection prototype
 
+Historical plan for the first offline extension. The current overall scope,
+status and roadmap are defined in [plan_to_do.md](../../plan_to_do.md):
+four equipment groups, video AR, 3D test stands and trained defect recognition.
+
 User-approved update: local enterprise server and Wi-Fi clients; no Internet needed at runtime.
 
 1. Move organizer materials into `data/reference/organizer`, assign stable English ids, retain original names and verify all SHA256 hashes. **Completed: 84 files, 181198500 bytes.**
