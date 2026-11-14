@@ -10,7 +10,7 @@ re-check the table and record disagreement in docs/reports/stage-a-inventory.md.
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "data/reference/organizer"
 TARGET = ROOT / "data/registry/sources.json"
 

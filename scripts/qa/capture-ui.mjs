@@ -1,7 +1,7 @@
 import {chromium} from '@playwright/test';
 import {fileURLToPath} from 'node:url';
 import {mkdir} from 'node:fs/promises';
-const output=new URL('../output/qa/',import.meta.url);
+const output=new URL('../../output/qa/',import.meta.url);
 await mkdir(output,{recursive:true});
 const browser=await chromium.launch({headless:true});
 try{

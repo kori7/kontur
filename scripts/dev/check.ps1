@@ -1,6 +1,6 @@
 param([switch]$Browser)
 $ErrorActionPreference = "Stop"
-Set-Location -LiteralPath (Split-Path -Parent $PSScriptRoot)
+Set-Location -LiteralPath (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
 & ".\.venv\Scripts\python.exe" -X utf8 -m pytest -q
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & ".\.venv\Scripts\python.exe" -X utf8 -m ruff check services tests scripts

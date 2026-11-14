@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 def test_complete_verified_partial_is_promoted_without_network(tmp_path, monkeypatch):
-    script = Path(__file__).parents[1] / "scripts/prepare-local-model.py"
+    script = Path(__file__).parents[1] / "scripts/data/prepare-local-model.py"
     spec = importlib.util.spec_from_file_location("prepare_local_model", script)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

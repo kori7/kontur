@@ -11,7 +11,7 @@ import xml.etree.ElementTree as ET
 from zipfile import ZipFile
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_VERSION = 1
 NAMESPACE = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
 CHANNELS = {

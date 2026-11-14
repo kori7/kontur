@@ -5,7 +5,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageOps
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "data/reference/organizer"
 entries = json.loads((SOURCE / "manifest.json").read_text(encoding="utf-8-sig"))
 out = ROOT / "output/qa"

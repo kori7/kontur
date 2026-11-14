@@ -14,7 +14,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data/imported"
 MANIFEST = ROOT / "data/reference/organizer/manifest.json"
-SCRIPT = ROOT / "scripts/import-reference-data.py"
+SCRIPT = ROOT / "scripts/data/import-reference-data.py"
 
 
 @pytest.fixture

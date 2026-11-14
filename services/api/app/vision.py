@@ -118,7 +118,7 @@ class VisionClient:
             available = False
         return {"available": available, "model": self.model, "offline": True,
                 "message": "Локальная модель готова" if available else
-                "Локальная модель не запущена. Запустите scripts/start-local-model.ps1 на сервере."}
+                "Локальная модель не запущена. Запустите scripts/dev/start-local-model.ps1 на сервере."}
 
     async def analyze(self, image: str) -> dict:
         validate_image(image)
@@ -136,7 +136,7 @@ class VisionClient:
         except httpx.TimeoutException as exc:
             raise VisionError("Локальная модель не ответила за 180 секунд. Повторите анализ или зафиксируйте наблюдение вручную.") from exc
         except httpx.RequestError as exc:
-            raise VisionError("Не удалось связаться с локальной моделью. Запустите scripts/start-local-model.ps1 на сервере.") from exc
+            raise VisionError("Не удалось связаться с локальной моделью. Запустите scripts/dev/start-local-model.ps1 на сервере.") from exc
         if response.status_code != 200:
             raise VisionError(f"Локальная модель вернула ошибку {response.status_code}. Проверьте журнал локального сервера модели.")
         try:

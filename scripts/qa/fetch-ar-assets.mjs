@@ -1,5 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises';
-const output = new URL('../apps/web/public/vendor/', import.meta.url);
+const output = new URL('../../apps/web/public/vendor/', import.meta.url);
 await mkdir(output, {recursive:true});
 const assets = {
   'aframe.min.js':'https://aframe.io/releases/1.6.0/aframe.min.js',

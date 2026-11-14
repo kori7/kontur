@@ -8,7 +8,7 @@ import zipfile
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 REVISION = "1cd86afb9a95c410a6038ab3b40d8b578c892266"
 HF = f"https://huggingface.co/Qwen/Qwen3-VL-4B-Instruct-GGUF/resolve/{REVISION}"
 GH = "https://github.com/ggml-org/llama.cpp/releases/download/b12359"

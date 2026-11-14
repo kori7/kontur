@@ -14,7 +14,7 @@ REGISTRY_DIR = ROOT / "data/registry"
 MANIFEST = ROOT / "data/reference/organizer/manifest.json"
 ORGANIZER = ROOT / "data/reference/organizer"
 CONTRACTS = ROOT / "docs/contracts"
-BUILD_SCRIPT = ROOT / "scripts/build-registry.py"
+BUILD_SCRIPT = ROOT / "scripts/data/build-registry.py"
 
 
 @pytest.fixture

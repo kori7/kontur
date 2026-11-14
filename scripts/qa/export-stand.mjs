@@ -3,7 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { fileURLToPath } from 'node:url';
-const root = new URL('../',import.meta.url);
+const root = new URL('../../',import.meta.url);
 await mkdir(new URL('tmp/',root),{recursive:true});
 await mkdir(new URL('apps/web/public/demo/',root),{recursive:true});
 await build({entryPoints:[fileURLToPath(new URL('apps/web/src/components/PumpDiagram.tsx',root))],outfile:fileURLToPath(new URL('tmp/pump-component.mjs',root)),bundle:true,format:'esm',platform:'node',jsx:'automatic',external:['react','react/jsx-runtime']});

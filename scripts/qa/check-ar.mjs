@@ -1,6 +1,6 @@
 import { chromium } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
-const root=new URL('../',import.meta.url);
+const root=new URL('../../',import.meta.url);
 const checkLoss=process.argv.includes('--loss');
 const video=checkLoss?'tmp/stand-tracking.y4m':'tmp/stand.y4m';
 const browser=await chromium.launch({headless:true,args:['--use-fake-ui-for-media-stream','--use-fake-device-for-media-stream',`--use-file-for-fake-video-capture=${fileURLToPath(new URL(video,root))}`,'--enable-unsafe-swiftshader']});
