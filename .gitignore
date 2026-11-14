@@ -20,3 +20,13 @@ tmp/
 .models/
 certs/
 offline-bundle/
+
+# Generated from data/reference or by scripts/qa; recreate instead of committing.
+artifacts/
+output/
+
+# Local copy of the organizer's shared folder; new files enter through the manifest.
+yandexdiskinfo/
+yandexdiskinfo.zip
+
+.DS_Store
