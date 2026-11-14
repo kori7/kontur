@@ -14,7 +14,7 @@ export function StandPanel({ equipment }: { equipment: Equipment }) {
         module.default.toDataURL(value, {
           width: 220,
           margin: 2,
-          color: { dark: "#233b31", light: "#ffffff" },
+          color: { dark: "#135AA6", light: "#ffffff" },
         }),
       )
       .then((result) => {
