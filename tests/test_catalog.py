@@ -92,18 +92,25 @@ def test_inspection_without_telemetry_runs_but_claims_nothing(client):
     payload = run.json()
     assert payload["equipment_id"] == "pcp-21031004-1"
     assert payload["evaluation"]["alerts"] == []
-    statuses = {item["id"]: item["status"] for item in payload["evaluation"]["rule_results"]}
-    assert set(statuses.values()) == {"not_applicable"}, "Насосные правила к этому типу применяться не должны."
+    assert payload["evaluation"]["source"] == "documents"
+    results = payload["evaluation"]["rule_results"]
+    assert {item["id"] for item in results} == {"P01", "P02", "P03", "P04", "P05", "P06", "P07", "P08"}
+    for item in results:
+        assert item["status"] == "insufficient", "Без входов правило не вправе сказать «норма»."
+        assert item["missing"], f"{item['id']}: статус заявлен без перечня недостающих входов."
 
 
-def test_not_applicable_is_distinct_from_clear_and_carries_a_reason(client):
-    documented = client.post("/api/analyze", json={"equipment_id": "pcp-21031004-1",
-                                                   "scenario_id": None}).json()
+def test_pump_rules_never_score_another_type_even_if_the_demo_engine_is_called(client):
+    """The documented engine is chosen by type; this is the guard if the demo engine is wired in."""
+    from app.diagnostics.engine import evaluate
+
+    documented = evaluate({}, [], equipment_type="pcp_pump_unit")["rule_results"]
+    statuses = {item["id"]: item for item in documented}
+    assert {item["status"] for item in documented} == {"not_applicable"}
+    assert "объёмному насосу" in statuses["R02"]["reason"]
+
     demo = client.post("/api/analyze", json={"equipment_id": "pump-101", "scenario_id": "normal"}).json()
-    documented_rules = {item["id"]: item for item in documented["evaluation"]["rule_results"]}
     demo_rules = {item["id"]: item for item in demo["evaluation"]["rule_results"]}
-    assert documented_rules["R02"]["status"] == "not_applicable"
-    assert "объёмному насосу" in documented_rules["R02"]["reason"]
     assert demo_rules["R02"]["status"] == "clear", "На демообъекте правило по-прежнему оценивается."
     assert "reason" not in demo_rules["R02"]
 

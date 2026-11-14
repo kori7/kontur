@@ -10,6 +10,7 @@ attach one machine's telemetry to another, which the источники explicit
 """
 
 from app import registry
+from app.diagnostics.documented import measurement_vocabulary, rules_for
 from app.equipment import COMPONENTS as DEMO_COMPONENTS, equipment_card as demo_card
 
 DEMO_ID = "pump-101"
@@ -81,7 +82,10 @@ def card(equipment_id: str, events: list[dict] | None = None) -> dict:
                 "inspectable": True, "scenarios_available": True,
                 # The demo notice already states this; a limitation would repeat it word for word.
                 "commissioned_at_status": "demo", "documents": [], "parameters": {},
-                "limitations": []}
+                "materials": {}, "resource": {}, "measurements": {}, "rules": [], "limitations": [],
+                "defect_classes": [{"id": entry["id"], "name": entry["name"],
+                                    "annotation": entry["annotation"]}
+                                   for entry in registry.applicable_classes(DEMO_ID)]}
     item = registry.registry_object(equipment_id)
     type_item = registry.equipment_type(item["equipment_type"])
     reference = item if "parameters" in item else registry.registry_object(item.get("same_type_as", equipment_id))
@@ -115,8 +119,19 @@ def card(equipment_id: str, events: list[dict] | None = None) -> dict:
         "commissioned_at_status": item.get("commissioned_at_status", "unknown"),
         "commissioned_at_note": item.get("commissioned_at_note"),
         "parameters": parameters,
+        # Rules need the seal type: a gland leaks by design, a mechanical seal does not.
+        "materials": reference.get("materials", {}),
+        # Passport life limits, quoted as given; none of them is a forecast of failure.
+        "resource": {key: reference[key] for key in
+                     ("service_life", "resource_to_writeoff", "warranty", "wear_parts_limit")
+                     if key in reference},
         "documents": item.get("document_ids", []),
         "components": components,
+        "measurements": measurement_vocabulary(item["equipment_type"]),
+        "rules": [{"id": rule["id"], "title": rule["title"], "severity": rule["severity"],
+                   "basis": rule["basis"]} for rule in rules_for(item["equipment_type"])],
+        "defect_classes": [{"id": entry["id"], "name": entry["name"], "annotation": entry["annotation"]}
+                           for entry in registry.applicable_classes(item["id"])],
         "limitations": _limitations(item, type_item),
         "notice": _notice(item, type_item),
     }
