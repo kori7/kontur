@@ -190,7 +190,9 @@ def document_thresholds(documents):
 
 
 def write_json(path, value):
-    path.write_text(json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
+    # newline="\n" keeps the output byte-identical on Windows, where text mode would write CRLF.
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n",
+                    encoding="utf-8", newline="\n")
 
 
 def import_reference(manifest_path, output_dir, *, source_root=None):
@@ -210,9 +212,12 @@ def import_reference(manifest_path, output_dir, *, source_root=None):
     if not series:
         raise ValueError("Organizer manifest contains no supported reference series.")
     thresholds = document_thresholds(documents)
+    # Hash with LF line endings: git checks the same manifest out as CRLF on Windows and LF
+    # elsewhere, and the recorded digest must not depend on which machine ran the import.
+    manifest_digest = hashlib.sha256(manifest_bytes.replace(b"\r\n", b"\n")).hexdigest()
     catalog = {
         "schema_version": SCHEMA_VERSION, "source": "reference",
-        "manifest": {"path": "manifest.json", "sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+        "manifest": {"path": "manifest.json", "sha256": manifest_digest,
                      "entry_count": len(entries)},
         "inventory": entries, "imported_source_ids": [entry["id"] for entry in selected],
         "series": [item["metadata"] for item in series], "thresholds_file": "reference-thresholds.json",

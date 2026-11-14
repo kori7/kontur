@@ -196,6 +196,22 @@ def test_import_is_deterministic_and_checks_manifest_integrity(importer, tmp_pat
         assert (DATA_DIR / name).read_bytes() == content
 
 
+def test_import_output_does_not_depend_on_line_endings(importer, tmp_path):
+    """Windows checks the manifest out with CRLF; the catalogue must come out identical."""
+    if importlib.util.find_spec("openpyxl") is None:
+        pytest.skip("Import requires openpyxl.")
+    lf = MANIFEST.read_bytes().replace(b"\r\n", b"\n")
+    for name, content in (("lf", lf), ("crlf", lf.replace(b"\n", b"\r\n"))):
+        manifest = tmp_path / name / "manifest.json"
+        manifest.parent.mkdir()
+        manifest.write_bytes(content)
+        importer.import_reference(manifest, tmp_path / name / "out", source_root=MANIFEST.parent)
+    for path in (tmp_path / "lf" / "out").glob("*.json"):
+        crlf_twin = tmp_path / "crlf" / "out" / path.name
+        assert crlf_twin.read_bytes() == path.read_bytes(), f"{path.name} depends on the manifest's line endings."
+        assert b"\r\n" not in path.read_bytes(), f"{path.name} must be written with LF on every OS."
+
+
 def test_corrupt_manifest_hash_is_rejected_before_output(importer, tmp_path):
     entries = json.loads(MANIFEST.read_text(encoding="utf-8"))
     entries[0]["sha256"] = "0" * 64
