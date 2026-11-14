@@ -8,7 +8,11 @@
     "build": "tsc -p apps/web/tsconfig.json && vite build --config apps/web/vite.config.ts",
     "typecheck": "tsc -p apps/web/tsconfig.json",
     "test:ui": "playwright test",
-    "preview": "vite preview --config apps/web/vite.config.ts"
+    "preview": "vite preview --config apps/web/vite.config.ts",
+    "model:textures": "python scripts/pump-model/textures.py",
+    "model:build": "node scripts/pump-model/build.mjs",
+    "model:validate": "node scripts/pump-model/validate.mjs",
+    "test:model": "node --experimental-strip-types --test tests/unit/pump-state.test.ts"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.3.0",
@@ -17,7 +21,8 @@
     "lucide-react": "^0.468.0",
     "qrcode": "^1.5.4",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "three": "^0.187.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.0",
@@ -25,7 +30,9 @@
     "@types/qrcode": "^1.5.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "@types/three": "^0.187.0",
     "@vitejs/plugin-react": "^5.0.4",
+    "gltf-validator": "^2.0.0-dev.3.10",
     "typescript": "~5.9.3",
     "vite": "^7.3.1"
   }

@@ -1,0 +1,15 @@
+{
+  "model": "AMS PCP60S12/3 01 Ex B1 HNBR DTS",
+  "project": "21031004",
+  "units": "m",
+  "dimensional_basis": "manufacturer_drawing",
+  "sources": [{"id":"manuals-017","pages":[6,7,8],"drawing":"21031004 / Du100.01.00.SB"},{"id":"manuals-001","pages":[3,4]}],
+  "drawing_dimensions_mm": {"length":2530,"frame_width":340,"height":759,"frame_length":2350,"shaft_height":296},
+  "passport_dimensions_mm": {"length":2742,"width":360,"height":605},
+  "foundation_centers_mm": {"length":2100,"width":300,"hole_diameter":13},
+  "rotor_diameter_mm": 74.6,
+  "dimension_conflict": "Installation drawing and passport give different overall dimensions; geometry follows the drawing, catalog retains the passport",
+  "reconstructed_without_detail_dimensions": ["rotor pitch and eccentricity", "gear teeth", "minor casting details", "guard perforation", "texture and paint finish"],
+  "configuration": "Horizontal progressive-cavity pump with single helical rotor, two-lobed HNBR stator, two universal joints, gearbox and motor",
+  "manufacturer_supplied_cad": false
+}

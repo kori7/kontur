@@ -17,7 +17,7 @@ test("diagnose, inspect a component, save and reopen history", async ({
   await page
     .getByRole("button", { name: "Сохранить осмотр", exact: true })
     .click();
-  await expect(page.getByRole("status")).toContainText("сохранён");
+  await expect(page.locator(".toast[role=status]")).toContainText("сохранён");
   await page
     .getByRole("button", { name: "Журнал осмотров", exact: true })
     .click();
@@ -63,7 +63,7 @@ test("manual observations accumulate and replacement resets only the selected co
   await page.getByLabel('Компонент').selectOption('seal');
   await page.getByLabel('Выполненное действие').selectOption('replacement');
   await page.getByRole('button',{name:'Сохранить осмотр',exact:true}).click();
-  await expect(page.getByRole('status')).toContainText('сохранён');
+  await expect(page.locator('.toast[role=status]')).toContainText('сохранён');
   await page.getByRole('button',{name:'Открыть узел: Торцевое уплотнение'}).click();
   await expect(page.getByTestId('component-operating-hours')).toHaveText('0 ч');
   await page.getByRole('button',{name:'Закрыть',exact:true}).click();

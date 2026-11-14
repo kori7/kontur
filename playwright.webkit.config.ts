@@ -3,6 +3,6 @@ import base from "./playwright.config";
 
 export default defineConfig({
   ...base,
-  testMatch: ["**/ui-readability.spec.ts", "**/brand-layout.spec.ts", "**/ui-refinements.spec.ts"],
+  testMatch: ["**/ui-readability.spec.ts", "**/brand-layout.spec.ts", "**/ui-refinements.spec.ts", "**/ui-polish.spec.ts", "**/pump-3d.spec.ts", "**/ams-pcp-model.spec.ts"],
   projects: [{ name: "webkit", use: { ...devices["iPhone 15"], browserName: "webkit" } }],
 });
