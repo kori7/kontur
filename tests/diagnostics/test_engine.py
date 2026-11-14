@@ -13,9 +13,9 @@ sys.path.insert(0, str(ROOT / "services" / "api"))
 
 NOW = datetime(2026, 11, 13, 7, 0, tzinfo=timezone.utc)
 KINDS = {
-    "liquid_leak": "seal", "base_corrosion": "base", "missing_bolt": "base",
+    "liquid_leak": "seal", "base_corrosion": "base", "missing_bolt": "base", "loose_bolt": "base",
     "oil_low": "bearing", "oil_degraded": "bearing", "contact_damage": "motor",
-    "guard_missing": "guard", "flow_instability": "inlet", "cavitation_noise": "inlet",
+    "guard_missing": "guard", "guard_damaged": "guard", "flow_instability": "inlet", "cavitation_noise": "inlet",
 }
 
 
@@ -75,7 +75,8 @@ def positive(rule):
     if rule == "R06":
         observe(observations, "liquid_leak", present=True)
     if rule == "R07":
-        values(telemetry, low_frequency_vibration=2.5, harmonic_ratio=0.7)
+        trend(telemetry, "low_frequency_vibration", 0.5, 2.5)
+        values(telemetry, harmonic_ratio=0.7)
         observe(observations, "missing_bolt", present=True)
     if rule == "R08":
         values(telemetry, temperature=70)
@@ -133,9 +134,9 @@ class RuleBehaviorTests(unittest.TestCase):
             ("R03", {"axial_vibration": 1}), ("R03", {"temperature": 80}),
             ("R03", {"current_a": 20, "current_b": 20, "current_c": 20}),
             ("R04", {"power": 10}), ("R04", {"vibration": 5}),
-            ("R04", {"temperature": 80}), ("R04", {"flow": 70}),
+            ("R04", {"temperature": 80}),
             ("R06", {"temperature": 60}), ("R06", {"vibration": 2}),
-            ("R07", {"low_frequency_vibration": 0.2}), ("R07", {"harmonic_ratio": 0.1}),
+            ("R07", {"low_frequency_vibration": 2.5}), ("R07", {"harmonic_ratio": 0.1}),
             ("R08", {"temperature": 69.9}),
             ("R09", {"current_a": 20, "current_b": 20, "current_c": 20}),
             ("R12", {"inlet_pressure": 2}), ("R12", {"high_frequency_vibration": 0.3}),
@@ -168,9 +169,9 @@ class RuleBehaviorTests(unittest.TestCase):
                 self.assert_rule(rule, telemetry, observations, "insufficient")
 
     def test_unobserved_visual_condition_is_unknown(self):
-        for rule, kinds in [("R06", ["liquid_leak"]), ("R07", ["missing_bolt", "base_corrosion"]),
+        for rule, kinds in [("R06", ["liquid_leak"]), ("R07", ["missing_bolt", "loose_bolt", "base_corrosion"]),
                             ("R08", ["oil_low", "oil_degraded"]), ("R09", ["contact_damage"]),
-                            ("R10", ["analog_pressure"]), ("R11", ["guard_missing"]),
+                            ("R10", ["analog_pressure"]), ("R11", ["guard_missing", "guard_damaged"]),
                             ("R12", ["flow_instability", "cavitation_noise"])]:
             with self.subTest(rule=rule):
                 telemetry, observations = positive(rule)
@@ -287,15 +288,26 @@ class RuleBehaviorTests(unittest.TestCase):
                 result = self.assert_rule("R04", telemetry, observations, status)
                 self.assertAlmostEqual(result["features"]["efficiency"], 0.75 * (1 - drop))
 
-    def test_r04_baseline_flow_required_for_comparable_regime(self):
+    def test_r04_does_not_require_comparable_flow(self):
+        # The organizer's condition is КПД −15% with normal vibration and temperature, nothing more.
         telemetry, observations = positive("R04")
         del telemetry["baseline"]["flow"]
-        self.assert_rule("R04", telemetry, observations, "insufficient")
-
-    def test_r04_unstable_operating_regime_is_not_comparable(self):
+        self.assert_rule("R04", telemetry, observations, "triggered")
         telemetry, observations = positive("R04")
         trend(telemetry, "flow", 70, 100)
-        self.assert_rule("R04", telemetry, observations, "clear")
+        self.assert_rule("R04", telemetry, observations, "triggered")
+
+    def test_r03_high_radial_coupling_vibration_is_enough(self):
+        telemetry, observations = positive("R03")
+        values(telemetry, axial_vibration=1, coupling_radial_vibration=4.5)
+        self.assert_rule("R03", telemetry, observations, "triggered")
+        values(telemetry, coupling_radial_vibration=4.499)
+        self.assert_rule("R03", telemetry, observations, "clear")
+
+    def test_r03_unknown_axial_with_normal_radial_is_unknown(self):
+        telemetry, observations = positive("R03")
+        values(telemetry, axial_vibration=None, coupling_radial_vibration=1)
+        self.assert_rule("R03", telemetry, observations, "insufficient")
 
     def test_r04_invalid_power_cannot_look_healthy(self):
         for power in (0, -1, None):
@@ -336,13 +348,32 @@ class RuleBehaviorTests(unittest.TestCase):
         telemetry["last_service_hours"] = 9000
         self.assert_rule("R05", telemetry, observations, "insufficient")
 
-    def test_r07_corrosion_alternative_and_unbalance_caveat(self):
+    def test_r07_corrosion_alternative_and_foundation_diagnosis(self):
         telemetry, observations = positive("R07")
         observe(observations, "missing_bolt", present=False)
         observe(observations, "base_corrosion", present=True)
         result = self.assert_rule("R07", telemetry, observations, "triggered")
         alert = next(item for item in result["alerts"] if "R07" in item["rule_ids"])
-        self.assertIn("дисбаланс", alert["hypothesis"].lower())
+        self.assertIn("посадкой агрегата на фундамент", alert["hypothesis"])
+
+    def test_r07_loose_bolt_alternative(self):
+        telemetry, observations = positive("R07")
+        observe(observations, "missing_bolt", present=False)
+        observe(observations, "loose_bolt", present=True)
+        self.assert_rule("R07", telemetry, observations, "triggered")
+
+    def test_r07_requires_rise_not_a_steady_level(self):
+        telemetry, observations = positive("R07")
+        values(telemetry, low_frequency_vibration=3.0)
+        self.assert_rule("R07", telemetry, observations, "clear")
+        telemetry["samples"] = telemetry["samples"][-1:]
+        self.assert_rule("R07", telemetry, observations, "insufficient")
+
+    def test_r11_damaged_or_shifted_guard_alternative(self):
+        _, observations = positive("R11")
+        observe(observations, "guard_missing", present=False)
+        observe(observations, "guard_damaged", present=True)
+        self.assert_rule("R11", {"source": "demo", "samples": []}, observations, "triggered")
 
     def test_r08_degraded_oil_alternative(self):
         telemetry, observations = positive("R08")
@@ -450,8 +481,8 @@ class RuleBehaviorTests(unittest.TestCase):
             ("R03", "axial_vibration", 4, 4, "triggered"),
             ("R06", "temperature", 60, 64.999, "clear"),
             ("R06", "temperature", 60, 65, "triggered"),
-            ("R07", "low_frequency_vibration", 1.999, 1.999, "clear"),
-            ("R07", "low_frequency_vibration", 2, 2, "triggered"),
+            ("R07", "low_frequency_vibration", 0.5, 0.999, "clear"),
+            ("R07", "low_frequency_vibration", 0.5, 1.0, "triggered"),
             ("R07", "harmonic_ratio", 0.599, 0.599, "clear"),
             ("R07", "harmonic_ratio", 0.6, 0.6, "triggered"),
             ("R08", "temperature", 68, 70, "triggered"),

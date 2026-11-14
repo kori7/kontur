@@ -58,8 +58,10 @@ class Observations:
         if not item:
             return []
         names = {"liquid_leak": "Жидкость у уплотнения", "base_corrosion": "Коррозия рамы", "missing_bolt": "Отсутствующий болт",
+                 "loose_bolt": "Ослабленный (выступающий) болт",
                  "oil_low": "Низкий уровень масла", "oil_degraded": "Деградация масла", "contact_damage": "Повреждение контактов",
-                 "guard_missing": "Отсутствие кожуха", "flow_instability": "Нестабильность потока", "cavitation_noise": "Кавитационный шум",
+                 "guard_missing": "Отсутствие кожуха", "guard_damaged": "Кожух разрушен или смещён",
+                 "flow_instability": "Нестабильность потока", "cavitation_noise": "Кавитационный шум",
                  "analog_pressure": "Аналоговое давление, бар"}
         value = item.get("value") if kind == "analog_pressure" else ("признак есть" if item["present"] else "признак не обнаружен")
         return [{"label": names[kind], "value": value, "threshold": "Подтверждённое наблюдение; время: " + item["timestamp"],
@@ -107,9 +109,16 @@ def evaluate(telemetry: dict, observations: list, now: datetime | None = None,
     current_mild = positive_base("current baseline_current", lambda value, base: T["current_mild_min_ratio"] + 1e-9 < value / base <= T["current_mild_max_ratio"] + 1e-9)
     leak = obs.get("liquid_leak", "seal")
     corrosion, bolt = obs.get("base_corrosion", "base"), obs.get("missing_bolt", "base")
+    loose_bolt = obs.get("loose_bolt", "base")
     oil_low, oil_degraded = obs.get("oil_low", "bearing"), obs.get("oil_degraded", "bearing")
     contact = obs.get("contact_damage", "motor")
-    guard = obs.get("guard_missing", "guard", combined=False)
+    guard = _or(obs.get("guard_missing", "guard", combined=False), obs.get("guard_damaged", "guard", combined=False))
+    axial_high = fact("axial_vibration", lambda value: value >= T["axial_vibration_mm_s"])
+    # Radial coupling vibration is optional: the condition names axial first («особенно осевая»).
+    if features["coupling_radial_vibration"] is not None:
+        coupling_high = _or(axial_high, fact("coupling_radial_vibration", lambda value: value >= T["coupling_radial_vibration_mm_s"]))
+    else:
+        coupling_high = axial_high
     flow_instability, noise = obs.get("flow_instability", "inlet"), obs.get("cavitation_noise", "inlet")
     analog, analog_missing = obs.get("analog_pressure", "gauge", numeric=True)
     electronic = features["outlet_pressure"]
@@ -128,12 +137,11 @@ def evaluate(telemetry: dict, observations: list, now: datetime | None = None,
     rules = {
         "R01": _and(vib_rise, temp_rise, current_normal),
         "R02": _and(vib_rise, pressure_fall),
-        "R03": _and(fact("axial_vibration", lambda value: value >= T["axial_vibration_mm_s"]), temp_normal, current_mild),
-        "R04": _and(fact("efficiency_drop_ratio", lambda value: value >= T["efficiency_drop_ratio"] - 1e-9), vib_normal, temp_normal,
-                    positive_base("flow baseline_flow flow_range", lambda value, base, spread: abs(value / base - 1) <= T["comparable_flow_tolerance"] + 1e-9 and spread / base <= T["comparable_flow_tolerance"] + 1e-9)),
+        "R03": _and(coupling_high, temp_normal, current_mild),
+        "R04": _and(fact("efficiency_drop_ratio", lambda value: value >= T["efficiency_drop_ratio"] - 1e-9), vib_normal, temp_normal),
         "R05": ((service["due_in_hours"] is not None and service["due_in_hours"] <= 0, []) if valid_service else (None, ["runtime_hours", "last_service_hours"])),
         "R06": _and(leak, vib_rise, temp_rise),
-        "R07": _and(_or(corrosion, bolt), fact("low_frequency_vibration harmonic_ratio", lambda low, harmonic: low >= T["low_frequency_vibration_mm_s"] and harmonic >= T["harmonic_ratio"])),
+        "R07": _and(_or(corrosion, bolt, loose_bolt), fact("low_frequency_vibration_trend harmonic_ratio", lambda rise, harmonic: rise >= T["low_frequency_rise_mm_s"] - 1e-9 and harmonic >= T["harmonic_ratio"])),
         "R08": _and(_or(oil_low, oil_degraded), fact("temperature baseline_temperature temperature_range", lambda value, base, spread: value >= base + T["oil_temperature_delta_c"] and spread <= T["stable_temperature_range_c"])),
         "R09": _and(contact, electrical),
         "R10": pressure_mismatch,
@@ -184,14 +192,16 @@ def _evidence(features, service, observations, evidence):
     return {
         "R01": [vibration, temp, evidence("Средний фазный ток, А", "current", "±10% базового тока")],
         "R02": [vibration, pressure] + observed("cavitation_noise"),
-        "R03": [evidence("Осевая вибрация муфты, мм/с", "axial_vibration", "≥4 мм/с"), evidence("Температура, °C", "temperature", "В пределах ±5 °C от базовой"), evidence("Средний фазный ток, А", "current", ">105% и ≤120% базового тока")],
-        "R04": [evidence("Относительное падение КПД, доля", "efficiency_drop_ratio", "≥0,15 от базового КПД"), evidence("КПД, доля", "efficiency", "(выход − вход), бар × расход, м³/ч / (36 × мощность, кВт)"), evidence("Расход, м³/ч", "flow", "Отклонение от базы и размах в окне ≤10%")],
-        "R05": [{"label": "Наработка, ч", "value": service["runtime_hours"], "threshold": "Демонстрационные рубежи 4000 / 8000 / 16000 ч; следующий: " + str(service["next_service_hours"]), "source": "demo: журнал обслуживания"}],
+        "R03": [evidence("Осевая вибрация муфты, мм/с", "axial_vibration", "≥4 мм/с")]
+               + ([evidence("Радиальная вибрация муфты, мм/с", "coupling_radial_vibration", "≥4,5 мм/с")] if features["coupling_radial_vibration"] is not None else [])
+               + [evidence("Температура, °C", "temperature", "В пределах ±5 °C от базовой"), evidence("Средний фазный ток, А", "current", ">105% и ≤120% базового тока")],
+        "R04": [evidence("Относительное падение КПД, доля", "efficiency_drop_ratio", "≥0,15 от базового КПД"), evidence("КПД, доля", "efficiency", "(выход − вход), бар × расход, м³/ч / (36 × мощность, кВт)"), evidence("Расход, м³/ч", "flow", "КПД зависит от расхода: сверить режим с базовым")],
+        "R05": [{"label": "Наработка, ч", "value": service["runtime_hours"], "threshold": "Рубежи 4000 / 8000 / 16000 моточасов; следующий: " + str(service["next_service_hours"]), "source": "demo: журнал обслуживания"}],
         "R06": observed("liquid_leak") + [vibration, temp],
-        "R07": observed("base_corrosion") + observed("missing_bolt") + [evidence("Низкочастотная вибрация, мм/с", "low_frequency_vibration", "≥2 мм/с"), evidence("Доля первой гармоники", "harmonic_ratio", "≥0,6; дисбаланс не исключён")],
+        "R07": observed("base_corrosion") + observed("missing_bolt") + observed("loose_bolt") + [evidence("Рост низкочастотной вибрации за окно, мм/с", "low_frequency_vibration_trend", "≥0,5 мм/с; минимум 3 измерения"), evidence("Доля первой гармоники", "harmonic_ratio", "≥0,6")],
         "R08": observed("oil_low") + observed("oil_degraded") + [evidence("Температура, °C", "temperature", "≥ базовой +10 °C"), evidence("Размах температуры, °C", "temperature_range", "≤2 °C; минимум 3 измерения")],
         "R09": observed("contact_damage") + electrical,
         "R10": observations.evidence("analog_pressure") + [evidence("Электронное давление, бар", "outlet_pressure", "|электронное давление| ≥0,05 бар"), evidence("Относительное расхождение", "pressure_difference_ratio", "|аналоговое − электронное| / |электронное| >0,15; разница времени ≤120 с")],
-        "R11": observed("guard_missing"),
+        "R11": observed("guard_missing") + observed("guard_damaged"),
         "R12": [pressure, evidence("Рост ВЧ-вибрации, мм/с", "high_frequency_vibration_trend", "≥0,5 мм/с за окно; минимум 3 измерения")] + observed("flow_instability") + observed("cavitation_noise"),
     }

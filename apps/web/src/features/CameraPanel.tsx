@@ -298,7 +298,8 @@ export function CameraPanel({
                         }}
                       >
                         <span>
-                          {item.kind === "guard_missing"
+                          {item.kind === "guard_missing" ||
+                          item.kind === "guard_damaged"
                             ? "Кожух"
                             : item.kind === "liquid_leak"
                               ? "Жидкость"

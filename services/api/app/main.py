@@ -27,8 +27,9 @@ load_dotenv(ROOT / ".env")
 
 
 class ManualObservation(BaseModel):
-    kind: Literal["guard_missing", "liquid_leak", "missing_bolt", "base_corrosion", "oil_low",
-                  "oil_degraded", "contact_damage", "flow_instability", "cavitation_noise"]
+    kind: Literal["guard_missing", "guard_damaged", "liquid_leak", "missing_bolt", "loose_bolt",
+                  "base_corrosion", "oil_low", "oil_degraded", "contact_damage", "flow_instability",
+                  "cavitation_noise"]
     present: bool
     timestamp: datetime | None = None
 
@@ -291,6 +292,4 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
 
 
 vision_kinds = set(VISUAL_COMPONENTS)
-observation_components = {"guard_missing": "guard", "liquid_leak": "seal", "missing_bolt": "base",
-                          "base_corrosion": "base", "oil_low": "bearing", "oil_degraded": "bearing",
-                          "contact_damage": "motor", "flow_instability": "inlet", "cavitation_noise": "inlet"}
+observation_components = {**VISUAL_COMPONENTS, "flow_instability": "inlet", "cavitation_noise": "inlet"}

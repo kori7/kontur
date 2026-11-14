@@ -1305,8 +1305,10 @@ export default function App() {
                 onChange={(event) => setManualKind(event.target.value)}
               >
                 <option value="guard_missing">Кожух отсутствует</option>
+                <option value="guard_damaged">Кожух разрушен или смещён</option>
                 <option value="liquid_leak">Жидкость у уплотнения</option>
                 <option value="missing_bolt">Отсутствует крепёж</option>
+                <option value="loose_bolt">Болт ослаблен (выступает)</option>
                 <option value="oil_low">Уровень масла ниже MIN</option>
                 <option value="contact_damage">
                   Видимые повреждения контакта

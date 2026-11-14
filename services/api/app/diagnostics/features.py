@@ -84,12 +84,12 @@ class Window:
 def extract(telemetry, now):
     window = Window(telemetry, now)
     fields = ("temperature", "vibration", "inlet_pressure", "outlet_pressure", "flow", "power",
-              "axial_vibration", "low_frequency_vibration", "harmonic_ratio", "high_frequency_vibration", "motor_temperature")
+              "axial_vibration", "coupling_radial_vibration", "low_frequency_vibration", "harmonic_ratio",
+              "high_frequency_vibration", "motor_temperature")
     features = {field: window.value(field) for field in fields}
-    for field in ("temperature", "vibration", "inlet_pressure", "high_frequency_vibration"):
+    for field in ("temperature", "vibration", "inlet_pressure", "low_frequency_vibration", "high_frequency_vibration"):
         features[field + "_trend"] = window.delta(field)
     features["temperature_range"] = window.spread("temperature")
-    features["flow_range"] = window.spread("flow")
     for field in ("temperature", "vibration", "current", "flow", "efficiency"):
         features["baseline_" + field] = window.base(field)
     phases = [window.value("current_" + phase) for phase in "abc"]
