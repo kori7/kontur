@@ -1272,7 +1272,7 @@ export default function App() {
         <Modal title="Визуальный осмотр" wide onClose={() => setDialog(null)}>
           <CameraPanel
             configured={bootstrap?.vision.configured ?? false}
-            model={bootstrap?.vision.model ?? "gpt-6-astra"}
+            model={bootstrap?.vision.model ?? "Qwen3-VL-4B-Instruct"}
             alerts={alerts}
             objects={catalogObjects}
             currentId={equipmentId}

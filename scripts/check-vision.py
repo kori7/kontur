@@ -1,4 +1,4 @@
-"""Check the configured image endpoint with a synthetic non-equipment image."""
+"""Check the local vision server with a synthetic non-equipment image."""
 
 import asyncio
 import base64
@@ -26,9 +26,8 @@ async def main():
     png = b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", 160, 160, 8, 2, 0, 0, 0))
     png += chunk(b"IDAT", zlib.compress(pixels)) + chunk(b"IEND", b"")
     image = "data:image/png;base64," + base64.b64encode(png).decode()
-    client = VisionClient(os.getenv("VISION_API_KEY") or os.getenv("AGENTROUTER_API_KEY", ""),
-                          os.getenv("VISION_BASE_URL", "https://agentrouter.org/v1"),
-                          os.getenv("VISION_MODEL", "gpt-6-astra"))
+    client = VisionClient(os.getenv("LOCAL_VISION_URL", "http://127.0.0.1:8081/v1"),
+                          os.getenv("LOCAL_VISION_MODEL", "Qwen3-VL-4B-Instruct"))
     try:
         result = await client.analyze(image)
     except VisionError as exc:
