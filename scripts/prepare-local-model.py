@@ -25,8 +25,12 @@ ASSETS = [
 
 
 def digest(path):
+    # Chunked read instead of hashlib.file_digest, which needs Python 3.11.
+    hasher = hashlib.sha256()
     with path.open("rb") as handle:
-        return hashlib.file_digest(handle, "sha256").hexdigest()
+        for chunk in iter(lambda: handle.read(1 << 20), b""):
+            hasher.update(chunk)
+    return hasher.hexdigest()
 
 
 def download(asset):
