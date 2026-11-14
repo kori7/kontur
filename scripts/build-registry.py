@@ -4,7 +4,7 @@ Every classification below was set by looking at the file itself. Checksums, siz
 copied from the manifest so they are never retyped. ``provenance`` records what the file shows about
 its own origin, not a guess: ``stock_watermark`` and ``generated_watermark`` mean a visible mark,
 ``unknown`` means the origin could not be established from the file. A second reviewer is expected to
-re-check the table and record disagreement in docs/stage-a-inventory.md.
+re-check the table and record disagreement in docs/reports/stage-a-inventory.md.
 """
 
 import json

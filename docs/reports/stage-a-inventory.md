@@ -215,7 +215,7 @@
 
 ## 7. Контракты
 
-Зафиксированы в `docs/contracts/` как JSON Schema и описаны в [docs/contracts.md](contracts.md): `anchors.schema.json`, `frame.schema.json`, `observation.schema.json`, `ar-overlay.schema.json`.
+Зафиксированы в `docs/contracts/` как JSON Schema и описаны в [docs/contracts.md](../contracts.md): `anchors.schema.json`, `frame.schema.json`, `observation.schema.json`, `ar-overlay.schema.json`.
 
 Главное разделение, ради которого они написаны: **точка узла в пространстве и область дефекта на кадре — разные сущности с разным временем жизни.** Первая держится на привязке к оборудованию и гаснет при потере маркера; вторая принадлежит кадру и переносится трекером, пока связь достоверна.
 
