@@ -66,10 +66,9 @@ export function PassportResource({ equipment }: { equipment: Equipment }) {
         </ul>
       )}
       <p className="resource-caveat support-copy" style={{ marginTop: 12 }}>
-        {equipment.commissioned_at
-          ? `Ввод в эксплуатацию: ${equipment.commissioned_at}.`
-          : "Дата ввода в эксплуатацию не указана, поэтому наработка и остаток не рассчитываются"}{" "}
-        Нормативный срок не является прогнозом времени до отказа
+        {/* An unknown commissioning date is already stated in the notes above the card. */}
+        {equipment.commissioned_at ? `Ввод в эксплуатацию: ${equipment.commissioned_at}. ` : ""}
+        Нормативный срок — не прогноз отказа
       </p>
     </section>
   );

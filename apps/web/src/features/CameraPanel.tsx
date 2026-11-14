@@ -1,50 +1,71 @@
-import { formatCopy } from "../api";
+import { formatCopy, request, sendFrame } from "../api";
 import { useEffect, useRef, useState } from "react";
-import {
-  Camera,
-  CircleStop,
-  ImagePlus,
-  Loader2,
-  ScanLine,
-  Sparkles,
-  View,
-} from "lucide-react";
-import type { Alert, CatalogObject, VisionResult } from "../types";
-import { request } from "../api";
+import { Camera, Check, CircleStop, Crosshair, Loader2, ScanLine, ScanText, Video, View, X } from "lucide-react";
+import type {
+  Alert,
+  CatalogObject,
+  LiveAssessment,
+  LiveDetection,
+  LiveDetector,
+  LiveFrame,
+  LiveSession,
+} from "../types";
+
+// Pause between an answer and the next frame: gives the phone time to draw and keeps it cool.
+const FRAME_PAUSE_MS = 120;
+const JPEG_QUALITY = 0.7;
+
+const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// The three categories of the brief (§4.2), plus two states where no verdict is possible yet.
+const ASSESSMENT: Record<LiveAssessment, { text: string; tone: string }> = {
+  unavailable: { text: "Детектор не готов — оценить кадр нельзя", tone: "neutral" },
+  warming_up: { text: "Собираем кадры для оценки", tone: "neutral" },
+  no_visible_issues: { text: "Видимых проблем не обнаружено", tone: "ok" },
+  check_recommended: { text: "Рекомендуется проверка", tone: "warning" },
+  possible_defect: { text: "Обнаружены признаки возможного дефекта", tone: "critical" },
+};
 
 export function CameraPanel({
-  configured,
-  model,
   alerts,
+  hints,
   objects,
   currentId,
-  onResult,
+  componentOf,
   onComponent,
-  onImage,
+  onConfirm,
   onSelectObject,
 }: {
-  configured: boolean;
-  model: string;
   alerts: Alert[];
+  hints: { component: string; name: string; reason: string; severity: string }[];
   objects: CatalogObject[];
   currentId: string;
-  onResult: (result: VisionResult) => Promise<void>;
+  componentOf: (kind: string) => string | null;
   onComponent: (id: string) => void;
-  onImage: (image: string | null) => void;
+  onConfirm: (item: LiveDetection, frame: string, detector: string) => Promise<boolean>;
   onSelectObject: (id: string) => void;
 }) {
   const video = useRef<HTMLVideoElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
+  const canvas = useRef<HTMLCanvasElement | null>(null);
   const cameraGeneration = useRef(0);
   const stream = useRef<MediaStream | null>(null);
   const scanner = useRef<{ stop: () => void } | null>(null);
-  const [mode, setMode] = useState<"photo" | "ar" | "qr">("photo");
+  const [mode, setMode] = useState<"live" | "ar" | "qr">("live");
   const [live, setLive] = useState(false);
-  const [image, setImage] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<VisionResult | null>(null);
+  const [detections, setDetections] = useState<LiveDetection[]>([]);
+  const [detector, setDetector] = useState<LiveDetector | null>(null);
+  const [assessment, setAssessment] = useState<LiveAssessment | null>(null);
+  // Signs confirmed on frames during this session, kept until the engineer records or rejects them.
+  const [candidates, setCandidates] = useState<Record<string, LiveDetection>>({});
+  const [decided, setDecided] = useState<Record<string, "recorded" | "rejected">>({});
+  const [saving, setSaving] = useState<string | null>(null);
+  const [reading, setReading] = useState(false);
+  const [plate, setPlate] = useState<{ status: string; lines: string[];
+    matches: { id: string; name: string; serial: string | null; matched: string }[] } | null>(null);
+  const [stats, setStats] = useState({ processed: 0, roundTripMs: 0 });
   function stop() {
     cameraGeneration.current += 1;
     stream.current?.getTracks().forEach((track) => track.stop());
@@ -52,6 +73,8 @@ export function CameraPanel({
     scanner.current?.stop();
     scanner.current = null;
     setLive(false);
+    setDetections([]);
+    setAssessment(null);
   }
   useEffect(
     () => () => {
@@ -76,17 +99,12 @@ export function CameraPanel({
     setError("");
     setMessage("");
   }
-  async function startCamera() {
-    const generation = ++cameraGeneration.current;
-    setError("");
-    setImage(null);
-    onImage(null);
-    setResult(null);
+  async function openCamera(generation: number) {
     if (!navigator.mediaDevices?.getUserMedia) {
       setError(
         "Для камеры откройте приложение через HTTPS или localhost. По обычному HTTP с телефона камера недоступна",
       );
-      return;
+      return false;
     }
     try {
       const media = await navigator.mediaDevices.getUserMedia({
@@ -94,8 +112,8 @@ export function CameraPanel({
         audio: false,
       });
       if (generation !== cameraGeneration.current) {
-        media.getTracks().forEach(track=>track.stop());
-        return;
+        media.getTracks().forEach((track) => track.stop());
+        return false;
       }
       stream.current = media;
       setLive(true);
@@ -103,76 +121,149 @@ export function CameraPanel({
         video.current.srcObject = media;
         await video.current.play();
       }
+      return true;
     } catch (cause) {
       const name = (cause as DOMException).name;
       setError(
         name === "NotAllowedError"
-          ? "Разрешите доступ к камере в настройках браузера. Можно также загрузить снимок"
-          : "Камера недоступна. Подключите камеру или загрузите снимок",
+          ? "Разрешите доступ к камере в настройках браузера"
+          : "Камера недоступна. Подключите камеру или откройте приложение на телефоне",
       );
+      return false;
     }
   }
-  function capture() {
-    if (!video.current?.videoWidth) return;
-    const canvas = document.createElement("canvas");
-    canvas.width = video.current.videoWidth;
-    canvas.height = video.current.videoHeight;
-    canvas.getContext("2d")!.drawImage(video.current, 0, 0);
-    const captured = canvas.toDataURL("image/jpeg", 0.88);
-    setImage(captured);
-    onImage(captured);
-    setResult(null);
-    stop();
+  // One frame, scaled so its longer side fits what the server asked for.
+  function grab(maxSide: number): Promise<Blob | null> {
+    const source = video.current;
+    if (!source?.videoWidth) return Promise.resolve(null);
+    const scale = Math.min(1, maxSide / Math.max(source.videoWidth, source.videoHeight));
+    const target = (canvas.current ??= document.createElement("canvas"));
+    target.width = Math.round(source.videoWidth * scale);
+    target.height = Math.round(source.videoHeight * scale);
+    target.getContext("2d")!.drawImage(source, 0, 0, target.width, target.height);
+    return new Promise((resolve) => target.toBlob(resolve, "image/jpeg", JPEG_QUALITY));
   }
-  async function upload(file?: File) {
-    if (!file) return;
-    stop();
+  async function startLive() {
+    const generation = ++cameraGeneration.current;
     setError("");
-    setResult(null);
-    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
-      setError("Выберите изображение PNG, JPEG или WebP");
+    setMessage("");
+    setDetections([]);
+    setCandidates({});
+    setDecided({});
+    setStats({ processed: 0, roundTripMs: 0 });
+    let session: LiveSession;
+    try {
+      session = await request<LiveSession>("/live/sessions", { equipment_id: currentId });
+    } catch (cause) {
+      setError((cause as Error).message);
       return;
     }
-    if (file.size > 12_000_000) {
-      setError("Выберите файл меньше 12 МБ");
-      return;
-    }
-    const url = URL.createObjectURL(file);
-    try {
-      const photo = new Image();
-      photo.src = url;
-      await photo.decode();
-      const scale = Math.min(1, 1600 / Math.max(photo.width, photo.height));
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.round(photo.width * scale);
-      canvas.height = Math.round(photo.height * scale);
-      canvas
-        .getContext("2d")!
-        .drawImage(photo, 0, 0, canvas.width, canvas.height);
-      const uploaded = canvas.toDataURL("image/jpeg", 0.9);
-      setImage(uploaded);
-      onImage(uploaded);
-    } catch {
-      setError("Не удалось прочитать изображение. Попробуйте другой файл");
-    } finally {
-      URL.revokeObjectURL(url);
+    setDetector(session.detector);
+    if (!(await openCamera(generation))) return;
+    // The next frame leaves only after the previous answer: nothing piles up on a slow network.
+    let frameNo = 0;
+    let processed = 0;
+    while (generation === cameraGeneration.current) {
+      const blob = await grab(session.max_side);
+      if (!blob) {
+        await pause(200);
+        continue;
+      }
+      const started = performance.now();
+      try {
+        const answer = await sendFrame<LiveFrame>(session.session_id, frameNo, blob);
+        if (generation !== cameraGeneration.current) return;
+        if (answer.status === "processed") {
+          frameNo += 1;
+          processed += 1;
+          setDetections(answer.detections);
+          setDetector(answer.detector);
+          setAssessment(answer.assessment ?? null);
+          const confirmed = answer.detections.filter((item) => item.confirmed);
+          if (confirmed.length) {
+            setCandidates((current) => {
+              const next = { ...current };
+              for (const item of confirmed) {
+                if (!next[item.kind] || (item.confidence ?? 0) >= (next[item.kind].confidence ?? 0)) {
+                  next[item.kind] = item;
+                }
+              }
+              return next;
+            });
+          }
+          setStats({ processed, roundTripMs: Math.round(performance.now() - started) });
+        } else if (answer.status === "stale") {
+          frameNo = answer.frame_no + 1;
+        }
+      } catch (cause) {
+        if (generation !== cameraGeneration.current) return;
+        setError((cause as Error).message);
+        stop();
+        return;
+      }
+      await pause(FRAME_PAUSE_MS);
     }
   }
-  async function analyze() {
-    if (!image) return;
-    setBusy(true);
+  // The evidence frame is taken larger than analysis frames: it is for a person to look at later.
+  function evidenceFrame(): string | null {
+    const source = video.current;
+    if (!source?.videoWidth) return null;
+    const scale = Math.min(1, 1280 / Math.max(source.videoWidth, source.videoHeight));
+    const target = document.createElement("canvas");
+    target.width = Math.round(source.videoWidth * scale);
+    target.height = Math.round(source.videoHeight * scale);
+    target.getContext("2d")!.drawImage(source, 0, 0, target.width, target.height);
+    return target.toDataURL("image/jpeg", 0.85);
+  }
+  async function record(item: LiveDetection) {
+    const frame = evidenceFrame();
+    if (!frame) {
+      setError("Нет кадра с камеры: включите камеру и наведите её на узел");
+      return;
+    }
+    setSaving(item.kind);
+    const ok = await onConfirm(item, frame, detector?.name ?? "");
+    setSaving(null);
+    if (ok) setDecided((current) => ({ ...current, [item.kind]: "recorded" }));
+  }
+  // A nameplate needs more pixels than defect frames: small stamped text is read from this frame.
+  async function readNameplate() {
+    const source = video.current;
+    if (!source?.videoWidth) return;
+    setReading(true);
     setError("");
+    setPlate(null);
+    const scale = Math.min(1, 1600 / Math.max(source.videoWidth, source.videoHeight));
+    const target = document.createElement("canvas");
+    target.width = Math.round(source.videoWidth * scale);
+    target.height = Math.round(source.videoHeight * scale);
+    target.getContext("2d")!.drawImage(source, 0, 0, target.width, target.height);
+    const blob = await new Promise<Blob | null>((resolve) => target.toBlob(resolve, "image/jpeg", 0.9));
     try {
-      const response = await request<VisionResult>("/vision", { image });
-      setResult(response);
-      await onResult(response);
+      const response = await fetch("/api/nameplate", { method: "POST", headers: { "Content-Type": "image/jpeg" }, body: blob });
+      const answer = await response.json();
+      if (!response.ok) throw new Error(answer.detail ?? "Не удалось прочитать табличку");
+      if (answer.status === "found") {
+        const found = answer.matches[0];
+        if (found.id === currentId) {
+          setMessage(`${found.name} опознан по табличке. Его карточка уже открыта`);
+          stop();
+        } else {
+          setMessage(`${found.name} опознан по табличке. Открываем карточку`);
+          stop();
+          onSelectObject(found.id);
+        }
+      } else {
+        setPlate(answer);
+      }
     } catch (cause) {
       setError((cause as Error).message);
     } finally {
-      setBusy(false);
+      setReading(false);
     }
   }
   async function scanQr() {
+    setPlate(null);
     setError("");
     setMessage("");
     if (!navigator.mediaDevices?.getUserMedia) {
@@ -235,11 +326,11 @@ export function CameraPanel({
     <div>
       <div className="camera-tabs">
         <button
-          className={`button ${mode === "photo" ? "primary" : "secondary"}`}
-          onClick={() => changeMode("photo")}
+          className={`button ${mode === "live" ? "primary" : "secondary"}`}
+          onClick={() => changeMode("live")}
         >
-          <Camera size={15} />
-          Снимок и ИИ
+          <Video size={15} />
+          Живой осмотр
         </button>
         <button
           className={`button ${mode === "ar" ? "primary" : "secondary"}`}
@@ -253,7 +344,7 @@ export function CameraPanel({
           onClick={() => changeMode("qr")}
         >
           <ScanLine size={15} />
-          Сканировать QR
+          Опознать
         </button>
       </div>
       {mode === "ar" ? (
@@ -273,44 +364,64 @@ export function CameraPanel({
         </>
       ) : (
         <>
+          {mode === "live" && (
+            <div className="live-hints">
+              <strong>
+                <Crosshair size={15} /> Куда навести камеру
+              </strong>
+              {hints.length ? (
+                <ul>
+                  {hints.map((hint) => (
+                    <li key={hint.component} className={hint.severity}>
+                      <span>{hint.name}</span> — {formatCopy(hint.reason)}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="support-copy">
+                  Осмотрите: кожух муфты, уплотнение, крепление рамы
+                </p>
+              )}
+            </div>
+          )}
           <div className="camera-stage">
-            <video
-              ref={video}
-              playsInline
-              muted
-              style={{ display: live ? "block" : "none" }}
-            />
-            {image && mode === "photo" ? (
-              <div className="image-wrapper">
-                <img src={image} alt="Снимок для визуального осмотра" />
-                {result?.observations
-                  .filter((item) => item.present && item.bbox)
-                  .map((item, i) => {
-                    const [x1, y1, x2, y2] = item.bbox!;
-                    return (
-                      <div
-                        className="vision-box"
-                        key={i}
-                        style={{
-                          left: `${x1 * 100}%`,
-                          top: `${y1 * 100}%`,
-                          width: `${(x2 - x1) * 100}%`,
-                          height: `${(y2 - y1) * 100}%`,
-                        }}
-                      >
+            <div className="live-frame" style={{ display: live ? "block" : "none" }}>
+              <video ref={video} playsInline muted />
+              {mode === "live" &&
+                detections.map((item, i) => {
+                  const [x1, y1, x2, y2] = item.bbox;
+                  return (
+                    <button
+                      type="button"
+                      className={`vision-box live-box ${item.confirmed ? "confirmed" : "tentative"}`}
+                      key={i}
+                      aria-label={`${item.label}: открыть карточку узла`}
+                      title={`${item.label}${item.confidence !== null ? ` · ${Math.round(item.confidence * 100)}%` : ""}`}
+                      onClick={() => {
+                        const component = componentOf(item.kind);
+                        if (component) onComponent(component);
+                      }}
+                      style={{
+                        left: `${x1 * 100}%`,
+                        top: `${y1 * 100}%`,
+                        width: `${(x2 - x1) * 100}%`,
+                        height: `${(y2 - y1) * 100}%`,
+                      }}
+                    >
+                      {/* Only confirmed signs are labelled: several dashed guesses with text would
+                          cover the very part the engineer is looking at. */}
+                      {item.confirmed && (
                         <span>
-                          {item.kind === "guard_missing" ||
-                          item.kind === "guard_damaged"
-                            ? "Кожух"
-                            : item.kind === "liquid_leak"
-                              ? "Жидкость"
-                              : "Крепление"}
+                          {item.label}
+                          {item.confidence !== null &&
+                            ` · ${Math.round(item.confidence * 100)}%`}
                         </span>
-                      </div>
-                    );
-                  })}
-              </div>
-            ) : !live ? (
+                      )}
+                    </button>
+                  );
+                })}
+            </div>
+            {!live && (
               <div className="camera-placeholder">
                 {mode === "qr" ? (
                   <ScanLine size={40} strokeWidth={1.2} />
@@ -319,68 +430,123 @@ export function CameraPanel({
                 )}
                 <h3>
                   {mode === "qr"
-                    ? "Идентифицируйте оборудование"
-                    : "Рассмотрите узел ближе"}
+                    ? "Опознайте оборудование"
+                    : "Наведите камеру на агрегат"}
                 </h3>
                 <p className="support-copy">
                   {mode === "qr"
-                    ? "Отсканируйте QR-код демонстрационного агрегата"
-                    : "Снимите муфту с кожухом, торцевое уплотнение или крепление. Модель оценит только видимые признаки"}
+                    ? "QR-код считывается сам. Для заводской таблички наведите камеру на неё и нажмите «Прочитать шильдик»"
+                    : "Кадры обрабатываются на локальном сервере и не сохраняются"}
                 </p>
               </div>
-            ) : null}
+            )}
           </div>
           <div className="camera-controls">
             {mode === "qr" ? (
-              <button className="button primary" onClick={live ? stop : scanQr}>
-                {live ? <CircleStop size={16} /> : <ScanLine size={16} />}{" "}
-                {live ? "Остановить" : "Включить сканер"}
-              </button>
-            ) : (
               <>
-                <button
-                  className="button secondary"
-                  onClick={live ? capture : startCamera}
-                >
-                  <Camera size={16} />
-                  {live ? "Сделать снимок" : "Включить камеру"}
+                <button className={`button ${live ? "secondary" : "primary"}`} onClick={live ? stop : scanQr}>
+                  {live ? <CircleStop size={16} /> : <ScanLine size={16} />}{" "}
+                  {live ? "Остановить" : "Включить камеру"}
                 </button>
-                <label className="button secondary upload-label">
-                  <ImagePlus size={16} />
-                  Загрузить снимок
-                  <input
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    onChange={(event) => {
-                      void upload(event.target.files?.[0]);
-                      event.target.value = "";
-                    }}
-                    aria-label="Загрузить снимок"
-                  />
-                </label>
-                <button
-                  className="button primary"
-                  disabled={!image || busy || !configured}
-                  onClick={analyze}
-                >
-                  {busy ? (
-                    <Loader2 size={16} className="spin" />
-                  ) : (
-                    <Sparkles size={16} />
-                  )}{" "}
-                  {busy ? "Анализируем…" : "Анализировать"}
-                </button>
+                {live && (
+                  <button className="button primary" disabled={reading} onClick={() => void readNameplate()}>
+                    {reading ? <Loader2 size={16} className="spin" /> : <ScanText size={16} />}
+                    {reading ? "Читаем…" : "Прочитать шильдик"}
+                  </button>
+                )}
               </>
+            ) : (
+              <button
+                className="button primary"
+                onClick={live ? stop : () => void startLive()}
+              >
+                {live ? <CircleStop size={16} /> : <Video size={16} />}
+                {live ? "Остановить" : "Включить камеру"}
+              </button>
             )}
           </div>
-          {mode === "photo" && (
+          {mode === "live" && live && assessment && (
+            <p className={`live-assessment ${ASSESSMENT[assessment].tone}`} role="status">
+              {ASSESSMENT[assessment].text}
+              {assessment === "possible_defect" &&
+                `: ${[...new Set(detections.filter((item) => item.confirmed).map((item) => item.label))].join(", ")}`}
+            </p>
+          )}
+          {mode === "live" && Object.keys(candidates).length > 0 && (
+            <div className="live-candidates">
+              <strong>Подтвердите признаки, найденные камерой</strong>
+              {Object.values(candidates).map((item) => (
+                <div className="live-candidate" key={item.kind}>
+                  <span>
+                    {item.label}
+                    {item.confidence !== null && ` · ${Math.round(item.confidence * 100)}%`}
+                  </span>
+                  {decided[item.kind] === "recorded" ? (
+                    <span className="candidate-state">
+                      <Check size={15} /> Записано в журнал
+                    </span>
+                  ) : decided[item.kind] === "rejected" ? (
+                    <span className="candidate-state">Отклонено инженером</span>
+                  ) : (
+                    <span className="candidate-actions">
+                      <button
+                        className="button primary"
+                        disabled={saving !== null || !live}
+                        onClick={() => void record(item)}
+                      >
+                        <Check size={15} />
+                        {saving === item.kind ? "Записываем…" : "Подтвердить и записать"}
+                      </button>
+                      <button
+                        className="button secondary"
+                        disabled={saving !== null}
+                        onClick={() => setDecided((current) => ({ ...current, [item.kind]: "rejected" }))}
+                      >
+                        <X size={15} />
+                        Не дефект
+                      </button>
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          {mode === "live" && live && detector && (
+            <p className="camera-message support-copy" role="status">
+              {detector.ready
+                ? `Детектор: ${detector.name} · обработано кадров: ${stats.processed} · ответ сервера: ${stats.roundTripMs} мс`
+                : `Детектор признаков ${detector.name}. Рамок не будет, но кадры доходят до сервера — обработано: ${stats.processed}, ответ: ${stats.roundTripMs} мс`}
+            </p>
+          )}
+          {mode === "live" && live && (
             <p className="support-copy">
-              {configured
-                ? `Анализ выполняет ${model} на локальном сервере. Снимок не покидает локальную сеть`
-                : "Локальная модель не настроена. Запустите её по инструкции в README"}
+              Сплошная рамка — признак держится на 3 из 5 кадров, пунктир — ещё не подтверждён.
+              Нет рамок — ещё не значит исправно
             </p>
           )}
         </>
+      )}
+      {plate && (
+        <div className="plate-result" role="status">
+          {plate.status === "ambiguous" ? (
+            <>
+              <strong>Подходят несколько объектов — выберите нужный</strong>
+              {plate.matches.map((item) => (
+                <button key={item.id} className="button secondary" onClick={() => { stop(); onSelectObject(item.id); }}>
+                  {item.name} · {item.serial ?? item.id}
+                </button>
+              ))}
+            </>
+          ) : (
+            <>
+              <strong>Объект по табличке не найден</strong>
+              <p className="support-copy">
+                Подойдите ближе, уберите блик или выберите оборудование вручную.{" "}
+                {plate.lines.length ? `Прочитано: ${plate.lines.slice(0, 6).join(" · ")}` : "Текст на кадре не найден"}
+              </p>
+            </>
+          )}
+        </div>
       )}
       {error && (
         <p className="camera-message camera-error support-copy" role="alert">
@@ -391,26 +557,6 @@ export function CameraPanel({
         <p className="camera-message support-copy" role="status">
           {formatCopy(message)}
         </p>
-      )}
-      {result && mode === "photo" && (
-        <div className="vision-result">
-          <strong>
-            {result.quality === "unreadable"
-              ? "Нужен другой снимок"
-              : result.quality === "limited"
-                ? "Ограниченное качество снимка"
-                : "Предварительный анализ завершён"}
-          </strong>
-          <p className="support-copy">{formatCopy(result.summary)}</p>
-          <ul>
-            {result.observations.map((item, i) => (
-              <li key={i}>{formatCopy(item.description)}</li>
-            ))}
-          </ul>
-          <p className="support-copy">
-            Отсутствие видимых проблем не подтверждает исправность оборудования
-          </p>
-        </div>
       )}
     </div>
   );

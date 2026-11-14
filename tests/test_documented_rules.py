@@ -77,16 +77,17 @@ def test_without_inputs_no_rule_says_normal():
 
 
 def test_dry_run_setpoint_comes_from_the_protection_list():
-    below = documented(measurements={"dts_temperature_c": 99.0})
-    at_setpoint = documented(measurements={"dts_temperature_c": 100.0})
-    critical = documented(measurements={"dts_temperature_c": 106.0})
+    # The stricter of the two lists in manuals-017 (page 5: 90 / 95 °C) applies until the organizer answers.
+    below = documented(measurements={"dts_temperature_c": 89.0})
+    at_setpoint = documented(measurements={"dts_temperature_c": 90.0})
+    critical = documented(measurements={"dts_temperature_c": 96.0})
     assert statuses(below)["P01"] == "clear"
     assert statuses(at_setpoint)["P01"] == "triggered"
     assert statuses(critical)["P01"] == "triggered"
     evidence = alerts(critical)["P01"]["evidence"]
-    assert any("105" in str(item["threshold"]) for item in evidence)
+    assert any("95" in str(item["threshold"]) for item in evidence)
     assert any("manuals-017" in item["source"] for item in evidence)
-    assert THRESHOLDS["dts_setpoint_c"] == 100.0 and THRESHOLDS["dts_critical_c"] == 105.0
+    assert THRESHOLDS["dts_setpoint_c"] == 90.0 and THRESHOLDS["dts_critical_c"] == 95.0
 
 
 def test_ptc_is_reported_as_discrete_and_never_as_degrees():

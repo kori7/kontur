@@ -1,2 +1,120 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>КОНТУР · печатный AR-стенд</title><style>
-@page{size:A4 landscape;margin:12mm}body{font-family:system-ui;color:#244534;margin:0;background:#eff3e9}.toolbar{padding:20px;display:flex;gap:18px;align-items:center;font-size:12px}button{border:0;background:#155d46;color:#fff;border-radius:5px;padding:10px 16px;cursor:pointer}.sheet{background:#fff;width:1000px;max-width:100%;margin:0 auto 25px;padding:24px;box-sizing:border-box}h1{font-size:26px;letter-spacing:2px;margin:0}p{font-size:12px;color:#7d926b}.board{position:relative;width:900px;max-width:100%;height:auto;aspect-ratio:900/550;margin:10px auto}.pump{position:absolute;top:0;left:0;width:100%;height:76.3636%}.marker{position:absolute;width:18.1818%;left:32.32%;top:73.636%;height:auto}.caption{position:absolute;top:84%;left:55%;font-size:12px;line-height:1.7;max-width:42%}footer{font-size:10px;color:#8c9b7e;margin-top:15px}@media print{body{background:#fff}.toolbar{display:none}.sheet{margin:0;padding:0;width:100%;box-shadow:none}.board{width:235mm;max-height:146mm}h1{font-size:18px}p{font-size:10px}footer{font-size:8px}} </style><link rel="stylesheet" href="/brand/support-copy.css"><link rel="icon" type="image/png" href="/brand/kontur-favicon.png"></head><body class="stand-page"><div class="toolbar"><button onclick="print()">Распечатать стенд</button><span class="support-copy">Печатайте лист целиком. Масштаб схемы относительно маркера должен сохраняться</span></div><main class="sheet"><h1>КОНТУР / Н-101</h1><p class="support-copy">Учебная схема насосного агрегата. Маркер задаёт положение информационных меток</p><div class="board"><img class="pump" src="/demo/normal.svg" alt="Демонстрационная схема насоса"><img class="marker" src="/vendor/hiro.png" alt="Маркер Hiro"><div class="caption support-copy">1. Откройте AR-осмотр<br>2. Наведите камеру на Hiro<br>3. Нажмите на метку узла</div></div><footer class="support-copy">Стенд моделирует привязку меток к известной схеме. Это не автоматическая локализация узлов произвольного оборудования.</footer></main></body></html>
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>КОНТУР · учебный стенд осмотра</title>
+<link rel="icon" type="image/png" href="/brand/kontur-favicon.png">
+<style>
+@font-face{font-family:Geologica;src:url('/fonts/Geologica-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:Geologica;src:url('/fonts/Geologica-Medium.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:Geologica;src:url('/fonts/Geologica-SemiBold.woff2') format('woff2');font-weight:600;font-display:swap}
+@page{size:A4 landscape;margin:10mm}
+*{box-sizing:border-box}
+body{margin:0;font-family:Geologica,Arial,sans-serif;color:#313132;background:#F4F5F8;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.toolbar{max-width:1120px;margin:0 auto;padding:20px 16px;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;font-size:14px;line-height:1.5}
+.toolbar button{border:0;border-radius:16px;background:#135AA6;color:#fff;font:500 16px Geologica,Arial,sans-serif;padding:14px 22px;min-height:52px;cursor:pointer}
+.toolbar button:hover{background:#0F4C8C}
+/* The sheet is laid out in millimetres so the screen preview and the print are the same page. */
+.sheet{width:277mm;height:190mm;margin:0 auto 32px;background:#fff;padding:7mm 8mm;display:grid;grid-template-rows:auto 1fr auto auto;gap:5mm;box-shadow:0 8px 40px #063e611a;border-radius:4mm}
+header{display:flex;align-items:center;justify-content:space-between;gap:8mm;padding-bottom:4mm;border-bottom:.4mm solid #D5D9DE}
+.brand{display:flex;align-items:center;gap:4mm}
+.wordmark{font-weight:600;font-size:6mm;letter-spacing:1.2mm;color:#135AA6;padding-right:4mm;border-right:.4mm solid #D5D9DE}
+.brand h1{margin:0;font-size:5.2mm;line-height:1.2;font-weight:500;color:#063E61}
+.brand p{margin:1mm 0 0;font-size:3.4mm;color:#5B6470}
+.affiliation{display:flex;align-items:center;gap:3mm;font-size:2.9mm;color:#5B6470;text-align:right;line-height:1.35}
+.affiliation img{height:7mm;width:auto}
+main{display:grid;grid-template-columns:166mm 1fr;gap:7mm;min-height:0}
+/* AR geometry. ar.html places the component labels in marker units, so the schematic and the marker
+   must keep this exact relative size and position: the board may scale, its insides may not move. */
+.board{position:relative;width:166mm;aspect-ratio:900/550;align-self:start}
+.board .pump{position:absolute;top:0;left:0;width:100%;height:76.3636%}
+.board .marker{position:absolute;width:18.1818%;left:32.32%;top:73.636%;height:auto}
+.board .marker-note{position:absolute;left:53%;top:79%;width:44%;font-size:3mm;line-height:1.45;color:#5B6470}
+.board .marker-note strong{display:block;color:#063E61;font-weight:500;font-size:3.4mm;margin-bottom:1mm}
+aside{display:flex;flex-direction:column;gap:3mm;min-width:0}
+.card{border:.35mm solid #D5D9DE;border-radius:4mm;padding:3mm 4mm}
+.card h2{margin:0 0 2mm;font-size:3.8mm;font-weight:500;color:#063E61}
+.qr{display:flex;gap:4mm;align-items:center}
+.qr img{width:30mm;height:30mm;flex-shrink:0;image-rendering:pixelated}
+.qr p{margin:0;font-size:2.9mm;line-height:1.4;color:#3E4651}
+.qr code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:2.9mm;color:#063E61}
+/* A factory nameplate in Latin script, as the customer's equipment carries (organizer answers §7). */
+.plate{position:relative;border-radius:2.5mm;padding:3mm 5mm 3mm;background:linear-gradient(160deg,#E9ECEF,#C9CED4 55%,#DDE1E5);border:.5mm solid #8C949C;color:#1D2228;font-family:Geologica,Arial,sans-serif;letter-spacing:.15mm}
+.plate::before,.plate::after,.plate .rivet{content:"";position:absolute;width:2.2mm;height:2.2mm;border-radius:50%;background:radial-gradient(circle at 35% 35%,#F4F5F8,#7D858D);top:1.6mm}
+.plate::before{left:1.6mm}.plate::after{right:1.6mm}
+.plate .rivet.bl{top:auto;bottom:1.6mm;left:1.6mm}.plate .rivet.br{top:auto;bottom:1.6mm;right:1.6mm}
+.plate .maker{font-weight:600;font-size:3.4mm;text-transform:uppercase;text-align:center;border-bottom:.3mm solid #8C949C;padding-bottom:1.2mm;margin-bottom:1.5mm}
+.plate .product{font-size:3mm;font-weight:500;text-transform:uppercase;text-align:center;margin-bottom:1.5mm}
+.plate dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:.8mm 3mm;font-size:2.9mm}
+.plate dt{color:#4A525A;text-transform:uppercase}
+.plate dd{margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.15mm;white-space:nowrap}
+.plate-note{margin:1.5mm 0 0;font-size:2.6mm;line-height:1.35;color:#5B6470}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin:0;padding:0;list-style:none;counter-reset:step}
+.steps li{counter-increment:step;display:flex;gap:3mm;align-items:flex-start;background:#F4F5F8;border-radius:4mm;padding:3mm 4mm;font-size:3.1mm;line-height:1.45;color:#3E4651}
+.steps li::before{content:counter(step);flex-shrink:0;width:7mm;height:7mm;border-radius:50%;background:#135AA6;color:#fff;font-weight:500;font-size:3.6mm;display:grid;place-items:center}
+.steps strong{display:block;color:#063E61;font-weight:500;font-size:3.4mm;margin-bottom:.5mm}
+footer{font-size:2.6mm;line-height:1.4;color:#6B737D}
+@media screen and (max-width:1120px){.sheet{zoom:calc(100vw / 1120px)}}
+@supports not (zoom:1){@media screen and (max-width:1120px){.sheet{transform:scale(.8);transform-origin:top center}}}
+@media print{body{background:#fff}.toolbar{display:none}.sheet{margin:0;box-shadow:none;border-radius:0;padding:0;width:277mm;height:190mm}}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <button type="button" onclick="print()">Распечатать стенд</button>
+  <span>Печатайте на A4, альбомная ориентация, масштаб 100%. Лист целиком: AR-метки привязаны к положению схемы относительно маркера</span>
+</div>
+<div class="sheet">
+  <header>
+    <div class="brand">
+      <span class="wordmark">КОНТУР</span>
+      <div>
+        <h1>Учебный стенд · Насосный агрегат Н-101</h1>
+        <p>Опознание, живой осмотр и AR-метки на одном листе</p>
+      </div>
+    </div>
+    <div class="affiliation">
+      <span>Хакатон «Кибер 102»<br>задача КСТ Энерго Инжиниринг</span>
+      <img src="/brand/logo.svg" alt="КСТ Энерго Инжиниринг">
+    </div>
+  </header>
+  <main>
+    <div class="board">
+      <img class="pump" src="/demo/normal.svg" alt="Схема центробежного насосного агрегата: двигатель, кожух муфты, насос, манометр">
+      <img class="marker" src="/vendor/hiro.png" alt="Маркер Hiro для AR-меток">
+      <div class="marker-note"><strong>Маркер AR</strong>Не закрывайте и не сгибайте. Метки узлов появляются на схеме, пока маркер в кадре</div>
+    </div>
+    <aside>
+      <section class="card">
+        <h2>Идентификация</h2>
+        <div class="qr">
+          <img src="/demo/qr-pump-101.svg" alt="QR-код агрегата pump-101">
+          <p>«Начать осмотр» → «Сканировать QR». Откроется карточка агрегата<br><code>kontur:pump-101</code></p>
+        </div>
+      </section>
+      <section>
+        <div class="plate" aria-label="Заводская табличка агрегата">
+          <span class="rivet bl"></span><span class="rivet br"></span>
+          <div class="maker">Kontur Demo Pumps</div>
+          <div class="product">Centrifugal pump unit N-101</div>
+          <dl>
+            <dt>Type</dt><dd>K 100-80-160</dd>
+            <dt>Serial No.</dt><dd>DEMO-2026-001</dd>
+            <dt>Catalogue ID</dt><dd>pump-101</dd>
+            <dt>Year</dt><dd>2026</dd>
+          </dl>
+        </div>
+        <p class="plate-note">Учебный шильдик латиницей, как заводские таблички на объекте. Чтение его камерой — следующий этап</p>
+      </section>
+    </aside>
+  </main>
+  <ol class="steps">
+    <li><span><strong>Опознайте агрегат</strong>QR-код справа или выбор из каталога</span></li>
+    <li><span><strong>Живой осмотр</strong>Камера на схему: рамки — найденные признаки, подтверждённое уходит в журнал с кадром</span></li>
+    <li><span><strong>AR-метки узлов</strong>Вкладка «AR-метки», камера на маркер Hiro, нажмите на метку узла</span></li>
+  </ol>
+  <footer>Схема синтетическая и относится только к демонстрационному агрегату Н-101: данные и нормативы выдуманы. Стенд показывает привязку меток к известной схеме, это не автоматическое определение узлов произвольного оборудования.</footer>
+</div>
+</body>
+</html>

@@ -90,12 +90,18 @@ def card(equipment_id: str, events: list[dict] | None = None) -> dict:
     type_item = registry.equipment_type(item["equipment_type"])
     reference = item if "parameters" in item else registry.registry_object(item.get("same_type_as", equipment_id))
     components = []
+    own_norms = item.get("component_norms", {})
     for component in type_item["components"] + type_item.get("attached_equipment", []):
         norm_hours, norm_source = _component_norm(reference, component["id"])
         position = component.get("position")
+        own = own_norms.get(component["id"])
+        if own:
+            # An object assembled from series documentation states its own norm and where it came from.
+            norm_hours, norm_source = own["hours"], own["source"]
         components.append({
             "id": component["id"], "name": component["name"],
-            "code": f"поз. {position}" if position else "навесное",
+            "code": own["code"] if own else f"поз. {position}" if position else "—" if own_norms else "навесное",
+            "accepted_by_team": bool(own and own.get("accepted_by_team")),
             "position": None,
             "quantity": component.get("quantity", 1),
             "externally_visible": bool(component.get("externally_visible")),
@@ -134,7 +140,21 @@ def card(equipment_id: str, events: list[dict] | None = None) -> dict:
                            for entry in registry.applicable_classes(item["id"])],
         "limitations": _limitations(item, type_item),
         "notice": _notice(item, type_item),
+        **_telemetry(item),
     }
+
+
+def _telemetry(item: dict) -> dict:
+    """Attached series, motor hours and the service schedule of an object the team assembled."""
+    if not item.get("telemetry_series"):
+        return {}
+    from app.series_check import running_hours
+
+    return {"telemetry": {"series": item["telemetry_series"], "note": item.get("telemetry_note"),
+                          **running_hours(item["telemetry_series"])},
+            "maintenance_schedule": item.get("maintenance_schedule", []),
+            "maintenance_schedule_note": item.get("maintenance_schedule_note"),
+            "source_documents": item.get("source_documents", [])}
 
 
 def _limitations(item: dict, type_item: dict) -> list[str]:
@@ -142,8 +162,11 @@ def _limitations(item: dict, type_item: dict) -> list[str]:
     if item.get("commissioned_at_status", "unknown") == "unknown":
         limitations.append(item.get("commissioned_at_note")
                            or "Дата ввода в эксплуатацию неизвестна, остаточный ресурс не рассчитывается.")
-    if not type_item["documented"]:
+    if not type_item["documented"] and item["source"] != "team":
         limitations.append(type_item.get("undocumented_note", ""))
+    if item["source"] == "team":
+        limitations.append("Карточка собрана по документации серии, а не по паспорту экземпляра: нормативы, "
+                           "которых нет в РЭ, помечены «принято командой».")
     unknown = [link["to"] for link in item.get("links", []) if link["status"] == "unknown"]
     if unknown:
         limitations.append("Связи не подтверждены документами: " + ", ".join(unknown) + ".")
@@ -161,6 +184,8 @@ def _limitations(item: dict, type_item: dict) -> list[str]:
 def _notice(item: dict, type_item: dict) -> str:
     if item["source"] == "demo":
         return item.get("demo_note", "")
+    if item["source"] == "team":
+        return item.get("team_note", "")
     if not type_item["documented"]:
         return ("Для этого типа оборудования проектных документов не передано. Нормативные сроки, "
                 "уставки и состав узлов не подтверждены изготовителем.")

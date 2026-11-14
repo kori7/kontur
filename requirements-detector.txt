@@ -1,0 +1,9 @@
+# Optional: the zero-shot detector for live inspection (services/api/app/detector.py).
+# Not needed for tests or for running without a detector. Install on top of requirements.txt:
+#   pip install -r requirements.txt -r requirements-detector.txt
+torch>=2.4,<3
+transformers>=4.45,<6
+pillow>=10,<13
+scipy>=1.11,<2  # OWLv2 image preprocessing
+rfdetr>=1.12,<2  # fine-tuned detector; Apache 2.0 for Nano, Small and Medium weights
+rapidocr_onnxruntime>=1.4,<2  # nameplate reading; PaddleOCR models (Apache 2.0) bundled, no download at run time

@@ -29,8 +29,12 @@ import {
   Waves,
   Wrench,
   Zap,
+  LogOut,
+  Users,
+  FileSpreadsheet,
+  FileText,
 } from "lucide-react";
-import { request, number, date, sourceLabel } from "./api";
+import { request, number, date, sourceLabel, ruleLabel, inputLabel } from "./api";
 import type {
   Alert,
   Analysis,
@@ -38,7 +42,8 @@ import type {
   Equipment,
   Finding,
   InspectionEvent,
-  VisionResult,
+  LiveDetection,
+  User,
 } from "./types";
 import { Modal } from "./components/Modal";
 import { PumpDiagram } from "./components/PumpDiagram";
@@ -50,6 +55,8 @@ import { LibraryPanel } from "./features/LibraryPanel";
 import { SeriesPanel } from "./features/SeriesPanel";
 import { InputsPanel } from "./features/InputsPanel";
 import { PassportResource } from "./components/PassportResource";
+import { UsersPanel } from "./features/UsersPanel";
+import { SeriesTelemetryPanel } from "./features/SeriesTelemetryPanel";
 
 type Screen =
   | "overview"
@@ -58,7 +65,7 @@ type Screen =
   | "rules"
   | "series"
   | "library";
-type Dialog = "demo" | "record" | "camera" | "about" | "stand" | "profile" | null;
+type Dialog = "demo" | "record" | "camera" | "about" | "stand" | "profile" | "users" | null;
 const actions: Record<string, string> = {
   inspection: "Проверка",
   defect: "Замечание",
@@ -71,32 +78,33 @@ const metrics = [
     label: "Вибрация",
     unit: "мм/с",
     icon: Waves,
-    baseline: "Базовое значение 2,0 мм/с",
+    baseline: "База 2,0 мм/с",
   },
   {
     key: "temperature",
     label: "Температура",
     unit: "°C",
     icon: Thermometer,
-    baseline: "Базовое значение 60 °C",
+    baseline: "База 60 °C",
   },
   {
     key: "current_a",
     label: "Ток · фаза A",
     unit: "А",
     icon: Zap,
-    baseline: "Базовое значение 20 А",
+    baseline: "База 20 А",
   },
   {
     key: "inlet_pressure",
     label: "Давление на входе",
     unit: "бар",
     icon: Gauge,
-    baseline: "Базовое значение 2,0 бар",
+    baseline: "База 2,0 бар",
   },
 ];
 
-export default function App() {
+export default function App({ user, onSignOut }: { user: User; onSignOut: () => void }) {
+  const can = (permission: string) => user.permissions.includes(permission);
   const [bootstrap, setBootstrap] = useState<Bootstrap | null>(null);
   const [equipmentId, setEquipmentId] = useState("pump-101");
   const [equipment, setEquipment] = useState<Equipment | null>(null);
@@ -111,8 +119,6 @@ export default function App() {
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
   const [metric, setMetric] = useState("vibration");
-  const [vision, setVision] = useState<VisionResult | null>(null);
-  const [inspectionImage, setInspectionImage] = useState<string | null>(null);
   const [recordComponent, setRecordComponent] = useState("pump");
   const [recordAction, setRecordAction] = useState("inspection");
   const [note, setNote] = useState("");
@@ -178,8 +184,6 @@ export default function App() {
       setScenario(nextScenario ?? "");
       setPendingScenario("normal");
       setSelected(null);
-      setVision(null);
-      setInspectionImage(null);
       setRecordComponent(target.components[0]?.id ?? "");
       setScreen("overview");
     } catch (cause) {
@@ -211,14 +215,13 @@ export default function App() {
   }
   async function analyze(
     nextScenario: string,
-    nextVision?: VisionResult,
     manual?: { kind: string; present: boolean },
   ) {
     setBusy(true);
     setError("");
     try {
       const previousManual =
-        nextScenario === scenario && (manual || nextVision)
+        nextScenario === scenario && manual
           ? (analysis?.observations.filter(
               (item) => item.source === "manual" && item.kind !== manual?.kind,
             ) ?? [])
@@ -226,13 +229,10 @@ export default function App() {
       const run = await request<Analysis>("/analyze", {
         equipment_id: equipmentId,
         scenario_id: equipment?.scenarios_available ? nextScenario : null,
-        vision_id: nextVision?.id,
         observations: [...previousManual, ...(manual ? [manual] : [])],
-        image: manual ? inspectionImage : undefined,
       });
       setAnalysis(run);
       setScenario(nextScenario);
-      setVision(nextVision ?? null);
       setScreen("overview");
       return run;
     } catch (cause) {
@@ -244,7 +244,7 @@ export default function App() {
   }
   async function applyScenario() {
     const result = await analyze(pendingScenario);
-    if (result) {setDialog(null);setInspectionImage(null);}
+    if (result) setDialog(null);
   }
   async function saveInspection() {
     if (!analysis) return;
@@ -294,6 +294,82 @@ export default function App() {
   // Series and library show the organizer's own data, which belongs to no catalogue object.
   const objectScreen = screen !== "series" && screen !== "library";
   const alerts = analysis?.evaluation.alerts ?? [];
+  // Notes about where the card's data comes from: the first one stays visible, the rest fold away.
+  const notices = [
+    ...(equipment && !equipment.documented ? [equipment.notice] : []),
+    ...(equipment?.limitations ?? []),
+  ].filter(Boolean);
+  // Where to point the camera first: components named by triggered rules, most severe first.
+  const severityOrder = { critical: 0, warning: 1, info: 2 };
+  const cameraHints = [...alerts]
+    .sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity])
+    .filter((alert, index, list) => list.findIndex((item) => item.component_id === alert.component_id) === index)
+    .slice(0, 3)
+    .map((alert) => ({
+      component: alert.component_id,
+      name: equipment?.components.find((item) => item.id === alert.component_id)?.name ?? alert.component_id,
+      reason: alert.title,
+      severity: alert.severity,
+    }));
+  // The component a detected sign belongs to on this equipment, for opening its card from a box.
+  const componentOf = (kind: string) => {
+    const candidates: Record<string, string[]> = {
+      guard_missing: ["guard"],
+      guard_damaged: ["guard"],
+      liquid_leak: ["seal", "seal_housing"],
+      seal_leak_excessive: ["seal", "seal_housing"],
+      oil_leak_at_housing: ["gearbox_housing", "bearing"],
+      frame_corrosion: ["base", "frame", "motor_frame", "gearbox_housing"],
+      missing_bolt: ["base", "stud"],
+      loose_bolt: ["base", "stud"],
+    };
+    return (candidates[kind] ?? []).find((id) => equipment?.components.some((item) => item.id === id)) ?? null;
+  };
+  async function analyzeSeries(index: number) {
+    setBusy(true);
+    setError("");
+    try {
+      // A negative index asks for «now»: the I/O server when one is configured, otherwise the latest record.
+      setAnalysis(await request<Analysis>("/analyze", {
+        equipment_id: equipmentId, scenario_id: null, series_index: index < 0 ? null : index,
+      }));
+    } catch (cause) {
+      setError((cause as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function confirmLiveFinding(item: LiveDetection, frame: string, detectorName: string) {
+    setError("");
+    try {
+      const manual = analysis?.observations
+        .filter((entry) => entry.source === "manual")
+        .map((entry) => ({ kind: entry.kind, present: entry.present })) ?? [];
+      const result = await request<{ analysis: Analysis; component_id: string }>("/live/findings", {
+        equipment_id: equipmentId,
+        scenario_id: equipment?.scenarios_available ? scenario : null,
+        kind: item.kind,
+        label: item.label,
+        confidence: item.confidence,
+        detector: detectorName,
+        image: frame,
+        observations: manual,
+      });
+      const [history, card] = await Promise.all([
+        request<InspectionEvent[]>(`/inspections?equipment_id=${encodeURIComponent(equipmentId)}`),
+        request<Equipment>(`/equipment/${equipmentId}`),
+      ]);
+      setAnalysis(result.analysis);
+      setEvents(history);
+      setEquipment(card);
+      const name = card.components.find((entry) => entry.id === result.component_id)?.name ?? result.component_id;
+      setToast(`Записано в журнал: ${item.label} — ${name}, с кадром`);
+      return true;
+    } catch (cause) {
+      setError((cause as Error).message);
+      return false;
+    }
+  }
   const critical = alerts.some((item) => item.severity === "critical");
   const insufficient =
     analysis?.evaluation.rule_results.filter(
@@ -354,7 +430,10 @@ export default function App() {
               { id: "series", label: "Ряды измерений", icon: Activity },
               { id: "library", label: "Материалы", icon: BookOpen },
             ] as const
-          ).map((item) => (
+          )
+            // Service screens are for the master and the administrator, not on the inspector's path.
+            .filter((item) => (item.id !== "series" || can("series")) && (item.id !== "library" || can("library")))
+            .map((item) => (
             <button
               key={item.id}
               aria-label={item.label}
@@ -373,11 +452,6 @@ export default function App() {
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <div className="sidebar-note">
-            <ShieldCheck size={21} />
-            <strong>Решение — за инженером</strong>
-            <p className="support-copy">Система помогает оценить признаки и выбрать следующий шаг</p>
-          </div>
           <button className="nav-item" onClick={() => setDialog("about")}>
             <CircleHelp size={18} />О проекте
           </button>
@@ -477,19 +551,34 @@ export default function App() {
                           ? "Ряды измерений"
                           : screen === "library"
                             ? "Переданные материалы"
-                            : equipment.name}
+                            : screen === "equipment"
+                              ? "Цифровой паспорт"
+                              : equipment.name}
                   </h1>
-                  {objectScreen && (
+                  {screen === "overview" ? (
                     <div className="equipment-meta">
-                      <span className="equipment-type support-copy">{equipment.type_name}</span>
+                      {equipment.type_name !== equipment.name && (
+                        <span className="equipment-type support-copy">{equipment.type_name}</span>
+                      )}
+                      {equipment.documented && equipment.serial && (
+                        <span className="equipment-type support-copy">Зав. № {equipment.serial}</span>
+                      )}
                       <p className="location support-copy">
                         <MapPin size={14} />
                         {equipment.location}
                       </p>
                     </div>
+                  ) : objectScreen && (
+                    // The object picker and its notes live on the overview; other screens name the object once.
+                    <div className="equipment-meta">
+                      <span className="equipment-type support-copy">
+                        {equipment.name}
+                        {equipment.documented && equipment.serial ? ` · ${equipment.serial}` : ""}
+                      </span>
+                    </div>
                   )}
                 </div>
-                {objectScreen && (
+                {screen === "overview" && (
                   <div className="page-actions">
                     <button
                       className="button secondary"
@@ -509,15 +598,10 @@ export default function App() {
                 )}
               </div>
 
-              {objectScreen && (
+              {screen === "overview" && (
                 <section className="equipment-context" aria-label="Контекст осмотра">
                   <label className="object-picker">
-                    <span>
-                      Объект осмотра
-                      {equipment.documented && equipment.serial && (
-                        <span className="object-serial">{equipment.serial}</span>
-                      )}
-                    </span>
+                    <span>Объект осмотра</span>
                     <select
                       value={equipmentId}
                       disabled={busy}
@@ -525,25 +609,30 @@ export default function App() {
                     >
                       {catalogObjects.map((item) => (
                         <option key={item.id} value={item.id} disabled={!item.inspectable}>
-                          {item.serial ?? item.id} · {item.type_name}
-                          {item.documented ? "" : " · демо"}
+                          {item.documented && item.serial ? `${item.serial} · ${item.type_name}` : item.name}
+                          {item.documented ? "" : item.source === "team" ? " · основной" : " · демо"}
                           {item.inspectable ? "" : " · позиция по проекту"}
                         </option>
                       ))}
                     </select>
                   </label>
-                  <div className="equipment-notices">
-                    {!equipment.documented && (
+                  {notices.length > 0 && (
+                    <div className="equipment-notices">
                       <p className="object-note support-copy">
-                        <CircleHelp size={20} /> <span>{formatCopy(equipment.notice)}</span>
+                        <TriangleAlert size={20} /> <span>{formatCopy(notices[0])}</span>
                       </p>
-                    )}
-                    {(equipment.limitations ?? []).map((text) => (
-                      <p className="object-note support-copy" key={text}>
-                        <TriangleAlert size={20} /> <span>{formatCopy(text)}</span>
-                      </p>
-                    ))}
-                  </div>
+                      {notices.length > 1 && (
+                        <details className="object-notes-more">
+                          <summary className="support-copy">Ещё о данных: {notices.length - 1}</summary>
+                          {notices.slice(1).map((text) => (
+                            <p className="object-note support-copy" key={text}>
+                              <CircleHelp size={20} /> <span>{formatCopy(text)}</span>
+                            </p>
+                          ))}
+                        </details>
+                      )}
+                    </div>
+                  )}
                 </section>
               )}
 
@@ -584,7 +673,11 @@ export default function App() {
                       {date(analysis.created_at)}
                     </span>
                   </div>
-                  {!equipment.scenarios_available && (
+                  {equipment.telemetry && (
+                    <SeriesTelemetryPanel equipment={equipment} analysis={analysis} busy={busy}
+                      onRecord={(index) => void analyzeSeries(index)} />
+                  )}
+                  {!equipment.scenarios_available && !equipment.telemetry && (
                     <InputsPanel
                       key={equipmentId}
                       equipment={equipment}
@@ -657,9 +750,8 @@ export default function App() {
                       ) : (
                         <div className="component-grid">
                           <p className="object-note support-copy">
-                            <CircleHelp size={14} /> Схемы этого типа оборудования
-                            нет: установочный и сборочный чертежи в переданный
-                            комплект не вошли. Узлы показаны списком
+                            <CircleHelp size={14} /> Чертежей в комплекте нет — узлы
+                            списком
                           </p>
                           {equipment.components.map((item) => (
                             <button
@@ -699,9 +791,6 @@ export default function App() {
                             Высокий риск
                           </span>
                         </div>
-                        <span className="support-copy">
-                          Схема демонстрационного агрегата
-                        </span>
                       </div>
                     </section>
                     <section className="panel findings-panel">
@@ -711,7 +800,6 @@ export default function App() {
                             Требует внимания{" "}
                             <span className="count-badge">{alerts.length}</span>
                           </h2>
-                          <p className="support-copy">Связь признаков и рекомендаций</p>
                         </div>
                         <Activity size={19} className="muted" />
                       </div>
@@ -729,17 +817,7 @@ export default function App() {
                             <span>
                               <ShieldCheck size={30} />
                             </span>
-                            <h3>Активных предупреждений нет</h3>
-                            <p className="support-copy">
-                              Продолжите визуальный осмотр. Скрытые
-                              неисправности по этим данным не исключены
-                            </p>
-                            <button
-                              className="text-button"
-                              onClick={() => setDialog("camera")}
-                            >
-                              Перейти к осмотру <ArrowRight size={15} />
-                            </button>
+                            <h3>Предупреждений нет</h3>
                           </div>
                         )}
                       </div>
@@ -749,7 +827,7 @@ export default function App() {
                             ? "Применимых правил нет"
                             : insufficient
                               ? `${insufficient} правил: недостаточно данных`
-                              : "Все применимые правила оценены"}
+                              : `Оценено правил: ${evaluated}`}
                         </span>
                         <button
                           className="text-button"
@@ -761,7 +839,7 @@ export default function App() {
                       </div>
                     </section>
                   </div>
-                  {!equipment.scenarios_available && (
+                  {!equipment.scenarios_available && !equipment.telemetry && (
                     <PassportResource equipment={equipment} />
                   )}
                   {equipment.scenarios_available && (
@@ -828,10 +906,7 @@ export default function App() {
                             {number(maintenance?.remaining_hours, 0)} ч
                           </p>
                       </div>
-                      <p className="resource-caveat support-copy">
-                        Остаток норматива не является прогнозом времени до
-                        отказа
-                      </p>
+                      <p className="resource-caveat support-copy">Не прогноз времени до отказа</p>
                       </div>
                     </section>
                   </div>
@@ -844,7 +919,7 @@ export default function App() {
                         : "Осмотр ещё не зарегистрирован"}
                     </span>
                     <button
-                      className="button secondary"
+                      className="button primary"
                       onClick={() => {
                         // "pump" is the whole-aggregate узел of the demo object only.
                         setRecordComponent(
@@ -858,21 +933,12 @@ export default function App() {
                       <Plus size={17} />
                       Записать результат
                     </button>
+                    {can("reports") && (
+                      <div className="report-links">
+                        <ReportLinks equipmentId={equipmentId} analysisId={analysis.id} />
+                      </div>
+                    )}
                   </div>
-                  {vision && (
-                    <section className="panel vision-summary">
-                      <h2>Последний анализ снимка</h2>
-                      <p className="support-copy">{formatCopy(vision.summary)}</p>
-                      <span className="tag">
-                        {vision.model} ·{" "}
-                        {vision.quality === "good"
-                          ? "достаточное качество"
-                          : vision.quality === "limited"
-                            ? "ограниченное качество"
-                            : "снимок не читается"}
-                      </span>
-                    </section>
-                  )}
                 </>
               )}
 
@@ -936,7 +1002,12 @@ export default function App() {
                   </section>
                   <section className="panel component-table">
                     <div className="panel-heading">
-                      <h2>Узлы и комплектующие</h2>
+                      <div>
+                        <h2>Узлы и комплектующие</h2>
+                        {equipment.components.every((item) => !item.installed_at && !item.last_replacement) && (
+                          <p className="support-copy">Даты установки узлов неизвестны</p>
+                        )}
+                      </div>
                       <span className="tag">
                         {equipment.components.length} компонентов
                       </span>
@@ -953,7 +1024,9 @@ export default function App() {
                           {item.last_replacement
                             ? "Заменён " +
                               date(item.last_replacement.created_at)
-                            : "Ввод: " + (item.installed_at ?? "неизвестен")}
+                            : item.installed_at
+                              ? "Ввод: " + item.installed_at
+                              : ""}
                         </span>
                         <span>
                           {item.norm_hours === null
@@ -977,14 +1050,17 @@ export default function App() {
                       </h2>
                       <p className="support-copy">С исходными данными каждого осмотра</p>
                     </div>
-                    <button
-                      className="button secondary small"
-                      onClick={exportHistory}
-                      disabled={!events.length}
-                    >
-                      <ArrowDownToLine size={15} />
-                      Экспорт JSON
-                    </button>
+                    <div className="report-actions">
+                      {can("reports") && <ReportLinks equipmentId={equipmentId} analysisId={analysis.id} />}
+                      <button
+                        className="button secondary small"
+                        onClick={exportHistory}
+                        disabled={!events.length}
+                      >
+                        <ArrowDownToLine size={15} />
+                        JSON
+                      </button>
+                    </div>
                   </div>
                   {events.length ? (
                     events.map((event) => (
@@ -1022,7 +1098,7 @@ export default function App() {
                               {event.analysis.evaluation.alerts.map((alert) => (
                                 <div key={alert.id}>
                                   <strong>
-                                    {alert.rule_ids.join(", ")} · {formatCopy(alert.title)}
+                                    {alert.rule_ids.map(ruleLabel).join(", ")} · {formatCopy(alert.title)}
                                   </strong>
                                   <p className="support-copy">{formatCopy(alert.hypothesis)}</p>
                                 </div>
@@ -1039,7 +1115,7 @@ export default function App() {
                                   event.analysis.telemetry.runtime_hours,
                                   0,
                                 )}{" "}
-                                ч · источник: демоданные
+                                ч
                               </p>
                             </div>
                           </details>
@@ -1068,16 +1144,16 @@ export default function App() {
                 <section className="panel">
                   <div className="panel-heading">
                     <div>
-                      <h2>12 диагностических сценариев</h2>
-                      <p className="support-copy">Проверяемые условия · демонстрационные пороги</p>
+                      <h2>
+                        Правила для этого объекта{" "}
+                        <span className="count-badge">{analysis.evaluation.rule_results.length}</span>
+                      </h2>
+                      <p className="support-copy">
+                        Нет входа — правило отвечает «нет данных», а не «норма»
+                      </p>
                     </div>
                     <Cpu size={22} />
                   </div>
-                  <p className="rules-intro support-copy">
-                    Правила формируют гипотезы для предварительной проверки.
-                    Отсутствующий или устаревший вход не считается нормальным
-                    показанием
-                  </p>
                   <div className="rules-list">
                     {analysis.evaluation.rule_results.map((rule) => {
                       const matching = alerts.find((item) =>
@@ -1088,7 +1164,7 @@ export default function App() {
                       );
                       return (
                         <article key={rule.id} className="rule-row">
-                          <span className="rule-id">{rule.id}</span>
+                          <span className="rule-id">{ruleLabel(rule.id)}</span>
                           <div>
                             <h3>
                               {rule.title ??
@@ -1103,7 +1179,7 @@ export default function App() {
                             </p>
                             {rule.missing.length > 0 && (
                               <small className="support-copy">
-                                Нет данных: {rule.missing.join(", ")}
+                                Не хватает: {[...new Set(rule.missing.map((key) => inputLabel(key, equipment)))].join(", ")}
                               </small>
                             )}
                             {rule.reason && <small className="support-copy">{formatCopy(rule.reason)}</small>}
@@ -1129,8 +1205,7 @@ export default function App() {
               {screen === "library" && <LibraryPanel />}
 
               <footer className="page-footer support-copy">
-                <span>КОНТУР · помощник инженера</span>
-                <span>Демонстрационный прототип / Кибер 102</span>
+                <span>КОНТУР · Кибер 102</span>
               </footer>
             </>
           )}
@@ -1225,7 +1300,9 @@ export default function App() {
               value={recordAction}
               onChange={(event) => setRecordAction(event.target.value)}
             >
-              {Object.entries(actions).map(([key, label]) => (
+              {Object.entries(actions)
+                .filter(([key]) => !["maintenance", "replacement"].includes(key) || can("record_maintenance"))
+                .map(([key, label]) => (
                 <option key={key} value={key}>
                   {label}
                 </option>
@@ -1273,12 +1350,12 @@ export default function App() {
       {dialog === "camera" && (
         <Modal title="Визуальный осмотр" wide onClose={() => setDialog(null)}>
           <CameraPanel
-            configured={bootstrap?.vision.configured ?? false}
-            model={bootstrap?.vision.model ?? "Qwen3-VL-4B-Instruct"}
             alerts={alerts}
+            hints={cameraHints}
+            componentOf={componentOf}
+            onConfirm={confirmLiveFinding}
             objects={catalogObjects}
             currentId={equipmentId}
-            onImage={setInspectionImage}
             onSelectObject={(id) => {
               setDialog(null);
               selectEquipment(id);
@@ -1288,11 +1365,6 @@ export default function App() {
                 setDialog(null);
                 setSelected(id);
               }
-            }}
-            onResult={async (result) => {
-              const run = await analyze(scenario, result);
-              if (!run) throw new Error('Снимок проанализирован, но обновить диагностику не удалось. Повторите запрос');
-              setToast("Снимок проанализирован, диагностика обновлена");
             }}
           />
           <details className="manual-section">
@@ -1330,7 +1402,7 @@ export default function App() {
                 className="button secondary"
                 disabled={busy}
                 onClick={async () => {
-                  const result = await analyze(scenario, vision ?? undefined, {
+                  const result = await analyze(scenario, {
                     kind: manualKind,
                     present: manualPresent,
                   });
@@ -1359,7 +1431,16 @@ export default function App() {
         <Modal title="Профиль работника" onClose={() => setDialog(null)}>
           <div className="profile-menu">
             <img src="/brand/employee-avatar.webp" alt="Профиль работника" width="112" height="112" />
+            <div className="profile-who">
+              <strong>{user.name}</strong>
+              <span className="support-copy">{user.role_name} · {user.email}</span>
+            </div>
             <div className="profile-actions">
+              {can("users") && (
+                <button className="button secondary" onClick={() => setDialog("users")}>
+                  <Users size={20} />Учётные записи
+                </button>
+              )}
               {equipment?.scenarios_available && (
                 <button className="button secondary" onClick={() => { setPendingScenario(scenario); setDialog("demo"); }}>
                   <Settings2 size={20} />Демосценарии
@@ -1368,8 +1449,16 @@ export default function App() {
               <button className="button secondary" onClick={() => setDialog("about")}>
                 <CircleHelp size={20} />О проекте
               </button>
+              <button className="button secondary" onClick={onSignOut}>
+                <LogOut size={20} />Выйти
+              </button>
             </div>
           </div>
+        </Modal>
+      )}
+      {dialog === "users" && (
+        <Modal title="Учётные записи" wide onClose={() => setDialog(null)}>
+          <UsersPanel me={user} />
         </Modal>
       )}
       {dialog === "about" && (
@@ -1429,7 +1518,7 @@ export default function App() {
                 className={`diagnostic-detail ${alert.severity}`}
               >
                 <span className="eyebrow">
-                  {alert.rule_ids.join(" + ")} · ДИАГНОСТИЧЕСКАЯ ГИПОТЕЗА
+                  {alert.rule_ids.map(ruleLabel).join(" + ")} · ДИАГНОСТИЧЕСКАЯ ГИПОТЕЗА
                 </span>
                 <h3>{formatCopy(alert.title)}</h3>
                 <p className="support-copy">{formatCopy(alert.hypothesis)}</p>
@@ -1527,9 +1616,27 @@ function Finding({ alert, onClick }: { alert: Alert; onClick: () => void }) {
         </span>
         <span className="finding-description support-copy">{formatCopy(alert.hypothesis)}</span>
         <span className="finding-rule support-copy">
-          {alert.rule_ids.join(" + ")} <span>Открыть основания</span>
+          {alert.rule_ids.map(ruleLabel).join(" + ")} <span>Открыть основания</span>
         </span>
       </span>
     </button>
+  );
+}
+
+/** Report export: Excel downloads, PDF opens a print-ready page the browser saves as PDF. */
+function ReportLinks({ equipmentId, analysisId }: { equipmentId: string; analysisId: string }) {
+  const query = `?analysis_id=${encodeURIComponent(analysisId)}`;
+  const base = `/api/reports/${encodeURIComponent(equipmentId)}`;
+  return (
+    <>
+      <a className="button secondary small" href={`${base}.xlsx${query}`} download>
+        <FileSpreadsheet size={15} />
+        Excel
+      </a>
+      <a className="button secondary small" href={`${base}/print${query}`} target="_blank" rel="noreferrer">
+        <FileText size={15} />
+        PDF
+      </a>
+    </>
   );
 }

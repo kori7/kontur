@@ -5,6 +5,8 @@ import { request } from "../api";
 import type { Library, LibraryEntry } from "../types";
 
 type Filter = "all" | "candidate" | "excluded";
+// A phone shows a dozen cards before the documents; the rest open on request.
+const IMAGE_PREVIEW = 12;
 
 const filters: { id: Filter; label: string }[] = [
   { id: "all", label: "Все файлы" },
@@ -29,6 +31,7 @@ export function LibraryPanel() {
   const [filter, setFilter] = useState<Filter>("all");
   const [error, setError] = useState("");
   const [preview, setPreview] = useState<LibraryEntry | null>(null);
+  const [allImages, setAllImages] = useState(false);
 
   useEffect(() => {
     request<Library>("/library")
@@ -56,13 +59,17 @@ export function LibraryPanel() {
 
   const images = library.images.filter((item) => matches(item, filter));
   const documents = library.documents.filter((item) => matches(item, filter));
+  // Most images share one view; name it once in the heading and only mark the others on their cards.
+  const viewCounts = new Map<string, number>();
+  library.images.forEach((item) => viewCounts.set(item.view_label, (viewCounts.get(item.view_label) ?? 0) + 1));
+  const commonView = [...viewCounts].sort((a, b) => b[1] - a[1])[0]?.[0];
 
   return (
     <>
       <section className="panel">
         <div className="panel-heading">
           <div>
-            <h2>Переданные материалы</h2>
+            <h2>Сводка</h2>
             <p className="support-copy">{formatCopy(library.notice)}</p>
           </div>
         </div>
@@ -102,15 +109,13 @@ export function LibraryPanel() {
           <div>
             <h2>Изображения</h2>
             <p className="support-copy">
-              Происхождение и пригодность показаны у каждого файла. Кадры со
-              стоковым водяным знаком и сгенерированные кадры доступны для
-              обзора, но для обучения и публикации непригодны
+              {commonView ? `Если не указано иначе — ${formatCopy(commonView).toLowerCase()}` : ""}
             </p>
           </div>
           <span className="tag">{images.length} показано</span>
         </div>
         <div className="library-grid">
-          {images.map((item) => (
+          {(allImages || filter !== "all" ? images : images.slice(0, IMAGE_PREVIEW)).map((item) => (
             <button
               key={item.id}
               className="library-card"
@@ -125,12 +130,19 @@ export function LibraryPanel() {
                 <strong>{item.id}</strong>
                 <span className={badgeClass(item)}>{formatCopy(item.training_use_label)}</span>
                 <small className="support-copy">{formatCopy(item.provenance_label)}</small>
-                <small className="support-copy">{formatCopy(item.view_label)}</small>
+                {item.view_label !== commonView && <small className="support-copy">{formatCopy(item.view_label)}</small>}
                 {item.duplicate_of && <small className="support-copy">Повтор {item.duplicate_of}</small>}
               </div>
             </button>
           ))}
         </div>
+        {!allImages && filter === "all" && images.length > IMAGE_PREVIEW && (
+          <div className="library-filters">
+            <button className="button secondary small" onClick={() => setAllImages(true)}>
+              Показать все {images.length}
+            </button>
+          </div>
+        )}
       </section>
 
       <section className="panel">

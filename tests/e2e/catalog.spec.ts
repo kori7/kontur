@@ -105,6 +105,8 @@ test("history recorded on one object stays out of another object's journal", asy
   await page.getByRole("button", { name: "Журнал осмотров", exact: true }).click();
   await expect(page.getByText(note)).toBeVisible();
 
+  // The object picker lives on the overview only.
+  await page.getByRole("button", { name: "Обзор оборудования", exact: true }).click();
   await page.getByLabel("Объект осмотра").selectOption("pump-101");
   await expect(
     page.getByRole("heading", { name: "Насосный агрегат Н-101" }),
@@ -123,7 +125,7 @@ test("series replay agrees with the organizer's own label at an alarm", async ({
     page.getByRole("heading", { name: "Ряды измерений", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByText("не принадлежат ни одному объекту каталога", { exact: false }),
+    page.getByText("подключены телеметрией основного агрегата Wilo", { exact: false }),
   ).toBeVisible();
   await expect(
     page.getByLabel("Объект осмотра"),
@@ -164,6 +166,8 @@ test("materials library shows provenance and serves the original file", async ({
   ).toBeVisible();
   await expect(page.locator(".library-totals")).toContainText("Всего файлов84");
 
+  await expect(page.locator(".library-card")).toHaveCount(12);
+  await page.getByRole("button", { name: "Показать все 55" }).click();
   const stock = page.locator(".library-card", { hasText: "pipes-009" });
   await expect(stock).toContainText("Сток с водяным знаком");
   await expect(stock).toContainText("Исключён");

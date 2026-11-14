@@ -1,0 +1,3 @@
+# Optional: fine-tuning the detector (scripts/train/). Not needed to run the server.
+#   pip install -r requirements.txt -r requirements-detector.txt -r requirements-train.txt
+rfdetr[train]>=1.12,<2

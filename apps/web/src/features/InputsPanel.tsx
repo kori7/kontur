@@ -53,10 +53,8 @@ export function InputsPanel({
             <Gauge size={15} /> Входы осмотра
           </h2>
           <p className="support-copy">
-            Телеметрии у этого объекта нет. Правила читают измерения, снятые
-            названным прибором, видимые признаки и журнал. Незаполненный вход
-            остаётся неизвестным: правило вернёт «недостаточно данных», а не
-            «норма»
+            Телеметрии нет — введите, что измерили. Пустое поле правило считает
+            «нет данных», а не «норма»
           </p>
         </div>
         <span className="tag">{equipment.rules?.length ?? 0} правил</span>
@@ -78,9 +76,7 @@ export function InputsPanel({
                   <option value="present">Да</option>
                   <option value="absent">Нет</option>
                 </select>
-                <small className="support-copy">
-                  {field.instrument} · {field.basis}
-                </small>
+                <small className="support-copy" title={field.basis}>{field.instrument}</small>
               </label>
             ) : (
               <label className="field" key={key}>
@@ -96,9 +92,7 @@ export function InputsPanel({
                     setNumbers({ ...numbers, [key]: event.target.value })
                   }
                 />
-                <small className="support-copy">
-                  {field.instrument} · {field.basis}
-                </small>
+                <small className="support-copy" title={field.basis}>{field.instrument}</small>
               </label>
             ),
           )}
@@ -111,8 +105,7 @@ export function InputsPanel({
             <div>
               <h2>Видимые признаки</h2>
               <p className="support-copy">
-                Классы из каталога дефектов, применимые к этому типу. «Не
-                осмотрено» и «не обнаружено» — разные ответы
+                «Не осмотрено» и «не обнаружено» — разные ответы
               </p>
             </div>
           </div>

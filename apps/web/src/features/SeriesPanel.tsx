@@ -62,8 +62,9 @@ export function SeriesPanel() {
         <div>
           <h2>Ряды измерений организатора</h2>
           <p className="support-copy">
-            Отдельное воспроизведение переданных таблиц. Эти ряды не принадлежат
-            ни одному объекту каталога и телеметрией оборудования не являются
+            Исходные таблицы как есть. В показе они подключены телеметрией
+            основного агрегата Wilo по решению команды; к паспортизированным
+            агрегатам AMS не относятся
           </p>
         </div>
         <span className="tag">{metadata?.record_count ?? "—"} записей</span>
@@ -129,7 +130,7 @@ export function SeriesPanel() {
                   {frame.channels.map((channel) => (
                     <th key={channel.key}>
                       {channel.label}
-                      <small className="support-copy">{channel.unit}</small>
+                      {!channel.label.includes("(") && <small className="support-copy">{channel.unit}</small>}
                     </th>
                   ))}
                   <th>Пометка организатора</th>
@@ -155,8 +156,7 @@ export function SeriesPanel() {
             <div>
               <h2>Уставки из описания этого же ряда</h2>
               <p className="support-copy">
-                Сравнение с порогами, записанными в описании таблицы. Это вывод
-                алгоритма организатора о его собственном сценарии, а не
+                Пороги из описания таблицы: сценарий организатора, а не
                 диагностика оборудования
               </p>
             </div>
@@ -182,17 +182,21 @@ export function SeriesPanel() {
           </ul>
 
           <div className="series-limits">
-            <h4>Ограничения ряда</h4>
-            <ul>
-              {frame.limitations.map((text) => (
-                <li className="support-copy" key={text}>{formatCopy(text)}</li>
+            <details>
+              <summary>
+                <h4>Ограничения ряда: {frame.limitations.length + (catalog?.thresholds.conflicts_with_project ?? []).length}</h4>
+              </summary>
+              <ul>
+                {frame.limitations.map((text) => (
+                  <li className="support-copy" key={text}>{formatCopy(text)}</li>
+                ))}
+              </ul>
+              {(catalog?.thresholds.conflicts_with_project ?? []).map((text) => (
+                <p className="object-note support-copy" key={text}>
+                  <TriangleAlert size={14} /> {formatCopy(text)}
+                </p>
               ))}
-            </ul>
-            {(catalog?.thresholds.conflicts_with_project ?? []).map((text) => (
-              <p className="object-note support-copy" key={text}>
-                <TriangleAlert size={14} /> {formatCopy(text)}
-              </p>
-            ))}
+            </details>
           </div>
         </>
       )}

@@ -14,6 +14,10 @@ export interface Component {
   note?: string | null;
 }
 export interface Equipment {
+  telemetry?: SeriesTelemetry;
+  maintenance_schedule?: ServiceStep[];
+  maintenance_schedule_note?: string | null;
+  source_documents?: string[];
   id: string;
   equipment_type: string;
   type_name: string;
@@ -137,6 +141,25 @@ export interface Telemetry {
   last_service_hours: number | null;
   baseline: Record<string, number>;
   samples: (Record<string, number | string | null> & { at: string })[];
+  record_index?: number;
+  organizer_annotations?: Record<string, string>;
+  io?: { address: string; read_at: string; running: boolean } | null;
+  io_error?: string | null;
+  series?: string[];
+}
+export interface SeriesTelemetry {
+  series: string[];
+  note: string | null;
+  running_hours: number;
+  recorded_hours: number;
+  from: string | null;
+  to: string | null;
+  rule: string;
+}
+export interface ServiceStep {
+  hours: number;
+  name: string;
+  work: string;
 }
 export interface Analysis {
   id: string;
@@ -179,6 +202,39 @@ export interface VisionResult {
   observations: Observation[];
   model: string;
   source: string;
+}
+export interface LiveDetector {
+  name: string;
+  ready: boolean;
+}
+export interface LiveSession {
+  session_id: string;
+  equipment_id: string;
+  max_side: number;
+  detector: LiveDetector;
+}
+export interface LiveDetection {
+  kind: string;
+  label: string;
+  bbox: [number, number, number, number];
+  confidence: number | null;
+  confirmed: boolean;
+}
+export type LiveAssessment =
+  | "unavailable"
+  | "warming_up"
+  | "no_visible_issues"
+  | "check_recommended"
+  | "possible_defect";
+export interface LiveFrame {
+  session_id: string;
+  frame_no: number;
+  status: "processed" | "stale" | "busy";
+  detections: LiveDetection[];
+  detector: LiveDetector;
+  server_ms: number;
+  assessment?: LiveAssessment;
+  confirmed_kinds?: string[];
 }
 export interface InspectionEvent {
   id: string;
@@ -292,4 +348,19 @@ export interface Bootstrap {
   equipment: Equipment;
   scenarios: Scenario[];
   vision: { configured: boolean; model: string; provider: string };
+}
+export type Role = "engineer" | "master" | "admin";
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: Role;
+  role_name: string;
+  active: boolean;
+  permissions: string[];
+}
+export interface Me {
+  auth_enabled: boolean;
+  setup_required: boolean;
+  user: User | null;
 }

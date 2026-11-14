@@ -16,8 +16,11 @@ RULES_VERSION = "documented-1.0.0"
 
 # Thresholds quoted from the supplied documents. The citation travels with the value.
 THRESHOLDS = {
-    "dts_setpoint_c": 100.0,          # manuals-017, устанавливаемая величина и блокировка, макс.
-    "dts_critical_c": 105.0,          # manuals-017, критический параметр
+    # manuals-017 carries two protection lists for project 21031004: page 1 says 100 / 105 °C, page 5
+    # says 90 / 95 °C, and neither says which is in force. Until the organizer answers, the stricter
+    # page 5 applies: a missed defect is worse than a false alarm (organizer answers §5).
+    "dts_setpoint_c": 90.0,           # manuals-017 стр. 5, уставка, блокировка, сигнализация
+    "dts_critical_c": 95.0,           # manuals-017 стр. 5, критический параметр
     "ptc_critical_c": 160.0,          # manuals-017, критический параметр обмотки статора
     "seal_over_product_k": 20.0,      # manuals-009 §7.1, измеряется пирометром
     "gland_drip_min_per_min": 5.0,    # manuals-009 §8.1.4, нижняя граница штатной утечки
@@ -153,7 +156,8 @@ def _dry_run(inputs: Inputs):
     evidence = [{"label": "Температура DTS, °C", "value": value,
                  "threshold": f"Уставка и блокировка ≥ {THRESHOLDS['dts_setpoint_c']:.0f} °C; "
                               f"критическое значение {THRESHOLDS['dts_critical_c']:.0f} °C",
-                 "source": "Измерение инженера; уставка — перечень блокировок manuals-017"}]
+                 "source": "Измерение инженера; уставка — перечень блокировок manuals-017, стр. 5 "
+                           "(строже варианта стр. 1: 100 / 105 °C)"}]
     return triggered, [], evidence + ([{"label": "Критический параметр достигнут", "value": "да",
                                         "threshold": f"≥ {THRESHOLDS['dts_critical_c']:.0f} °C",
                                         "source": "manuals-017"}] if critical else [])
@@ -267,7 +271,7 @@ RULES = (
                    "предписывает отключение насосного агрегата.",
      "recommendation": "Проверить наличие продукта во всасывающей линии и срабатывание защиты. "
                        "Пуск «всухую» инструкция запрещает.",
-     "basis": "manuals-017, перечень блокировок и сигнализации; manuals-009 §7.1"},
+     "basis": "manuals-017, перечень блокировок стр. 5 (строже стр. 1); manuals-009 §7.1"},
     {"id": "P02", "types": ("pcp_pump_unit",), "components": {"pcp_pump_unit": "motor"},
      "title": "Сработала термисторная защита обмотки статора",
      "severity": "critical", "evaluate": _ptc,

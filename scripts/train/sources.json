@@ -1,0 +1,48 @@
+{
+  "note": "Источники выборки для дообучения детектора. Каждая выгрузка Roboflow в формате COCO кладётся в .models/rfdetr/sources/<id>/ (train/, valid/, test/). Классы, которых нет в classes, останавливают сборку; null — фон. exclude — файлы, которые нельзя использовать (водяные знаки фотостоков и т. п.). Публичные фото никогда не попадают в test: проверка идёт только на собственных снимках команды.",
+  "sources": [
+    {
+      "id": "corrosion-detection",
+      "url": "https://universe.roboflow.com/corrosion-l4cqs/corrosion-detection-npdhd",
+      "author": "Corrosion (Roboflow Universe)",
+      "license": "MIT",
+      "version": "указать номер версии при скачивании",
+      "split": {"train": "train", "valid": "valid", "test": "valid"},
+      "classes": {"corrosion": "frame_corrosion"},
+      "exclude": []
+    },
+    {
+      "id": "bolts",
+      "url": "https://universe.roboflow.com/oceans-workspace/bolt_missing_loosen_regular_rust",
+      "author": "oceans Workspace (Roboflow Universe)",
+      "license": "CC BY 4.0",
+      "version": "своя версия после копирования (Fork): у автора готовых версий нет",
+      "split": {"train": "train", "valid": "valid", "test": "valid"},
+      "classes": {
+        "Loose bolt": "loose_bolt",
+        "Missing bolt": "missing_bolt",
+        "Regular bolt": null,
+        "Rusty bolt": "frame_corrosion"
+      },
+      "exclude": [],
+      "exclude_note": "Перед обучением убрать кадры с водяными знаками фотостоков (замечен «…stime.co») и кадры с двойными рамками разных классов на одном болте."
+    },
+    {
+      "id": "own",
+      "url": "собственные снимки команды",
+      "author": "команда КОНТУР",
+      "license": "собственные снимки",
+      "version": "дата выгрузки",
+      "split": "keep",
+      "classes": {
+        "guard_missing": "guard_missing",
+        "seal_leak_excessive": "seal_leak_excessive",
+        "oil_leak_at_housing": "oil_leak_at_housing",
+        "frame_corrosion": "frame_corrosion",
+        "missing_bolt": "missing_bolt",
+        "loose_bolt": "loose_bolt"
+      },
+      "exclude": []
+    }
+  ]
+}
