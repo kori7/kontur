@@ -1,3 +1,4 @@
+import { formatCopy } from "../api";
 import type { Alert, Component } from "../types";
 
 export function PumpSvg({
@@ -16,19 +17,19 @@ export function PumpSvg({
     >
       <defs>
         <linearGradient id="motor" x1="0" y1="0" x2="0" y2="1">
-          <stop stopColor="#99b7af" />
-          <stop offset=".45" stopColor="#d5e0d9" />
-          <stop offset="1" stopColor="#74988e" />
+          <stop stopColor="#A6BDCD" />
+          <stop offset=".45" stopColor="#E1E9EF" />
+          <stop offset="1" stopColor="#718FA8" />
         </linearGradient>
         <linearGradient id="housing" x1="0" y1="0" x2="1" y2="1">
-          <stop stopColor="#b7c8bf" />
-          <stop offset=".48" stopColor="#799e91" />
-          <stop offset="1" stopColor="#49766b" />
+          <stop stopColor="#C4D3DE" />
+          <stop offset=".48" stopColor="#819FB8" />
+          <stop offset="1" stopColor="#476D8E" />
         </linearGradient>
         <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
-          <stop stopColor="#e3e9e4" />
-          <stop offset=".5" stopColor="#95aaa1" />
-          <stop offset="1" stopColor="#576e65" />
+          <stop stopColor="#E7EBEE" />
+          <stop offset=".5" stopColor="#A2B2BF" />
+          <stop offset="1" stopColor="#5D7182" />
         </linearGradient>
         <linearGradient id="guard" x1="0" y1="0" x2="0" y2="1">
           <stop stopColor="#e7d69c" />
@@ -46,18 +47,18 @@ export function PumpSvg({
         cy="334"
         rx="310"
         ry="19"
-        fill="#35483d"
+        fill="#263D50"
         opacity=".12"
         filter="url(#shadow)"
       />
-      <g stroke="#586f63" strokeWidth="1.5" strokeLinejoin="round">
-        <path d="M127 294L731 294 779 322 165 322Z" fill="#b7c4b9" />
-        <path d="M165 322H779V340H165Z" fill="#7d9386" />
-        <path d="M127 294L165 322V340L127 312Z" fill="#94a99b" />
+      <g stroke="#526A7D" strokeWidth="1.5" strokeLinejoin="round">
+        <path d="M127 294L731 294 779 322 165 322Z" fill="#C0CBD5" />
+        <path d="M165 322H779V340H165Z" fill="#8399AC" />
+        <path d="M127 294L165 322V340L127 312Z" fill="#9AAEBF" />
         <path d="M178 307V318M725 307V318" strokeWidth="8" />
-        <ellipse cx="178" cy="306" rx="9" ry="4" fill="#596e61" />
-        <ellipse cx="725" cy="306" rx="9" ry="4" fill="#596e61" />
-        <path d="M212 260V300H247V264M330 259V300H365V259" fill="#749889" />
+        <ellipse cx="178" cy="306" rx="9" ry="4" fill="#546B7E" />
+        <ellipse cx="725" cy="306" rx="9" ry="4" fill="#546B7E" />
+        <path d="M212 260V300H247V264M330 259V300H365V259" fill="#7594AD" />
         <rect
           x="176"
           y="171"
@@ -66,35 +67,35 @@ export function PumpSvg({
           rx="21"
           fill="url(#motor)"
         />
-        <ellipse cx="176" cy="227" rx="29" ry="55" fill="#84a398" />
-        <ellipse cx="173" cy="227" rx="21" ry="43" fill="#607e70" />
-        <ellipse cx="173" cy="227" rx="15" ry="36" fill="#9db7a8" />
+        <ellipse cx="176" cy="227" rx="29" ry="55" fill="#88A5BB" />
+        <ellipse cx="173" cy="227" rx="21" ry="43" fill="#597B97" />
+        <ellipse cx="173" cy="227" rx="15" ry="36" fill="#A4BBCD" />
         {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
           <path
             key={i}
             d={`M${207 + i * 15} 177V276`}
-            stroke="#527b69"
+            stroke="#487497"
             opacity=".55"
             strokeWidth="2.5"
           />
         ))}
-        <ellipse cx="373" cy="227" rx="22" ry="55" fill="#7c9c8d" />
+        <ellipse cx="373" cy="227" rx="22" ry="55" fill="#779AB7" />
         <ellipse cx="381" cy="227" rx="13" ry="31" fill="url(#metal)" />
-        <path d="M247 172V146L314 146 324 157V176" fill="#658577" />
-        <path d="M247 146L262 136H325V163L314 176V146" fill="#a0b8a9" />
+        <path d="M247 172V146L314 146 324 157V176" fill="#6286A3" />
+        <path d="M247 146L262 136H325V163L314 176V146" fill="#A7BDCF" />
         <rect
           x="262"
           y="143"
           width="39"
           height="16"
           rx="2"
-          fill="#d7e1d8"
+          fill="#DEE7EE"
           stroke="none"
         />
         <path d="M395 220H588V235H395Z" fill="url(#metal)" />
-        <rect x="439" y="204" width="54" height="45" rx="7" fill="#788680" />
+        <rect x="439" y="204" width="54" height="45" rx="7" fill="#7C8A96" />
         {[452, 465, 478].map((x) => (
-          <path key={x} d={`M${x} 207V247`} stroke="#45554b" strokeWidth="3" />
+          <path key={x} d={`M${x} 207V247`} stroke="#435767" strokeWidth="3" />
         ))}
         {!guardMissing && (
           <g>
@@ -145,26 +146,26 @@ export function PumpSvg({
         <ellipse cx="706" cy="98" rx="29" ry="8" fill="#b6c9b9" />
         <ellipse cx="706" cy="98" rx="19" ry="4" fill="#476e5b" />
         <path d="M744 207H806V241H744" fill="url(#metal)" />
-        <ellipse cx="806" cy="224" rx="10" ry="29" fill="#769886" />
-        <ellipse cx="808" cy="224" rx="5" ry="19" fill="#355946" />
-        <path d="M667 170V107" fill="none" strokeWidth="7" stroke="#7d9282" />
-        <circle cx="667" cy="90" r="22" fill="#c4cec4" />
-        <circle cx="667" cy="90" r="17" fill="#f6f7ec" />
+        <ellipse cx="806" cy="224" rx="10" ry="29" fill="#7F9BB4" />
+        <ellipse cx="808" cy="224" rx="5" ry="19" fill="#365A7A" />
+        <path d="M667 170V107" fill="none" strokeWidth="7" stroke="#8298AA" />
+        <circle cx="667" cy="90" r="22" fill="#CCD5DD" />
+        <circle cx="667" cy="90" r="17" fill="#F4F5F8" />
         <path
           d="M656 95A12 12 0 1 1 678 95"
           fill="none"
-          stroke="#718370"
+          stroke="#6D8294"
           strokeDasharray="1 4"
         />
-        <path d="M667 91L673 80" stroke="#365d4b" strokeWidth="2" />
-        <circle cx="667" cy="91" r="2" fill="#365d4b" />
+        <path d="M667 91L673 80" stroke="#355C7D" strokeWidth="2" />
+        <circle cx="667" cy="91" r="2" fill="#355C7D" />
         <rect
           x="651"
           y="252"
           width="39"
           height="12"
           rx="2"
-          fill="#d3dccf"
+          fill="#D8E1E8"
           stroke="none"
         />
       </g>
@@ -175,14 +176,6 @@ export function PumpSvg({
           <path d="M606 289Q600 297 606 301Q612 298 606 289Z" />
         </g>
       )}
-      <g fill="#658277" fontFamily="monospace" fontSize="9" letterSpacing="2">
-        <text x="130" y="374">
-          КОНТУР / Н-101
-        </text>
-        <text x="651" y="374">
-          ДЕМО-СХЕМА · 01
-        </text>
-      </g>
     </svg>
   );
 }
@@ -227,10 +220,14 @@ export function PumpDiagram({
               title={item.name}
             >
               <span className="hotspot-dot" />
-              <span className="hotspot-label">{item.name}</span>
+              <span className="hotspot-label">{formatCopy(item.name)}</span>
             </button>
           );
         })}
+      </div>
+      <div className="diagram-caption support-copy">
+        <span>КОНТУР / Н-101</span>
+        <span>ДЕМО-СХЕМА · 01</span>
       </div>
     </div>
   );

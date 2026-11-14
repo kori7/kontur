@@ -1,0 +1,125 @@
+{
+  "assets": [
+    {
+      "contentType": "text/css",
+      "id": "f317ccef08258ddd",
+      "kind": "stylesheet",
+      "name": "fonts.css",
+      "path": "C:\\Users\\kori_\\AppData\\Local\\Temp/browser-use/assets/d6677c8e-b117-4a88-a0b1-8b56dc0c58c7/f317ccef08258ddd.css",
+      "url": "https://www.kst-energo.ru/assets/design/css/fonts.css?v=1"
+    },
+    {
+      "contentType": "text/css",
+      "id": "bd5e55c00a06a243",
+      "kind": "stylesheet",
+      "name": "bootstrap-short.css",
+      "path": "C:\\Users\\kori_\\AppData\\Local\\Temp/browser-use/assets/d6677c8e-b117-4a88-a0b1-8b56dc0c58c7/bd5e55c00a06a243.css",
+      "url": "https://www.kst-energo.ru/assets/design/css/bootstrap-short.css?v=1"
+    },
+    {
+      "contentType": "text/css",
+      "id": "67585368fd979ecb",
+      "kind": "stylesheet",
+      "name": "style.css",
+      "path": "C:\\Users\\kori_\\AppData\\Local\\Temp/browser-use/assets/d6677c8e-b117-4a88-a0b1-8b56dc0c58c7/67585368fd979ecb.css",
+      "url": "https://www.kst-energo.ru/assets/design/css/style.css?v=6"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "8ad2d9aa4df7d817",
+      "kind": "image",
+      "name": "logo.svg",
+      "path": "C:\\Users\\kori_\\AppData\\Local\\Temp/browser-use/assets/d6677c8e-b117-4a88-a0b1-8b56dc0c58c7/8ad2d9aa4df7d817.svg",
+      "url": "https://www.kst-energo.ru/uploads/logo.svg"
+    },
+    {
+      "contentType": "image/webp",
+      "id": "9789ef5bd68cae91",
+      "kind": "image",
+      "name": "start-bg_1485x760_2b1.webp",
+      "path": "C:\\Users\\kori_\\AppData\\Local\\Temp/browser-use/assets/d6677c8e-b117-4a88-a0b1-8b56dc0c58c7/9789ef5bd68cae91.webp",
+      "url": "https://www.kst-energo.ru/assets/cache_image/uploads/start-bg_1485x760_2b1.webp"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "0be9d018201dbdba",
+      "kind": "image",
+      "name": "services-lines.svg",
+      "path": "C:\\Users\\kori_\\AppData\\Local\\Temp/browser-use/assets/d6677c8e-b117-4a88-a0b1-8b56dc0c58c7/0be9d018201dbdba.svg",
+      "url": "https://www.kst-energo.ru/assets/design/images/services-lines.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "4252de5cbcb3c0a6",
+      "kind": "image",
+      "name": "avtomat1.svg",
+      "path": "C:\\Users\\kori_\\AppData\\Local\\Temp/browser-use/assets/d6677c8e-b117-4a88-a0b1-8b56dc0c58c7/4252de5cbcb3c0a6.svg",
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/Automatizatsya/avtomat1.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "546a29e54255d75c",
+      "kind": "image",
+      "name": "avtomat2.svg",
+      "path": "C:\\Users\\kori_\\AppData\\Local\\Temp/browser-use/assets/d6677c8e-b117-4a88-a0b1-8b56dc0c58c7/546a29e54255d75c.svg",
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/Automatizatsya/avtomat2.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "9a5bac95806d6461",
+      "kind": "image",
+      "name": "analiz.svg",
+      "path": "C:\\Users\\kori_\\AppData\\Local\\Temp/browser-use/assets/d6677c8e-b117-4a88-a0b1-8b56dc0c58c7/9a5bac95806d6461.svg",
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/Analyticheskie%20kompleksy/analiz.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "53f3f1f6c9004b75",
+      "kind": "image",
+      "name": "arr-blue-next.svg",
+      "path": "C:\\Users\\kori_\\AppData\\Local\\Temp/browser-use/assets/d6677c8e-b117-4a88-a0b1-8b56dc0c58c7/53f3f1f6c9004b75.svg",
+      "url": "https://www.kst-energo.ru/assets/design/images/icons/arr-blue-next.svg"
+    },
+    {
+      "contentType": "image/svg+xml",
+      "id": "cbaae4660c8e3bc7",
+      "kind": "image",
+      "name": "atom.svg",
+      "path": "C:\\Users\\kori_\\AppData\\Local\\Temp/browser-use/assets/d6677c8e-b117-4a88-a0b1-8b56dc0c58c7/cbaae4660c8e3bc7.svg",
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/Atom/atom.svg"
+    },
+    {
+      "contentType": "application/font-woff2",
+      "id": "0e637ec8b07dffb2",
+      "kind": "font",
+      "name": "Geologica-Regular.woff2",
+      "path": "C:\\Users\\kori_\\AppData\\Local\\Temp/browser-use/assets/d6677c8e-b117-4a88-a0b1-8b56dc0c58c7/0e637ec8b07dffb2.woff2",
+      "url": "https://www.kst-energo.ru/assets/design/fonts/Geologica-Regular.woff2"
+    },
+    {
+      "contentType": "application/font-woff2",
+      "id": "7e0f48ded3c75299",
+      "kind": "font",
+      "name": "Geologica-Medium.woff2",
+      "path": "C:\\Users\\kori_\\AppData\\Local\\Temp/browser-use/assets/d6677c8e-b117-4a88-a0b1-8b56dc0c58c7/7e0f48ded3c75299.woff2",
+      "url": "https://www.kst-energo.ru/assets/design/fonts/Geologica-Medium.woff2"
+    },
+    {
+      "contentType": "application/font-woff2",
+      "id": "5b54acf0bce2e29e",
+      "kind": "font",
+      "name": "Geologica-SemiBold.woff2",
+      "path": "C:\\Users\\kori_\\AppData\\Local\\Temp/browser-use/assets/d6677c8e-b117-4a88-a0b1-8b56dc0c58c7/5b54acf0bce2e29e.woff2",
+      "url": "https://www.kst-energo.ru/assets/design/fonts/Geologica-SemiBold.woff2"
+    }
+  ],
+  "directoryPath": "C:\\Users\\kori_\\AppData\\Local\\Temp/browser-use/assets/d6677c8e-b117-4a88-a0b1-8b56dc0c58c7",
+  "failures": [],
+  "manifestPath": "C:\\Users\\kori_\\AppData\\Local\\Temp/browser-use/assets/d6677c8e-b117-4a88-a0b1-8b56dc0c58c7/manifest.json",
+  "summary": {
+    "downloadedCount": 14,
+    "elapsedMs": 166.46929999999702,
+    "failedCount": 0,
+    "requestedCount": 14
+  }
+}

@@ -1,0 +1,1791 @@
+{
+  "assets": [
+    {
+      "id": "f317ccef08258ddd",
+      "kind": "stylesheet",
+      "name": "fonts.css",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "link"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 61,
+          "property": "href"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/css/fonts.css?v=1"
+    },
+    {
+      "id": "bd5e55c00a06a243",
+      "kind": "stylesheet",
+      "name": "bootstrap-short.css",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "link"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 63,
+          "property": "href"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/css/bootstrap-short.css?v=1"
+    },
+    {
+      "id": "33eadb3fbc3af791",
+      "kind": "stylesheet",
+      "name": "animate.css",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "link"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 65,
+          "property": "href"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/css/animate.css?v=1"
+    },
+    {
+      "id": "a06953dfaba56497",
+      "kind": "stylesheet",
+      "name": "fancybox.css",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "link"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 67,
+          "property": "href"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/css/fancybox.css?v=1"
+    },
+    {
+      "id": "84573a5a8d3f4aa1",
+      "kind": "stylesheet",
+      "name": "slick.css",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "link"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 69,
+          "property": "href"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/css/slick.css?v=1"
+    },
+    {
+      "id": "67585368fd979ecb",
+      "kind": "stylesheet",
+      "name": "style.css",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "link"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 71,
+          "property": "href"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/css/style.css?v=6"
+    },
+    {
+      "id": "6b5afb7cb44a5d24",
+      "kind": "stylesheet",
+      "name": "bvi.min.css",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "link"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 97,
+          "property": "href"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2743,
+          "property": "href"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/bvi/css/bvi.min.css"
+    },
+    {
+      "id": "acade57893536fdc",
+      "kind": "stylesheet",
+      "name": "index.css",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "link"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 104,
+          "property": "href"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/components/sendit/css/web/index.css?v=1790770939"
+    },
+    {
+      "id": "8601b36fdbc7dd68",
+      "kind": "script",
+      "name": "bvi.min.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 99,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2745,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/bvi/js/bvi.min.js"
+    },
+    {
+      "id": "8ad2d9aa4df7d817",
+      "kind": "image",
+      "name": "logo.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 130,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 568,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1098,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/logo.svg"
+    },
+    {
+      "id": "078128aea9a987e7",
+      "kind": "image",
+      "name": "pervoe-foto-glavnaya_1445x604_655.webp",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1130,
+          "property": "srcset"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1132,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/cache_image/uploads/O_Kompanii/pervoe-foto-glavnaya_1445x604_655.webp"
+    },
+    {
+      "id": "ab50b81bb1e09b39",
+      "kind": "image",
+      "name": "systems-new_1445x604_655.webp",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1141,
+          "property": "srcset"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1143,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/cache_image/uploads/O_Kompanii/systems-new_1445x604_655.webp"
+    },
+    {
+      "id": "11e15781266aa953",
+      "kind": "image",
+      "name": "technologies-new_1445x604_655.webp",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1152,
+          "property": "srcset"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1154,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/cache_image/uploads/O_Kompanii/technologies-new_1445x604_655.webp"
+    },
+    {
+      "id": "cbaae4660c8e3bc7",
+      "kind": "image",
+      "name": "atom.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1378,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/Atom/atom.svg"
+    },
+    {
+      "id": "99dda1d2fd8c8f24",
+      "kind": "image",
+      "name": "aom2.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1380,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/Atom/aom2.svg"
+    },
+    {
+      "id": "5d9edddf87133237",
+      "kind": "image",
+      "name": "eob1.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1388,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/Electroobogrev/eob1.svg"
+    },
+    {
+      "id": "7c69766248349afc",
+      "kind": "image",
+      "name": "eob2.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1390,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/Electroobogrev/eob2.svg"
+    },
+    {
+      "id": "4252de5cbcb3c0a6",
+      "kind": "image",
+      "name": "avtomat1.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1396,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/Automatizatsya/avtomat1.svg"
+    },
+    {
+      "id": "546a29e54255d75c",
+      "kind": "image",
+      "name": "avtomat2.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1398,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/Automatizatsya/avtomat2.svg"
+    },
+    {
+      "id": "7dbf0ea05558e056",
+      "kind": "image",
+      "name": "volt.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1404,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/6-10kv/volt.svg"
+    },
+    {
+      "id": "236b29deaf279334",
+      "kind": "image",
+      "name": "volt2.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1406,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/6-10kv/volt2.svg"
+    },
+    {
+      "id": "ef5ed06c4b6f6855",
+      "kind": "image",
+      "name": "energiya.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1412,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/Nizkovoltnye%20kompleksy/energiya.svg"
+    },
+    {
+      "id": "a5ffa2a904d918de",
+      "kind": "image",
+      "name": "energiya2.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1414,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/Nizkovoltnye%20kompleksy/energiya2.svg"
+    },
+    {
+      "id": "9a5bac95806d6461",
+      "kind": "image",
+      "name": "analiz.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1420,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/Analyticheskie%20kompleksy/analiz.svg"
+    },
+    {
+      "id": "71ae0d70b1666ff1",
+      "kind": "image",
+      "name": "analiz2.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1422,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/Analyticheskie%20kompleksy/analiz2.svg"
+    },
+    {
+      "id": "89952ed8986c1cb4",
+      "kind": "image",
+      "name": "shessterenka.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1428,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/kompleksnye%20postavki/shessterenka.svg"
+    },
+    {
+      "id": "01d4ef812812133b",
+      "kind": "image",
+      "name": "postavka2.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1430,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/icons/Reshenya%20icons/kompleksnye%20postavki/postavka2.svg"
+    },
+    {
+      "id": "316ac73ea7a6f1ce",
+      "kind": "image",
+      "name": "arr-big-white.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1464,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1489,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1514,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/images/icons/arr-big-white.svg"
+    },
+    {
+      "id": "326f1638f6bcaf66",
+      "kind": "image",
+      "name": "arr-big-blue.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1466,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1491,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1516,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/images/icons/arr-big-blue.svg"
+    },
+    {
+      "id": "53f3f1f6c9004b75",
+      "kind": "image",
+      "name": "arr-blue-next.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1609,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1648,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1687,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1726,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1765,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1804,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1842,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1881,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1920,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1959,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 1998,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2037,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2076,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2115,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/images/icons/arr-blue-next.svg"
+    },
+    {
+      "id": "cbc1b3e2b4cdb0bb",
+      "kind": "image",
+      "name": "map-marker.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2147,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2152,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2157,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2162,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2167,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2172,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2177,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2182,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2187,
+          "property": "src"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2192,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/images/icons/map-marker.svg"
+    },
+    {
+      "id": "afe1ec894f3b4f5c",
+      "kind": "image",
+      "name": "world-v2.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2142,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/map/world-v2.svg"
+    },
+    {
+      "id": "4d6079e25aef1052",
+      "kind": "image",
+      "name": "vk1.png",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2606,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/icons/vk1.png"
+    },
+    {
+      "id": "d9d368a2d78a498e",
+      "kind": "image",
+      "name": "rutub1.png",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "img"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2609,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/icons/rutub1.png"
+    },
+    {
+      "id": "a6d6216574ac1800",
+      "kind": "script",
+      "name": "jquery-3.6.0.min.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2729,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/js/jquery-3.6.0.min.js"
+    },
+    {
+      "id": "74e3178401da1f84",
+      "kind": "script",
+      "name": "slick.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2733,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/js/slick.js"
+    },
+    {
+      "id": "2f87dd6fda5ba577",
+      "kind": "script",
+      "name": "jquery.maskedinput.min.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2735,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/js/jquery.maskedinput.min.js"
+    },
+    {
+      "id": "72a553b1cd51412c",
+      "kind": "script",
+      "name": "smooth-scroll.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2737,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/js/smooth-scroll.js"
+    },
+    {
+      "id": "1bce1deea170050c",
+      "kind": "script",
+      "name": "fancybox.umd.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2731,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/js/fancybox.umd.js"
+    },
+    {
+      "id": "7e14d358ed47035f",
+      "kind": "script",
+      "name": "wow.min.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2739,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/js/wow.min.js"
+    },
+    {
+      "id": "f7fadef1defa5ec9",
+      "kind": "script",
+      "name": "main.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2741,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/js/main.js?v=2"
+    },
+    {
+      "id": "6d5f853228f3d454",
+      "kind": "script",
+      "name": "index.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2756,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/components/sendit/js/web/index.js?v=1790770939"
+    },
+    {
+      "id": "b66e08f9f95dd76a",
+      "kind": "image",
+      "name": "menu-arrow.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 143,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 143,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 153,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 153,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 163,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 163,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 188,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 188,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 198,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 198,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/images/icons/menu-arrow.svg"
+    },
+    {
+      "id": "9789ef5bd68cae91",
+      "kind": "image",
+      "name": "start-bg_1485x760_2b1.webp",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 644,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/cache_image/uploads/start-bg_1485x760_2b1.webp"
+    },
+    {
+      "id": "f887b9e33e681f31",
+      "kind": "image",
+      "name": "arr-blue-more.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1111,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1111,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1358,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1358,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/images/icons/arr-blue-more.svg"
+    },
+    {
+      "id": "49c4ad3685928f2a",
+      "kind": "image",
+      "name": "partner3.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1232,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1316,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/partner3.svg"
+    },
+    {
+      "id": "0c76aa47a39db169",
+      "kind": "image",
+      "name": "partner1.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1239,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1323,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/partner1.svg"
+    },
+    {
+      "id": "66bb5b58e2616331",
+      "kind": "image",
+      "name": "partner2.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1246,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1330,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/partner2.svg"
+    },
+    {
+      "id": "3035ddd573220099",
+      "kind": "image",
+      "name": "novotek.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1253,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/Partneri/novotek.svg"
+    },
+    {
+      "id": "33a25da64d329ec9",
+      "kind": "image",
+      "name": "ruschim.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1260,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/Partneri/ruschim.svg"
+    },
+    {
+      "id": "0ad5365f96b6a87e",
+      "kind": "image",
+      "name": "russ1.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1267,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/Partneri/russ1.svg"
+    },
+    {
+      "id": "9b754d081d4ca5f0",
+      "kind": "image",
+      "name": "titan2.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1274,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/Partneri/titan2.svg"
+    },
+    {
+      "id": "c50b2100a60b2fff",
+      "kind": "image",
+      "name": "il.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1281,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/Partneri/il.svg"
+    },
+    {
+      "id": "12ede864fc19ba4d",
+      "kind": "image",
+      "name": "tex.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1288,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/Partneri/tex.svg"
+    },
+    {
+      "id": "c535f9e33a2bbaa9",
+      "kind": "image",
+      "name": "i.webp",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1211,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1295,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/i.webp"
+    },
+    {
+      "id": "ef086fb0c55ee2c1",
+      "kind": "image",
+      "name": "reglab-czvetnoi%CC%86-s-deskriptorom-1.png",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1218,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1302,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/Partneri/reglab-czvetnoi%CC%86-s-deskriptorom-1.png"
+    },
+    {
+      "id": "b35f4a91de9ba754",
+      "kind": "image",
+      "name": "image-556.png",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1225,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1309,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/Partneri/image-556.png"
+    },
+    {
+      "id": "0be9d018201dbdba",
+      "kind": "image",
+      "name": "services-lines.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1437,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1437,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/images/services-lines.svg"
+    },
+    {
+      "id": "59b69273639adf14",
+      "kind": "image",
+      "name": "arr-white-more.svg",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1449,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1449,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/images/icons/arr-white-more.svg"
+    },
+    {
+      "id": "1fe1600215ed3d56",
+      "kind": "image",
+      "name": "gspi.png",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1680,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 2069,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/proekti/gspi.png"
+    },
+    {
+      "id": "859020d923845849",
+      "kind": "image",
+      "name": "2.png",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1719,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 2108,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/proekti/2.png"
+    },
+    {
+      "id": "347d83e9f7271aaa",
+      "kind": "image",
+      "name": "4.png",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1758,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/proekti/4.png"
+    },
+    {
+      "id": "5851602b9a9e928f",
+      "kind": "image",
+      "name": "5.png",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1797,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/proekti/5.png"
+    },
+    {
+      "id": "f0e718e6fdee0836",
+      "kind": "image",
+      "name": "rasu-rosatom.png",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1835,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/proekti/rasu-rosatom.png"
+    },
+    {
+      "id": "cedc175370cbb035",
+      "kind": "image",
+      "name": "3.png",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1874,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/proekti/3.png"
+    },
+    {
+      "id": "d7dc3b5bb1f23e66",
+      "kind": "image",
+      "name": "11.png",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1913,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/proekti/11.png"
+    },
+    {
+      "id": "f2fcc76358d058c7",
+      "kind": "image",
+      "name": "xolding-titan.png",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1952,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/proekti/xolding-titan.png"
+    },
+    {
+      "id": "077560ef39d4a45e",
+      "kind": "image",
+      "name": "logo-gnhs-rus.png",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1602,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1991,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/proekti/logo-gnhs-rus.png"
+    },
+    {
+      "id": "0ed540a7c52cfabb",
+      "kind": "image",
+      "name": "image-photoroom-2026-07-13t172111.534-1.png",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 1641,
+          "property": "background-image"
+        },
+        {
+          "kind": "computedStyle",
+          "nodeId": 2030,
+          "property": "background-image"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/proekti/image-photoroom-2026-07-13t172111.534-1.png"
+    },
+    {
+      "id": "0e637ec8b07dffb2",
+      "kind": "font",
+      "name": "Geologica-Regular.woff2",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/fonts/Geologica-Regular.woff2"
+    },
+    {
+      "id": "7e0f48ded3c75299",
+      "kind": "font",
+      "name": "Geologica-Medium.woff2",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/fonts/Geologica-Medium.woff2"
+    },
+    {
+      "id": "e715a537bf8b7e9d",
+      "kind": "font",
+      "name": "Geologica-ExtraLight.woff2",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/fonts/Geologica-ExtraLight.woff2"
+    },
+    {
+      "id": "48ce2ede0b95efd3",
+      "kind": "font",
+      "name": "Geologica-Light.woff2",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/fonts/Geologica-Light.woff2"
+    },
+    {
+      "id": "5b54acf0bce2e29e",
+      "kind": "font",
+      "name": "Geologica-SemiBold.woff2",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "css"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/fonts/Geologica-SemiBold.woff2"
+    },
+    {
+      "id": "eb8785dd62cff244",
+      "kind": "video",
+      "name": "v2-speed-0-6x.mp4",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "video"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 649,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/uploads/video/v2-speed-0-6x.mp4"
+    },
+    {
+      "id": "cef5ff8af13ed080",
+      "kind": "video",
+      "name": "footer-video.mp4",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "video"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2434,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/images/footer-video.mp4"
+    },
+    {
+      "id": "57a1cb2203505414",
+      "kind": "script",
+      "name": "main.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/components/sendit/js/web/core/main.js?v=1790770939"
+    },
+    {
+      "id": "7ed9e8dfb2d376f4",
+      "kind": "script",
+      "name": "di-container.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/components/sendit/js/web/core/di-container.js"
+    },
+    {
+      "id": "7dcf1fc601453082",
+      "kind": "image",
+      "name": "fav32.png",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "other"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 73,
+          "property": "href"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/design/images/fav32.png"
+    },
+    {
+      "id": "f764e07680ad84cf",
+      "kind": "script",
+      "name": "modules.inc.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/components/sendit/js/web/configs/modules.inc.js?v=1790770939"
+    },
+    {
+      "id": "5a01286c4f7343bb",
+      "kind": "script",
+      "name": "helpers.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/components/sendit/js/web/modules/helpers.js?v=1790770939"
+    },
+    {
+      "id": "73c10875a6bb1933",
+      "kind": "script",
+      "name": "userbehaviortracker.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/components/sendit/js/web/modules/userbehaviortracker.js?v=1790770939"
+    },
+    {
+      "id": "954bcbf65b3d8140",
+      "kind": "script",
+      "name": "base.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/components/sendit/js/web/modules/base.js"
+    },
+    {
+      "id": "215473a35517843e",
+      "kind": "script",
+      "name": "sending.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/components/sendit/js/web/modules/sending.js?v=1790770939"
+    },
+    {
+      "id": "4c748da7fb74c36b",
+      "kind": "script",
+      "name": "notify.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/components/sendit/js/web/modules/notify.js?v=1790770939"
+    },
+    {
+      "id": "533d65225180ed1a",
+      "kind": "script",
+      "name": "iziToast.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2954,
+          "property": "src"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/components/sendit/js/web/lib/izitoast/iziToast.js"
+    },
+    {
+      "id": "963f4d1ed426625f",
+      "kind": "script",
+      "name": "saveformdata.js",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "script"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/components/sendit/js/web/modules/saveformdata.js?v=1790770939"
+    },
+    {
+      "id": "7f496a7436dbdacb",
+      "kind": "stylesheet",
+      "name": "iziToast.min.css",
+      "sources": [
+        {
+          "kind": "resource",
+          "property": "link"
+        },
+        {
+          "kind": "attribute",
+          "nodeId": 2955,
+          "property": "href"
+        }
+      ],
+      "url": "https://www.kst-energo.ru/assets/components/sendit/css/web/lib/izitoast/iziToast.min.css"
+    }
+  ],
+  "id": "61d9b366-7ed5-4e14-b83b-8324661b9c66",
+  "inlineSvgs": [
+    {
+      "id": "9f4d14a39a647704",
+      "markup": "<svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n                <path d=\"M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path>\n                <path d=\"M7 10L12 15L17 10\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path>\n                <path d=\"M12 15V3\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path>\n            </svg>",
+      "name": "svg-1"
+    },
+    {
+      "id": "452a576b51ef2459",
+      "markup": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\">\n            <path d=\"M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path>\n            <path d=\"M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path>\n        </svg>",
+      "name": "svg-2"
+    },
+    {
+      "id": "f5b54a8ba8faa14f",
+      "markup": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n                        <path d=\"M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z\" stroke=\"\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path>\n                        <path d=\"M21.0004 21.0004L16.6504 16.6504\" stroke=\"\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path>\n                    </svg>",
+      "name": "svg-3"
+    },
+    {
+      "id": "98fac075d32af930",
+      "markup": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n                                            <path d=\"M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z\" stroke=\"\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path>\n                                            <path d=\"M21.0004 21.0004L16.6504 16.6504\" stroke=\"\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path>\n                                        </svg>",
+      "name": "svg-4"
+    },
+    {
+      "id": "18339abb0c234a69",
+      "markup": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n                                            <path d=\"M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z\" stroke=\"\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path>\n                                            <path d=\"M21.0004 21.0004L16.6504 16.6504\" stroke=\"\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path>\n                                        </svg>",
+      "name": "svg-5"
+    },
+    {
+      "id": "3691ba74f1a332e2",
+      "markup": "<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n\t\t\t\t\t\t\t\t<path d=\"M7.33333 12.6667C10.2789 12.6667 12.6667 10.2789 12.6667 7.33333C12.6667 4.38781 10.2789 2 7.33333 2C4.38781 2 2 4.38781 2 7.33333C2 10.2789 4.38781 12.6667 7.33333 12.6667Z\" stroke=\"\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path>\n\t\t\t\t\t\t\t\t<path d=\"M14.0001 13.9996L11.1001 11.0996\" stroke=\"\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path>\n\t\t\t\t\t\t\t</svg>",
+      "name": "svg-6"
+    },
+    {
+      "id": "edf4f04182449196",
+      "markup": "<svg width=\"12\" height=\"22\" viewBox=\"0 0 12 22\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M11 21L1 11L11 0.999999\" stroke=\"#005B9C\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg>",
+      "name": "svg-7"
+    },
+    {
+      "id": "db2f0c4c77236a6f",
+      "markup": "<svg width=\"12\" height=\"22\" viewBox=\"0 0 12 22\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M1 21L11 11L1 0.999999\" stroke=\"#005B9C\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg>",
+      "name": "svg-8"
+    },
+    {
+      "id": "9a8601360ac258fa",
+      "markup": "<svg width=\"12\" height=\"22\" viewBox=\"0 0 12 22\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M11 21L1 11L11 0.999999\" stroke=\"\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg>",
+      "name": "svg-9"
+    },
+    {
+      "id": "9137dac0b2e4cbcd",
+      "markup": "<svg width=\"12\" height=\"22\" viewBox=\"0 0 12 22\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M1 21L11 11L1 0.999999\" stroke=\"\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg>",
+      "name": "svg-10"
+    },
+    {
+      "id": "5efdd39d190b4f7a",
+      "markup": "<svg width=\"12\" height=\"22\" viewBox=\"0 0 12 22\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M11 21L1 11L11 0.999999\" stroke=\"#005B9C\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg>",
+      "name": "svg-11"
+    },
+    {
+      "id": "11741e033caa44d6",
+      "markup": "<svg width=\"12\" height=\"22\" viewBox=\"0 0 12 22\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M1 21L11 11L1 0.999999\" stroke=\"#005B9C\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg>",
+      "name": "svg-12"
+    }
+  ],
+  "pageUrl": "https://www.kst-energo.ru/",
+  "summary": {
+    "byKind": {
+      "font": 5,
+      "image": 53,
+      "other": 0,
+      "script": 19,
+      "stylesheet": 9,
+      "video": 2
+    },
+    "inlineSvgCount": 12,
+    "totalCount": 88
+  }
+}

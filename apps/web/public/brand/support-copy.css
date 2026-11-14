@@ -1,0 +1,38 @@
+/* One shared type role for supporting text in the app and standalone pages. */
+@font-face {
+  font-family: Geologica;
+  src: url('/fonts/Geologica-Regular.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+.support-copy,
+:is(.app-shell, .stand-page, .ar-page, .presentation-page) .support-copy {
+  font-family: Geologica, Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: normal;
+  color: var(--support-copy-color, #313132);
+  opacity: 1;
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+}
+.page-heading, .sidebar-note, .workspace-tag, .brand, .camera-placeholder {
+  --support-copy-color: #D9E7F7;
+}
+.support-copy--semantic { --support-copy-color: inherit; }
+.camera-error { --support-copy-color: #B42318; }
+svg text.support-copy { fill: var(--support-copy-color, #313132); }
+.stand-page { font-family: Geologica, Arial, sans-serif; color: #313132; }
+.ar-page #notice { --support-copy-color: #FFFFFF; }
+.presentation-page {
+  font-family: Geologica, Arial, sans-serif;
+  --green: #135AA6;
+  --dark: #063E61;
+  --paper: #F4F5F8;
+  --ink: #313132;
+  --muted: #313132;
+}
+.presentation-page :is(.cover, .closing) { --support-copy-color: #D9E7F7; }

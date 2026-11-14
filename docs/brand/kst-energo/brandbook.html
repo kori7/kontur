@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>КСТ → КОНТУР · Дизайн-система</title>
+  <style>
+    @font-face{font-family:Geologica;src:url('assets/fonts/Geologica-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
+    @font-face{font-family:Geologica;src:url('assets/fonts/Geologica-Medium.woff2') format('woff2');font-weight:500;font-display:swap}
+    @font-face{font-family:Geologica;src:url('assets/fonts/Geologica-SemiBold.woff2') format('woff2');font-weight:600;font-display:swap}
+    @font-face{font-family:'IBM Plex Mono';src:url('assets/fonts/ibm-plex-mono-latin-400-normal.woff2') format('woff2');font-weight:400;font-display:swap}
+    :root{--brand:#135AA6;--deep:#063E61;--bg:#F4F5F8;--surface:#FFFFFF;--ink:#313132;--muted:#555555;--line:#D5D9DE;--tint:#E8EFF7;--positive:#14705E;--positive-bg:#EAF6EF;--warning:#8A4B0F;--warning-bg:#FFF4E5;--critical:#B42318;--critical-bg:#FDEDEB;--unknown-bg:#F0F0F3;color-scheme:light}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 Geologica,Arial,sans-serif}
+    h1,h2,h3,p,figure{margin:0}h1,h2,h3{font-weight:500}a{color:var(--brand);text-underline-offset:4px}a:focus-visible,summary:focus-visible{outline:2px solid var(--brand);outline-offset:4px}
+    .page{max-width:1400px;margin:0 auto;padding:30px 48px 40px}
+    .brandbar{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:28px}
+    .brandbar img{width:190px;height:auto;display:block}.edition{text-align:right;font-size:12px;color:var(--muted);line-height:1.6}.edition strong{display:block;font-size:14px;color:var(--ink);font-weight:500}
+    .hero{position:relative;overflow:hidden;border-radius:32px;background:var(--brand);color:white;padding:34px 40px;margin-bottom:36px}
+    .hero:after{content:'';position:absolute;inset:0 0 0 52%;background:url('assets/heading-lines.svg') center right/cover no-repeat;pointer-events:none}
+    .hero>*{position:relative;z-index:1}.eyebrow{font-size:12px;letter-spacing:.09em;text-transform:uppercase;font-weight:500;margin-bottom:10px}
+    h1{font-size:44px;line-height:1.16;letter-spacing:-.035em;max-width:900px;margin-bottom:12px}.hero p{max-width:680px;font-size:16px;line-height:1.6}
+    .workbench{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:64px;align-items:start}
+    .section-id{color:var(--brand);font-size:12px;font-weight:500;letter-spacing:.06em;margin-bottom:8px}.section-title{font-size:25px;line-height:1.3;letter-spacing:-.025em;margin-bottom:12px}.lead{font-size:15px;color:var(--muted);line-height:1.65;max-width:640px}
+    .swatches{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:22px 0 25px}.swatch{overflow:hidden;border:1px solid var(--line);border-radius:16px;background:white}.swatch-color{height:64px}.swatch-info{padding:11px 12px 12px;font-size:12px;line-height:1.5}.swatch-info strong{display:block;font-weight:500;font-size:13px}.swatch-info code{font:12px/1.5 'IBM Plex Mono',monospace;color:var(--muted)}
+    .brand-color{background:var(--brand)}.deep-color{background:var(--deep)}.bg-color{background:var(--bg)}.surface-color{background:var(--surface)}.ink-color{background:var(--ink)}.muted-color{background:var(--muted)}
+    .type-showcase{display:grid;grid-template-columns:1fr 1fr;gap:24px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 0;margin-bottom:22px}.type-word{font-size:30px;font-weight:500;letter-spacing:-.03em;line-height:1.25;color:var(--brand);margin-bottom:8px}.type-number{font:32px/1.25 'IBM Plex Mono',monospace;letter-spacing:-.04em;margin-bottom:8px}.type-number small{font:14px Geologica,sans-serif;letter-spacing:0}.small{font-size:13px;line-height:1.55;color:var(--muted)}.token-strip{display:flex;gap:24px;padding:0 0 22px}.token-strip>div{flex:1}.token-strip strong{display:block;color:var(--brand);font-size:23px;font-weight:500;line-height:1.4}.token-strip span{font-size:12px;color:var(--muted)}
+    .principle{background:white;padding:20px 24px;border-radius:20px}.principle h3{font-size:17px;margin-bottom:7px}.principle p{font-size:14px;line-height:1.6;color:var(--muted)}
+    .phone-label{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:12px;font-size:12px;color:var(--muted)}.phone-label strong{color:var(--brand);font-weight:500}.phone{border:1px solid var(--line);border-radius:28px;overflow:hidden;background:var(--bg)}.phone-inner{padding:0 16px 16px}.phone-appbar{min-height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px}.wordmark{font-size:16px;font-weight:600;letter-spacing:.08em;color:var(--brand)}.demo-tag{font-size:12px;color:var(--brand);padding:4px 8px;background:var(--tint);border-radius:8px}.phone h2{font-size:28px;line-height:36px;letter-spacing:-.03em}.phone-subtitle{font-size:14px;color:var(--muted);margin-top:2px}.updated{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin:12px 0 16px}.updated svg{width:16px;height:16px}.icon{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+    .status{display:flex;align-items:flex-start;gap:10px;padding:16px;border-radius:20px;background:var(--warning-bg);color:var(--warning);margin-bottom:12px}.status strong{font-size:16px;line-height:24px;font-weight:500;display:block}.status p{font-size:14px;line-height:20px;margin-top:4px}.metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}.metric-card{background:white;border-radius:20px;padding:16px;min-width:0}.metric-label{font-size:14px;color:var(--muted);margin-bottom:8px}.metric-value{font:32px/40px 'IBM Plex Mono',monospace;letter-spacing:-.05em;white-space:nowrap}.metric-value small{font:12px/20px Geologica,sans-serif;letter-spacing:0;margin-left:4px}.metric-note{font-size:12px;margin-top:4px;color:var(--muted)}.metric-note.flag{color:var(--warning)}
+    .equipment-card{display:flex;align-items:center;gap:12px;padding:16px;background:white;border-radius:20px;margin-bottom:16px}.equipment-icon{color:var(--brand)}.equipment-card strong{font-size:16px;font-weight:500;line-height:24px}.equipment-card p{font-size:14px;line-height:20px;color:var(--muted)}.equipment-card>.icon:last-child{margin-left:auto;width:20px;height:20px;color:var(--brand)}
+    .demo-action{min-height:56px;border-radius:16px;background:var(--brand);color:white;display:flex;justify-content:center;align-items:center;gap:10px;padding:14px 20px;font-size:16px;font-weight:500;text-align:center}.phone-note{font-size:12px;line-height:17px;color:var(--muted);text-align:center;margin:12px 6px 0}.phone-nav{min-height:64px;padding:8px 4px 10px;background:white;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);gap:0}.phone-nav>div{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;min-height:48px;color:var(--muted);font-size:12px;line-height:16px}.phone-nav>div.active{color:var(--brand)}.phone-nav .active .nav-icon{background:var(--tint);border-radius:8px}.nav-icon{padding:2px 12px;height:28px;display:flex;align-items:center;justify-content:center}.phone-caption{font-size:12px;line-height:1.6;color:var(--muted);margin-top:10px}
+    .behavior{margin-top:40px;padding-top:30px;border-top:1px solid var(--line)}.state-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:20px}.state-card{padding:20px;border-radius:20px;font-size:14px;line-height:1.55}.state-card .state-heading{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:16px;font-weight:500}.state-card.critical{background:var(--critical-bg);color:var(--critical)}.state-card.success{background:var(--positive-bg);color:var(--positive)}.state-card.unknown{background:var(--unknown-bg);color:var(--muted)}.state-card code{font-size:12px;display:block;margin-top:12px;font-family:'IBM Plex Mono',monospace}.separation{font-size:14px;line-height:1.7;color:var(--muted);margin-top:18px;max-width:840px}
+    .handoff{margin-top:32px;background:white;border-radius:24px;padding:24px 28px}.handoff summary{cursor:pointer;font-size:18px;font-weight:500;color:var(--brand)}.handoff p{margin-top:15px;font-size:14px}.handoff ul{padding-left:20px;font-size:14px;line-height:1.8;margin:12px 0}.links{display:flex;flex-wrap:wrap;gap:12px 24px;font-size:14px;margin-top:16px}.links a{min-height:44px;display:inline-flex;align-items:center}.footer{display:flex;justify-content:space-between;gap:24px;border-top:1px solid var(--line);padding-top:24px;margin-top:30px;font-size:12px;line-height:1.7;color:var(--muted)}.footer p{max-width:760px}.footer time{white-space:nowrap}
+    @media(max-width:1100px){.page{padding:24px 28px}.workbench{gap:32px;grid-template-columns:minmax(0,1fr) 360px}.hero{padding:30px}.type-showcase{grid-template-columns:1fr;gap:18px}.swatch-info{padding:10px}.token-strip{gap:12px}}
+    @media(max-width:850px){.page{padding:20px}.brandbar{gap:16px}.brandbar img{width:150px}.edition strong{font-size:12px}.edition{font-size:11px}.hero{border-radius:24px;padding:26px;margin-bottom:28px}h1{font-size:34px;line-height:1.2}.hero p{font-size:15px}.workbench{grid-template-columns:1fr;gap:28px}.phone-figure{max-width:390px;justify-self:center;width:100%}.type-showcase{grid-template-columns:1fr 1fr}.state-grid{grid-template-columns:1fr}.behavior{margin-top:28px}.section-title{font-size:24px}.footer{flex-direction:column;gap:10px}.handoff{padding:22px}.hero:after{opacity:.55;left:35%}}
+    @media(max-width:420px){.brandbar{align-items:flex-start}.brandbar img{width:127px}.edition{max-width:140px}.page{padding:16px}.hero{padding:22px}h1{font-size:30px}.hero p{font-size:14px}.type-showcase{grid-template-columns:1fr}.swatches{gap:8px}.swatch-info strong{font-size:12px}.swatch-color{height:55px}.token-strip{gap:8px}.token-strip strong{font-size:21px}.token-strip span{font-size:11px}.phone-inner{padding-left:12px;padding-right:12px}.metric-card{padding:12px}.metric-value{font-size:28px}.phone-nav>div{font-size:11px}.phone-label{font-size:11px}.principle{padding:18px}.section-title{font-size:22px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+    @media print{body{background:white}.page{padding:0;max-width:none}.hero,.swatch-color,.status,.state-card,.demo-action{-webkit-print-color-adjust:exact;print-color-adjust:exact}.handoff,.behavior{break-inside:avoid}.phone{break-inside:avoid}.workbench{gap:28px}.links{display:none}}
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" aria-hidden="true" style="position:absolute"><defs>
+    <symbol id="clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="warning" viewBox="0 0 24 24"><path d="m12 3 10 18H2L12 3Z"/><path d="M12 9v4m0 4h.01"/></symbol>
+    <symbol id="camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="4"/></symbol>
+    <symbol id="box" viewBox="0 0 24 24"><path d="m12 3 9 5v8l-9 5-9-5V8l9-5ZM3 8l9 5 9-5m-9 5v8m-4.5-15.5 9 5"/></symbol>
+    <symbol id="chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+    <symbol id="grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="journal" viewBox="0 0 24 24"><rect x="5" y="4" width="15" height="17" rx="2"/><path d="M9 3v4m6-4v4M9 12h7m-7 4h5M2 8h3m-3 8h3"/></symbol>
+    <symbol id="rules" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/><rect x="8" y="3" width="3" height="4" rx="1"/><rect x="15" y="10" width="3" height="4" rx="1"/><rect x="6" y="17" width="3" height="4" rx="1"/></symbol>
+    <symbol id="check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="unknown" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></symbol>
+  </defs></svg>
+  <main class="page">
+    <header class="brandbar">
+      <img src="assets/logo.svg" width="211" height="50" alt="КСТ Энерго Инжиниринг">
+      <p class="edition"><strong>Визуальная система → КОНТУР</strong>Исследование сайта · Версия 1.0</p>
+    </header>
+    <section class="hero" aria-labelledby="main-title">
+      <div class="eyebrow">КСТ / МОБИЛЬНЫЙ ПОМОЩНИК ИНЖЕНЕРА</div>
+      <h1 id="main-title">Инженерная ясность.</h1>
+      <p>Фирменный синий, Geologica и спокойные поверхности.<br>Дизайн, в котором сразу видны оборудование, данные и следующий шаг.</p>
+    </section>
+    <section class="workbench" aria-label="Основа дизайна и мобильный пример">
+      <div>
+        <div class="section-id">01 / ОСНОВА</div>
+        <h2 class="section-title">Узнаваемый бренд.<br>Удобный рабочий инструмент.</h2>
+        <p class="lead">Цвет и характер шрифта взяты с сайта КСТ. Размеры элементов и семантика состояний адаптированы для осмотра оборудования с телефона.</p>
+        <div class="swatches" aria-label="Подтверждённая палитра сайта">
+          <div class="swatch"><div class="swatch-color brand-color"></div><div class="swatch-info"><strong>Основной синий</strong><code>#135AA6</code></div></div>
+          <div class="swatch"><div class="swatch-color deep-color"></div><div class="swatch-info"><strong>Глубокий синий</strong><code>#063E61</code></div></div>
+          <div class="swatch"><div class="swatch-color bg-color"></div><div class="swatch-info"><strong>Фон экрана</strong><code>#F4F5F8</code></div></div>
+          <div class="swatch"><div class="swatch-color surface-color"></div><div class="swatch-info"><strong>Поверхность</strong><code>#FFFFFF</code></div></div>
+          <div class="swatch"><div class="swatch-color ink-color"></div><div class="swatch-info"><strong>Основной текст</strong><code>#313132</code></div></div>
+          <div class="swatch"><div class="swatch-color muted-color"></div><div class="swatch-info"><strong>Пояснения</strong><code>#555555</code></div></div>
+        </div>
+        <div class="type-showcase">
+          <div><p class="type-word">Geologica</p><p class="small">400 / 500 / 600<br>Заголовки, подписи, интерфейс</p></div>
+          <div><p class="type-number">3,6 <small>мм/с</small></p><p class="small">IBM Plex Mono · 400<br>Показания и коды «КОНТУРа»</p></div>
+        </div>
+        <div class="token-strip" aria-label="Рекомендованные размеры">
+          <div><strong>16 / 20</strong><span>Радиус кнопки / карточки</span></div>
+          <div><strong>48 / 56</strong><span>Нажатие / основное действие</span></div>
+          <div><strong>16 / 24</strong><span>Основной текст / строка</span></div>
+        </div>
+        <div class="principle"><h3>Бренд помогает ориентироваться</h3><p>Синий — действие и выбранный раздел. Риск, полнота данных и результат сохранения имеют собственные подписи и состояния.</p></div>
+      </div>
+      <figure class="phone-figure">
+        <div class="phone-label"><strong>ПРЕДЛОЖЕНИЕ ДЛЯ «КОНТУРА»</strong><span>390 px / базовый макет</span></div>
+        <div class="phone" role="group" aria-label="Иллюстративный экран обзора; элементы макета не выполняют действия">
+          <div class="phone-inner">
+            <div class="phone-appbar"><span class="wordmark">КОНТУР</span><span class="demo-tag">Демоданные</span></div>
+            <h2>Насос Н-101</h2><p class="phone-subtitle">Осмотр оборудования</p>
+            <p class="updated"><svg class="icon" aria-hidden="true"><use href="#clock"/></svg>Обновлено в 09:41</p>
+            <div class="status"><svg class="icon" aria-hidden="true"><use href="#warning"/></svg><div><strong>Рекомендуется проверка</strong><p>Откройте основания предупреждения.</p></div></div>
+            <div class="metrics">
+              <div class="metric-card"><p class="metric-label">Температура</p><p class="metric-value">72<small>°C</small></p><p class="metric-note">Датчик · 09:41</p></div>
+              <div class="metric-card"><p class="metric-label">Вибрация</p><p class="metric-value">3,6<small>мм/с</small></p><p class="metric-note flag">Требует проверки</p></div>
+            </div>
+            <div class="equipment-card"><svg class="icon equipment-icon" aria-hidden="true"><use href="#box"/></svg><div><strong>Узлы агрегата</strong><p>Схема и состояние</p></div><svg class="icon" aria-hidden="true"><use href="#chevron"/></svg></div>
+            <div class="demo-action"><svg class="icon" aria-hidden="true"><use href="#camera"/></svg><span>Начать осмотр</span></div>
+            <p class="phone-note">Предварительная оценка.<br>Решение — за инженером.</p>
+          </div>
+          <div class="phone-nav" aria-label="Пример четырёх разделов">
+            <div class="active"><span class="nav-icon"><svg class="icon" aria-hidden="true"><use href="#grid"/></svg></span>Обзор</div>
+            <div><span class="nav-icon"><svg class="icon" aria-hidden="true"><use href="#box"/></svg></span>Паспорт</div>
+            <div><span class="nav-icon"><svg class="icon" aria-hidden="true"><use href="#journal"/></svg></span>Журнал</div>
+            <div><span class="nav-icon"><svg class="icon" aria-hidden="true"><use href="#rules"/></svg></span>Правила</div>
+          </div>
+        </div>
+        <figcaption class="phone-caption">Визуальный эскиз с условными значениями. Он показывает оформление, а не фактическое состояние оборудования.</figcaption>
+      </figure>
+    </section>
+    <section class="behavior" aria-labelledby="states-title">
+      <div class="section-id">02 / ПОВЕДЕНИЕ</div>
+      <h2 class="section-title" id="states-title">Каждое состояние понятно без цвета</h2>
+      <p class="lead">Дополнительные цвета для «КОНТУРа». Это проектная семантика, дополняющая палитру сайта.</p>
+      <div class="state-grid">
+        <div class="state-card critical"><div class="state-heading"><svg class="icon" aria-hidden="true"><use href="#warning"/></svg>Высокий риск</div><p>Показываем признак, основание и следующий шаг. Предупреждение остаётся видимым после сохранения осмотра.</p><code>#B42318 / #FDEDEB</code></div>
+        <div class="state-card unknown"><div class="state-heading"><svg class="icon" aria-hidden="true"><use href="#unknown"/></svg>Недостаточно данных</div><p>Отсутствующее значение — «—». Указываем, какие данные нужны для оценки; не заменяем их нулём.</p><code>#555555 / #F0F0F3</code></div>
+        <div class="state-card success"><div class="state-heading"><svg class="icon" aria-hidden="true"><use href="#check"/></svg>Осмотр сохранён</div><p>Подтверждаем запись в журнале. Успех операции не означает исправность агрегата.</p><code>#14705E / #EAF6EF</code></div>
+      </div>
+      <p class="separation">Для оценки без обнаруженных отклонений сохраняется уточнение: «По доступным данным». Измерение, диагностический вывод и состояние связи не подменяют друг друга.</p>
+    </section>
+    <details class="handoff" open>
+      <summary>Передача в разработку</summary>
+      <p>Основной документ содержит таблицы размеров, состояния компонентов, правила навигации, камеры и графиков. JSON даёт исходные значения для темы приложения.</p>
+      <ul>
+        <li>Локальные шрифты и ресурсы; четыре существующих раздела «КОНТУРа».</li>
+        <li>Светлая тема, адаптация по ширине окна, safe area и масштабируемый текст.</li>
+        <li>Кнопки от 48 × 48; основное действие от 56; контраст рабочего текста от 4,5:1.</li>
+        <li>Отдельные состояния загрузки, ошибки, неполных данных и сохранения.</li>
+      </ul>
+      <div class="links"><a href="../../../DESIGN.md">Открыть DESIGN.md</a><a href="mobile-tokens.json">Мобильные токены JSON</a><a href="SOURCES.md">Источники и метод</a><a href="evidence/reference-board.jpg">Снимки исходного сайта</a></div>
+    </details>
+    <footer class="footer"><p>Восстановлено по публичному сайту <a href="https://www.kst-energo.ru/">kst-energo.ru</a>. Мобильная адаптация предложена для «КОНТУРа»; изменения ещё не внедрены в приложение. Этот комплект не является официальным корпоративным брендбуком.</p><time datetime="2026-11-14">14 ноября 2026</time></footer>
+  </main>
+</body>
+</html>

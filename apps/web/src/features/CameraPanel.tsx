@@ -1,3 +1,4 @@
+import { formatCopy } from "../api";
 import { useEffect, useRef, useState } from "react";
 import {
   Camera,
@@ -83,7 +84,7 @@ export function CameraPanel({
     setResult(null);
     if (!navigator.mediaDevices?.getUserMedia) {
       setError(
-        "Для камеры откройте приложение через HTTPS или localhost. По обычному HTTP с телефона камера недоступна.",
+        "Для камеры откройте приложение через HTTPS или localhost. По обычному HTTP с телефона камера недоступна",
       );
       return;
     }
@@ -106,8 +107,8 @@ export function CameraPanel({
       const name = (cause as DOMException).name;
       setError(
         name === "NotAllowedError"
-          ? "Разрешите доступ к камере в настройках браузера. Можно также загрузить снимок."
-          : "Камера недоступна. Подключите камеру или загрузите снимок.",
+          ? "Разрешите доступ к камере в настройках браузера. Можно также загрузить снимок"
+          : "Камера недоступна. Подключите камеру или загрузите снимок",
       );
     }
   }
@@ -129,11 +130,11 @@ export function CameraPanel({
     setError("");
     setResult(null);
     if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
-      setError("Выберите изображение PNG, JPEG или WebP.");
+      setError("Выберите изображение PNG, JPEG или WebP");
       return;
     }
     if (file.size > 12_000_000) {
-      setError("Выберите файл меньше 12 МБ.");
+      setError("Выберите файл меньше 12 МБ");
       return;
     }
     const url = URL.createObjectURL(file);
@@ -152,7 +153,7 @@ export function CameraPanel({
       setImage(uploaded);
       onImage(uploaded);
     } catch {
-      setError("Не удалось прочитать изображение. Попробуйте другой файл.");
+      setError("Не удалось прочитать изображение. Попробуйте другой файл");
     } finally {
       URL.revokeObjectURL(url);
     }
@@ -176,7 +177,7 @@ export function CameraPanel({
     setMessage("");
     if (!navigator.mediaDevices?.getUserMedia) {
       setError(
-        "Сканирование требует HTTPS или localhost. Оборудование можно выбрать вручную в цифровом паспорте.",
+        "Сканирование требует HTTPS или localhost. Оборудование можно выбрать вручную в цифровом паспорте",
       );
       return;
     }
@@ -190,40 +191,40 @@ export function CameraPanel({
           if (!code) return;
           const text = code.getText();
           if (!text.startsWith("kontur:")) {
-            setMessage("Этот QR-код не относится к каталогу оборудования КОНТУР.");
+            setMessage("Этот QR-код не относится к каталогу оборудования КОНТУР");
             return;
           }
           const identifier = text.slice("kontur:".length);
           const target = objects.find((item) => item.id === identifier);
           if (!target) {
             setMessage(
-              `Объект «${identifier}» в каталоге не найден. Выберите оборудование вручную.`,
+              `Объект «${identifier}» в каталоге не найден. Выберите оборудование вручную`,
             );
             return;
           }
           if (!target.inspectable) {
             setMessage(
-              `${target.name}: это позиция по проекту, а не отдельная машина. ` +
-                "Какой агрегат на ней установлен, документы не указывают.",
+              `${target.name}: это позиция по проекту, а не отдельная машина ` +
+                "Какой агрегат на ней установлен, документы не указывают",
             );
             stop();
             return;
           }
           if (target.id === currentId) {
             setMessage(
-              `${target.name} идентифицирован. Его цифровая карточка уже открыта в рабочей области.`,
+              `${target.name} идентифицирован. Его цифровая карточка уже открыта в рабочей области`,
             );
             stop();
             return;
           }
-          setMessage(`${target.name} идентифицирован. Открываем его карточку.`);
+          setMessage(`${target.name} идентифицирован. Открываем его карточку`);
           stop();
           onSelectObject(target.id);
         },
       );
     } catch {
       setLive(false);
-      setError("Не удалось открыть сканер. Проверьте разрешение камеры.");
+      setError("Не удалось открыть сканер. Проверьте разрешение камеры");
     }
   }
   const highlights = alerts.map((alert) => ({
@@ -264,10 +265,10 @@ export function CameraPanel({
             src={`/ar.html?highlights=${encodeURIComponent(JSON.stringify(highlights))}`}
             allow="camera"
           />
-          <p className="camera-message">
+          <p className="camera-message support-copy">
             Наведите камеру на маркер Hiro из раздела «QR и AR-стенд». Метки
             привязаны к демонстрационной схеме. При потере маркера они
-            скрываются.
+            скрываются
           </p>
         </>
       ) : (
@@ -321,10 +322,10 @@ export function CameraPanel({
                     ? "Идентифицируйте оборудование"
                     : "Рассмотрите узел ближе"}
                 </h3>
-                <p>
+                <p className="support-copy">
                   {mode === "qr"
-                    ? "Отсканируйте QR-код демонстрационного агрегата."
-                    : "Снимите муфту с кожухом, торцевое уплотнение или крепление. Модель оценит только видимые признаки."}
+                    ? "Отсканируйте QR-код демонстрационного агрегата"
+                    : "Снимите муфту с кожухом, торцевое уплотнение или крепление. Модель оценит только видимые признаки"}
                 </p>
               </div>
             ) : null}
@@ -373,22 +374,22 @@ export function CameraPanel({
             )}
           </div>
           {mode === "photo" && (
-            <p className="tiny muted">
+            <p className="support-copy">
               {configured
-                ? `Анализ выполняет ${model} на локальном сервере. Снимок не покидает локальную сеть.`
-                : "Локальная модель не настроена. Запустите её по инструкции в README."}
+                ? `Анализ выполняет ${model} на локальном сервере. Снимок не покидает локальную сеть`
+                : "Локальная модель не настроена. Запустите её по инструкции в README"}
             </p>
           )}
         </>
       )}
       {error && (
-        <p className="camera-message camera-error" role="alert">
-          {error}
+        <p className="camera-message camera-error support-copy" role="alert">
+          {formatCopy(error)}
         </p>
       )}
       {message && (
-        <p className="camera-message" role="status">
-          {message}
+        <p className="camera-message support-copy" role="status">
+          {formatCopy(message)}
         </p>
       )}
       {result && mode === "photo" && (
@@ -400,14 +401,14 @@ export function CameraPanel({
                 ? "Ограниченное качество снимка"
                 : "Предварительный анализ завершён"}
           </strong>
-          <p>{result.summary}</p>
+          <p className="support-copy">{formatCopy(result.summary)}</p>
           <ul>
             {result.observations.map((item, i) => (
-              <li key={i}>{item.description}</li>
+              <li key={i}>{formatCopy(item.description)}</li>
             ))}
           </ul>
-          <p className="tiny muted">
-            Отсутствие видимых проблем не подтверждает исправность оборудования.
+          <p className="support-copy">
+            Отсутствие видимых проблем не подтверждает исправность оборудования
           </p>
         </div>
       )}

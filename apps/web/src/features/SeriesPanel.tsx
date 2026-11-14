@@ -1,3 +1,4 @@
+import { formatCopy } from "../api";
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Loader2, TriangleAlert } from "lucide-react";
 import { request, number } from "../api";
@@ -60,9 +61,9 @@ export function SeriesPanel() {
       <div className="panel-heading">
         <div>
           <h2>Ряды измерений организатора</h2>
-          <p>
+          <p className="support-copy">
             Отдельное воспроизведение переданных таблиц. Эти ряды не принадлежат
-            ни одному объекту каталога и телеметрией оборудования не являются.
+            ни одному объекту каталога и телеметрией оборудования не являются
           </p>
         </div>
         <span className="tag">{metadata?.record_count ?? "—"} записей</span>
@@ -70,7 +71,7 @@ export function SeriesPanel() {
 
       <div className="series-controls">
         <label className="field">
-          <span>Ряд</span>
+          <span className="support-copy">Ряд</span>
           <select
             value={seriesId}
             onChange={(event) => {
@@ -80,7 +81,7 @@ export function SeriesPanel() {
           >
             {(catalog?.series ?? []).map((item) => (
               <option key={item.id} value={item.id}>
-                {item.title} · лист «{item.sheet}»
+                {formatCopy(item.title)} · лист «{item.sheet}»
               </option>
             ))}
           </select>
@@ -93,7 +94,7 @@ export function SeriesPanel() {
           >
             <ChevronLeft size={15} /> Раньше
           </button>
-          <span className="tiny muted">
+          <span className="support-copy">
             Записи {frame ? `${frame.start_index + 1}–${frame.end_index + 1}` : "—"} из{" "}
             {metadata?.record_count ?? "—"}
           </span>
@@ -108,15 +109,15 @@ export function SeriesPanel() {
       </div>
 
       {error && (
-        <p className="object-note">
-          <TriangleAlert size={14} /> {error}
+        <p className="object-note support-copy">
+          <TriangleAlert size={14} /> {formatCopy(error)}
         </p>
       )}
 
       {!frame ? (
         <div className="loading-screen">
           <Loader2 className="spin" size={24} />
-          <p>Загружаем окно записей</p>
+          <p className="support-copy">Загружаем окно записей</p>
         </div>
       ) : (
         <>
@@ -128,7 +129,7 @@ export function SeriesPanel() {
                   {frame.channels.map((channel) => (
                     <th key={channel.key}>
                       {channel.label}
-                      <small>{channel.unit}</small>
+                      <small className="support-copy">{channel.unit}</small>
                     </th>
                   ))}
                   <th>Пометка организатора</th>
@@ -153,29 +154,27 @@ export function SeriesPanel() {
           <div className="panel-heading">
             <div>
               <h2>Уставки из описания этого же ряда</h2>
-              <p>
+              <p className="support-copy">
                 Сравнение с порогами, записанными в описании таблицы. Это вывод
                 алгоритма организатора о его собственном сценарии, а не
-                диагностика оборудования.
+                диагностика оборудования
               </p>
             </div>
           </div>
-          <ul className="assessment-list">
+          <ul className="assessment-list series-assessment">
             {frame.organizer_assessment.map((item) => (
               <li key={item.id}>
-                <div>
-                  <strong>
-                    {item.name} <small>{item.unit}</small>
+                  <strong className="assessment-name">
+                    {formatCopy(item.name)} <small className="support-copy">{item.unit}</small>
                   </strong>
-                  <small>
+                  <small className="assessment-thresholds support-copy">
                     {item.warning === undefined
                       ? "Порог не задан"
                       : `Предупреждение ≥ ${item.warning}`}
                     {item.alarm === undefined ? "" : ` · тревога ≥ ${item.alarm}`}
-                    {item.hypothesis ? ` · ${item.hypothesis}` : ""}
+                    {item.hypothesis ? ` · ${formatCopy(item.hypothesis)}` : ""}
                   </small>
-                </div>
-                <span className={`rule-status ${item.status}`}>
+                <span className={`rule-status assessment-result ${item.status}`}>
                   {number(item.value, 2)} · {statusLabels[item.status]}
                 </span>
               </li>
@@ -186,18 +185,14 @@ export function SeriesPanel() {
             <h4>Ограничения ряда</h4>
             <ul>
               {frame.limitations.map((text) => (
-                <li key={text}>{text}</li>
+                <li className="support-copy" key={text}>{formatCopy(text)}</li>
               ))}
             </ul>
             {(catalog?.thresholds.conflicts_with_project ?? []).map((text) => (
-              <p className="object-note" key={text}>
-                <TriangleAlert size={14} /> {text}
+              <p className="object-note support-copy" key={text}>
+                <TriangleAlert size={14} /> {formatCopy(text)}
               </p>
             ))}
-            <p className="tiny muted">
-              Техническая координата времени: {frame.telemetry.time_basis}. Часовой
-              пояс исходных строк неизвестен, часовой шаг сохранён.
-            </p>
           </div>
         </>
       )}

@@ -1,3 +1,4 @@
+import { formatCopy } from "../api";
 import { useEffect, useState } from "react";
 import { ArrowDownToLine, FileText, Loader2, TriangleAlert } from "lucide-react";
 import { request } from "../api";
@@ -12,9 +13,9 @@ const filters: { id: Filter; label: string }[] = [
 ];
 
 function badgeClass(entry: LibraryEntry) {
-  if (entry.training_use === "candidate") return "library-badge candidate";
-  if (entry.training_use === "illustration_only") return "library-badge illustration";
-  return "library-badge excluded";
+  if (entry.training_use === "candidate") return "library-badge candidate support-copy support-copy--semantic";
+  if (entry.training_use === "illustration_only") return "library-badge illustration support-copy support-copy--semantic";
+  return "library-badge excluded support-copy support-copy--semantic";
 }
 
 function matches(entry: LibraryEntry, filter: Filter) {
@@ -38,8 +39,8 @@ export function LibraryPanel() {
   if (error) {
     return (
       <section className="panel">
-        <p className="object-note">
-          <TriangleAlert size={14} /> {error}
+        <p className="object-note support-copy">
+          <TriangleAlert size={14} /> {formatCopy(error)}
         </p>
       </section>
     );
@@ -48,7 +49,7 @@ export function LibraryPanel() {
     return (
       <div className="loading-screen">
         <Loader2 className="spin" size={24} />
-        <p>Загружаем переданные материалы</p>
+        <p className="support-copy">Загружаем переданные материалы</p>
       </div>
     );
   }
@@ -62,30 +63,24 @@ export function LibraryPanel() {
         <div className="panel-heading">
           <div>
             <h2>Переданные материалы</h2>
-            <p>{library.notice}</p>
+            <p className="support-copy">{formatCopy(library.notice)}</p>
           </div>
-          <span className="tag">{library.totals.files} файлов</span>
         </div>
         <div className="passport-grid library-totals">
           <div>
-            <small>Изображений</small>
-            <strong>
-              {library.totals.images}{" "}
-              <span className="tiny muted">
-                уникальных {library.totals.unique_images}
-              </span>
-            </strong>
+            <small className="support-copy">Изображений</small>
+            <strong>{library.totals.images}</strong>
           </div>
           <div>
-            <small>Допущено в выборку</small>
+            <small className="support-copy">Допущено в выборку</small>
             <strong>{library.totals.training_candidates}</strong>
           </div>
           <div>
-            <small>Документов</small>
+            <small className="support-copy">Документов</small>
             <strong>{library.totals.documents}</strong>
           </div>
           <div>
-            <small>Всего файлов</small>
+            <small className="support-copy">Всего файлов</small>
             <strong>{library.totals.files}</strong>
           </div>
         </div>
@@ -106,10 +101,10 @@ export function LibraryPanel() {
         <div className="panel-heading">
           <div>
             <h2>Изображения</h2>
-            <p>
+            <p className="support-copy">
               Происхождение и пригодность показаны у каждого файла. Кадры со
               стоковым водяным знаком и сгенерированные кадры доступны для
-              обзора, но для обучения и публикации непригодны.
+              обзора, но для обучения и публикации непригодны
             </p>
           </div>
           <span className="tag">{images.length} показано</span>
@@ -128,10 +123,10 @@ export function LibraryPanel() {
               />
               <div className="library-card-body">
                 <strong>{item.id}</strong>
-                <span className={badgeClass(item)}>{item.training_use_label}</span>
-                <small>{item.provenance_label}</small>
-                <small>{item.view_label}</small>
-                {item.duplicate_of && <small>Повтор {item.duplicate_of}</small>}
+                <span className={badgeClass(item)}>{formatCopy(item.training_use_label)}</span>
+                <small className="support-copy">{formatCopy(item.provenance_label)}</small>
+                <small className="support-copy">{formatCopy(item.view_label)}</small>
+                {item.duplicate_of && <small className="support-copy">Повтор {item.duplicate_of}</small>}
               </div>
             </button>
           ))}
@@ -142,9 +137,9 @@ export function LibraryPanel() {
         <div className="panel-heading">
           <div>
             <h2>Документы</h2>
-            <p>
+            <p className="support-copy">
               Паспорта, инструкции, опросные листы и сертификаты проекта
-              №21031004, а также посторонние файлы, попавшие в комплект.
+              №21031004, а также посторонние файлы, попавшие в комплект
             </p>
           </div>
           <span className="tag">{documents.length} показано</span>
@@ -153,8 +148,8 @@ export function LibraryPanel() {
           <div className="component-row library-row" key={item.id}>
             <span className="component-code">{item.id}</span>
             <div>
-              <strong>{item.note}</strong>
-              <small className="muted">
+              <strong>{formatCopy(item.note)}</strong>
+              <small className="support-copy">
                 {item.original_name} · {Math.round(item.bytes / 1024)} КБ
                 {item.subject ? ` · объект: ${item.subject}` : ""}
               </small>
@@ -186,13 +181,13 @@ export function LibraryPanel() {
         >
           <figure onClick={(event) => event.stopPropagation()}>
             <img src={`/api/library/${preview.id}/file`} alt={preview.shows} />
-            <figcaption>
+            <figcaption className="support-copy">
               <strong>
-                {preview.id} · {preview.provenance_label}
+                {preview.id} · {formatCopy(preview.provenance_label)}
               </strong>
-              <p>{preview.note}</p>
-              <p className="tiny muted">
-                {preview.view_label} · {preview.training_use_label}
+              <p className="support-copy">{formatCopy(preview.note)}</p>
+              <p className="support-copy">
+                {formatCopy(preview.view_label)} · {formatCopy(preview.training_use_label)}
                 {preview.editing === "none" ? "" : ` · правка: ${preview.editing}`}
               </p>
               <button

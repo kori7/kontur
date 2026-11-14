@@ -1,3 +1,4 @@
+import { formatCopy } from "./api";
 import { useEffect, useState } from "react";
 import {
   Activity,
@@ -57,7 +58,7 @@ type Screen =
   | "rules"
   | "series"
   | "library";
-type Dialog = "demo" | "record" | "camera" | "about" | "stand" | null;
+type Dialog = "demo" | "record" | "camera" | "about" | "stand" | "profile" | null;
 const actions: Record<string, string> = {
   inspection: "Проверка",
   defect: "Замечание",
@@ -156,7 +157,7 @@ export default function App() {
       const target = await request<Equipment>(`/equipment/${nextId}`);
       if (!target.inspectable) {
         setToast(
-          "Это позиция по проекту, а не отдельная машина. Осмотр ведётся по серийному номеру.",
+          "Это позиция по проекту, а не отдельная машина. Осмотр ведётся по серийному номеру",
         );
         return;
       }
@@ -331,20 +332,14 @@ export default function App() {
           }}
           aria-label="КОНТУР — главная"
         >
-          <span className="brand-mark">К</span>
           <span>
-            КОНТУР<small>ИНЖЕНЕРНЫЙ КОНТРОЛЬ</small>
+            КОНТУР<small className="support-copy">ИНЖЕНЕРНЫЙ КОНТРОЛЬ</small>
           </span>
         </a>
         <div className="workspace-tag">
-          <span className="workspace-icon">
-            <Box size={17} />
-          </span>
-          <div>
-            КСТ Энерго<small>Демонстрационный стенд</small>
-          </div>
+          <span className="support-copy">Демонстрационный стенд</span>
         </div>
-        <p className="nav-caption">РАБОЧАЯ ОБЛАСТЬ</p>
+        <p className="nav-caption support-copy">РАБОЧАЯ ОБЛАСТЬ</p>
         <nav aria-label="Основная навигация">
           {(
             [
@@ -367,7 +362,10 @@ export default function App() {
               onClick={() => setScreen(item.id)}
             >
               <item.icon size={18} />
-              <span>{item.label}</span>
+              <span className="nav-label-full">{item.label}</span>
+              <span className="nav-label-short" aria-hidden="true">
+                {{ overview: "Обзор", equipment: "Паспорт", history: "Журнал", rules: "Правила", series: "Ряды", library: "Файлы" }[item.id]}
+              </span>
               {item.id === "history" && events.length > 0 ? (
                 <span className="nav-count">{events.length}</span>
               ) : null}
@@ -378,24 +376,23 @@ export default function App() {
           <div className="sidebar-note">
             <ShieldCheck size={21} />
             <strong>Решение — за инженером</strong>
-            <p>Система помогает оценить признаки и выбрать следующий шаг.</p>
+            <p className="support-copy">Система помогает оценить признаки и выбрать следующий шаг</p>
           </div>
           <button className="nav-item" onClick={() => setDialog("about")}>
             <CircleHelp size={18} />О проекте
           </button>
-          <div className="profile">
-            <span className="avatar">ДИ</span>
-            <div>
-              Демо-инженер<small>Инженер по обслуживанию</small>
-            </div>
-            <span className="online-dot" />
-          </div>
         </div>
       </aside>
 
       <div className="main-shell">
         <header className="topbar">
-          <div className="breadcrumb">
+          <div className="topbar-identity">
+            <img className="app-logo" src="/brand/kontur-mark.png" alt="Логотип КОНТУР" width="88" height="39" />
+            <span className="company-wordmark" aria-label="КСТ Энерго Инжиниринг">
+              <span>КСТ ЭНЕРГО</span>
+              <span>ИНЖИНИРИНГ</span>
+            </span>
+            <div className="breadcrumb support-copy">
             Рабочая область
             <ChevronRight size={14} />
             <strong>
@@ -405,35 +402,47 @@ export default function App() {
                   ? "Диагностика"
                   : screen === "equipment"
                     ? "Цифровой паспорт"
-                    : "Обзор оборудования"}
+                    : screen === "series"
+                      ? "Ряды измерений"
+                      : screen === "library"
+                        ? "Переданные материалы"
+                        : "Обзор оборудования"}
             </strong>
+            </div>
           </div>
           <div className="topbar-actions">
+            <div className="demo-controls">
             {equipment?.scenarios_available && (
               <>
-                <span className="demo-indicator">
+                <span className="demo-indicator support-copy">
                   <FlaskConical size={13} />
                   Демоданные
                 </span>
                 <button
                   className="button subtle small"
+                  aria-label="Демосценарии"
                   onClick={() => {
                     setPendingScenario(scenario);
                     setDialog("demo");
                   }}
                 >
                   <Settings2 size={15} />
-                  Демосценарии
+                  <span className="demo-control-label">Демосценарии</span>
+                  <span className="demo-control-short" aria-hidden="true">Демо</span>
                 </button>
               </>
             )}
+            </div>
+            <button className="worker-profile" aria-label="Профиль работника" onClick={() => setDialog("profile")}>
+              <img src="/brand/employee-avatar.webp" alt="" width="48" height="48" />
+            </button>
           </div>
         </header>
         <main>
           {error && (
             <div className="error-banner" role="alert">
               <TriangleAlert size={18} />
-              <span>{error}</span>
+              <span>{formatCopy(error)}</span>
               <button onClick={() => setError("")}>Закрыть</button>
             </div>
           )}
@@ -445,7 +454,7 @@ export default function App() {
                   ? "Не удалось загрузить данные"
                   : "Загружаем рабочую область"}
               </h2>
-              <p>Карточка оборудования, измерения и история осмотров</p>
+              <p className="support-copy">Карточка оборудования, измерения и история осмотров</p>
               {error && (
                 <button
                   className="button primary"
@@ -459,17 +468,6 @@ export default function App() {
             <>
               <div className="page-heading">
                 <div>
-                  <div className="eyebrow">
-                    {objectScreen ? (
-                      <>
-                        <span className="online-dot" />{" "}
-                        {equipment.type_name.toUpperCase()} /{" "}
-                        {equipment.serial ?? "без серийного номера"}
-                      </>
-                    ) : (
-                      "ПЕРЕДАННЫЕ ДАННЫЕ ОРГАНИЗАТОРА"
-                    )}
-                  </div>
                   <h1>
                     {screen === "history"
                       ? "Журнал осмотров"
@@ -482,44 +480,13 @@ export default function App() {
                             : equipment.name}
                   </h1>
                   {objectScreen && (
-                    <>
-                      <p className="location">
+                    <div className="equipment-meta">
+                      <span className="equipment-type support-copy">{equipment.type_name}</span>
+                      <p className="location support-copy">
                         <MapPin size={14} />
                         {equipment.location}
                       </p>
-                      <label className="object-picker">
-                        <span>Объект осмотра</span>
-                        <select
-                          value={equipmentId}
-                          disabled={busy}
-                          onChange={(event) =>
-                            selectEquipment(event.target.value)
-                          }
-                        >
-                          {catalogObjects.map((item) => (
-                            <option
-                              key={item.id}
-                              value={item.id}
-                              disabled={!item.inspectable}
-                            >
-                              {item.serial ?? item.id} · {item.type_name}
-                              {item.documented ? "" : " · демо"}
-                              {item.inspectable ? "" : " · позиция по проекту"}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      {!equipment.documented && (
-                        <p className="object-note">
-                          <CircleHelp size={14} /> {equipment.notice}
-                        </p>
-                      )}
-                      {(equipment.limitations ?? []).map((text) => (
-                        <p className="object-note" key={text}>
-                          <TriangleAlert size={14} /> {text}
-                        </p>
-                      ))}
-                    </>
+                    </div>
                   )}
                 </div>
                 {objectScreen && (
@@ -542,10 +509,48 @@ export default function App() {
                 )}
               </div>
 
+              {objectScreen && (
+                <section className="equipment-context" aria-label="Контекст осмотра">
+                  <label className="object-picker">
+                    <span>
+                      Объект осмотра
+                      {equipment.documented && equipment.serial && (
+                        <span className="object-serial">{equipment.serial}</span>
+                      )}
+                    </span>
+                    <select
+                      value={equipmentId}
+                      disabled={busy}
+                      onChange={(event) => selectEquipment(event.target.value)}
+                    >
+                      {catalogObjects.map((item) => (
+                        <option key={item.id} value={item.id} disabled={!item.inspectable}>
+                          {item.serial ?? item.id} · {item.type_name}
+                          {item.documented ? "" : " · демо"}
+                          {item.inspectable ? "" : " · позиция по проекту"}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <div className="equipment-notices">
+                    {!equipment.documented && (
+                      <p className="object-note support-copy">
+                        <CircleHelp size={20} /> <span>{formatCopy(equipment.notice)}</span>
+                      </p>
+                    )}
+                    {(equipment.limitations ?? []).map((text) => (
+                      <p className="object-note support-copy" key={text}>
+                        <TriangleAlert size={20} /> <span>{formatCopy(text)}</span>
+                      </p>
+                    ))}
+                  </div>
+                </section>
+              )}
+
               {screen === "overview" && (
                 <>
                   <div
-                    className={`status-strip ${critical ? "critical" : alerts.length || insufficient || evaluated === 0 ? "warning" : "normal"}`}
+                    className={`status-strip ${critical ? "critical" : alerts.length ? "warning" : insufficient || evaluated === 0 ? "insufficient" : "normal"}`}
                   >
                     <div className="status-copy">
                       {alerts.length || insufficient || evaluated === 0 ? (
@@ -566,7 +571,7 @@ export default function App() {
                                   ? "Часть проверок недоступна"
                                   : "Отклонений по доступным данным нет"}
                       </strong>
-                      <span>
+                      <span className="support-copy">
                         {alerts.length
                           ? `${alerts.length} предупрежд. · откройте основания`
                           : evaluated === 0
@@ -574,7 +579,7 @@ export default function App() {
                             : "Предварительный анализ · исправность не подтверждена"}
                       </span>
                     </div>
-                    <span className="updated">
+                    <span className="updated support-copy">
                       <Clock3 size={13} />
                       {date(analysis.created_at)}
                     </span>
@@ -614,14 +619,14 @@ export default function App() {
                           <div className="metric-main">
                             <span>
                               {number(v)}
-                              <small>{item.unit}</small>
+                              <small className="support-copy">{item.unit}</small>
                             </span>
                             <Sparkline
                               values={sampleValues(item.key)}
-                              color={warning ? "#b87c34" : "#14705e"}
+                              color={warning ? "var(--warning)" : "var(--brand)"}
                             />
                           </div>
-                          <p>
+                          <p className="support-copy">
                             {item.baseline}
                             <span
                               className={`small-dot ${warning ? "amber" : ""}`}
@@ -634,12 +639,12 @@ export default function App() {
                   )}
                   <div className="inspection-grid">
                     <section className="panel equipment-panel">
-                      <div className="panel-heading">
+                      <div className="panel-heading panel-heading--responsive">
                         <div>
                           <h2>Карта состояния</h2>
-                          <p>Выберите узел, чтобы посмотреть подробности</p>
+                          <p className="support-copy">Выберите узел, чтобы посмотреть подробности</p>
                         </div>
-                        <span className="tag">{equipment.serial ?? equipment.id}</span>
+                        <span className="tag panel-meta support-copy">{equipment.serial ?? equipment.id}</span>
                       </div>
                       {equipment.components.some((item) => item.position) ? (
                         <PumpDiagram
@@ -651,10 +656,10 @@ export default function App() {
                         />
                       ) : (
                         <div className="component-grid">
-                          <p className="object-note">
+                          <p className="object-note support-copy">
                             <CircleHelp size={14} /> Схемы этого типа оборудования
                             нет: установочный и сборочный чертежи в переданный
-                            комплект не вошли. Узлы показаны списком.
+                            комплект не вошли. Узлы показаны списком
                           </p>
                           {equipment.components.map((item) => (
                             <button
@@ -667,8 +672,8 @@ export default function App() {
                               }${item.externally_visible ? "" : " hidden-part"}`}
                               onClick={() => setSelected(item.id)}
                             >
-                              <strong>{item.name}</strong>
-                              <small>
+                              <strong>{formatCopy(item.name)}</strong>
+                              <small className="support-copy">
                                 {item.code}
                                 {item.quantity && item.quantity > 1
                                   ? ` · ${item.quantity} шт`
@@ -680,7 +685,7 @@ export default function App() {
                         </div>
                       )}
                       <div className="diagram-footer">
-                        <div className="legend">
+                        <div className="legend support-copy">
                           <span>
                             <i className="legend-dot normal" />
                             Узел
@@ -694,7 +699,7 @@ export default function App() {
                             Высокий риск
                           </span>
                         </div>
-                        <span className="tiny muted">
+                        <span className="support-copy">
                           Схема демонстрационного агрегата
                         </span>
                       </div>
@@ -706,7 +711,7 @@ export default function App() {
                             Требует внимания{" "}
                             <span className="count-badge">{alerts.length}</span>
                           </h2>
-                          <p>Связь признаков и рекомендаций</p>
+                          <p className="support-copy">Связь признаков и рекомендаций</p>
                         </div>
                         <Activity size={19} className="muted" />
                       </div>
@@ -725,9 +730,9 @@ export default function App() {
                               <ShieldCheck size={30} />
                             </span>
                             <h3>Активных предупреждений нет</h3>
-                            <p>
+                            <p className="support-copy">
                               Продолжите визуальный осмотр. Скрытые
-                              неисправности по этим данным не исключены.
+                              неисправности по этим данным не исключены
                             </p>
                             <button
                               className="text-button"
@@ -738,7 +743,7 @@ export default function App() {
                           </div>
                         )}
                       </div>
-                      <div className="findings-footer">
+                      <div className="findings-footer support-copy">
                         <span>
                           {evaluated === 0
                             ? "Применимых правил нет"
@@ -761,15 +766,15 @@ export default function App() {
                   )}
                   {equipment.scenarios_available && (
                   <div className="secondary-grid">
-                    <section className="panel">
-                      <div className="panel-heading">
+                    <section className="panel trend-panel">
+                      <div className="panel-heading panel-heading--responsive">
                         <div>
                           <h2>Динамика измерений</h2>
-                          <p>
+                          <p className="support-copy">
                             {currentMetric.label} · {currentMetric.unit}
                           </p>
                         </div>
-                        <span className="tag">
+                        <span className="tag panel-meta support-copy">
                           <Clock3 size={12} />
                           10 минут
                         </span>
@@ -786,13 +791,14 @@ export default function App() {
                       <div className="panel-heading">
                         <div>
                           <h2>Эксплуатационный ресурс</h2>
-                          <p>Демонстрационный регламент</p>
+                          <p className="support-copy">Демонстрационный регламент</p>
                         </div>
                         <Wrench size={18} className="muted" />
                       </div>
+                      <div className="resource-body">
                       <div className="resource-number">
-                        {number(maintenance?.runtime_hours, 0)}
-                        <small>моточасов</small>
+                        <span className="resource-value">{number(maintenance?.runtime_hours, 0)}</span>{" "}
+                        <small className="support-copy">моточасов</small>
                       </div>
                       <div className="progress-track">
                         <span
@@ -802,16 +808,12 @@ export default function App() {
                         />
                       </div>
                       <div className="resource-range">
-                        <span>Наработка агрегата</span>
-                        <span>
+                        <span className="support-copy">Наработка агрегата</span>
+                        <span className="support-copy">
                           {number(maintenance?.norm_hours, 0)} ч · норматив
                         </span>
                       </div>
                       <div className="service-next">
-                        <span className="service-icon">
-                          <Clock3 size={18} />
-                        </span>
-                        <div>
                           <strong>
                             {maintenance?.runtime_hours == null
                               ? "Недостаточно данных о наработке"
@@ -821,21 +823,21 @@ export default function App() {
                                 ? "Срок обслуживания наступил"
                                 : `До следующего ТО: ${number(maintenance.due_in_hours, 0)} ч`}
                           </strong>
-                          <p>
+                          <p className="support-copy">
                             Нормативный остаток:{" "}
                             {number(maintenance?.remaining_hours, 0)} ч
                           </p>
-                        </div>
                       </div>
-                      <p className="tiny muted resource-caveat">
+                      <p className="resource-caveat support-copy">
                         Остаток норматива не является прогнозом времени до
-                        отказа.
+                        отказа
                       </p>
+                      </div>
                     </section>
                   </div>
                   )}
                   <div className="inspection-bottom">
-                    <span>
+                    <span className="support-copy">
                       <ClipboardCheck size={17} />
                       {events.length
                         ? `Последняя запись: ${date(events[0].created_at)}`
@@ -860,7 +862,7 @@ export default function App() {
                   {vision && (
                     <section className="panel vision-summary">
                       <h2>Последний анализ снимка</h2>
-                      <p>{vision.summary}</p>
+                      <p className="support-copy">{formatCopy(vision.summary)}</p>
                       <span className="tag">
                         {vision.model} ·{" "}
                         {vision.quality === "good"
@@ -880,18 +882,18 @@ export default function App() {
                     <div>
                       <div className="eyebrow">ЦИФРОВАЯ КАРТОЧКА</div>
                       <h2>{equipment.model ?? equipment.name}</h2>
-                      <p>{equipment.notice}</p>
+                      <p className="support-copy">{formatCopy(equipment.notice)}</p>
                       <div className="passport-grid">
                         <div>
-                          <small>Заводской номер</small>
+                          <small className="support-copy">Заводской номер</small>
                           <strong>{equipment.serial ?? "не указан"}</strong>
                         </div>
                         <div>
-                          <small>Среда</small>
+                          <small className="support-copy">Среда</small>
                           <strong>{equipment.medium}</strong>
                         </div>
                         <div>
-                          <small>Мощность</small>
+                          <small className="support-copy">Мощность</small>
                           <strong>
                             {equipment.power_kw === null
                               ? "не указана"
@@ -899,7 +901,7 @@ export default function App() {
                           </strong>
                         </div>
                         <div>
-                          <small>Частота вращения</small>
+                          <small className="support-copy">Частота вращения</small>
                           <strong>
                             {equipment.speed_rpm === null
                               ? "не указана"
@@ -907,13 +909,13 @@ export default function App() {
                           </strong>
                         </div>
                         <div>
-                          <small>Ввод в эксплуатацию</small>
+                          <small className="support-copy">Ввод в эксплуатацию</small>
                           <strong>
                             {equipment.commissioned_at ?? "неизвестен"}
                           </strong>
                         </div>
                         <div>
-                          <small>Источник карточки</small>
+                          <small className="support-copy">Источник карточки</small>
                           <strong>
                             {equipment.documented
                               ? "Паспорт изготовителя"
@@ -922,7 +924,7 @@ export default function App() {
                         </div>
                       </div>
                       {(equipment.documents ?? []).length > 0 && (
-                        <p className="tiny muted" style={{ marginTop: 14 }}>
+                        <p className="support-copy" style={{ marginTop: 14 }}>
                           Документы в комплекте:{" "}
                           {(equipment.documents ?? []).join(", ")}
                         </p>
@@ -946,8 +948,8 @@ export default function App() {
                         onClick={() => setSelected(item.id)}
                       >
                         <span className="component-code">{item.code}</span>
-                        <strong>{item.name}</strong>
-                        <span className="muted">
+                        <strong>{formatCopy(item.name)}</strong>
+                        <span className="support-copy">
                           {item.last_replacement
                             ? "Заменён " +
                               date(item.last_replacement.created_at)
@@ -973,7 +975,7 @@ export default function App() {
                         История работ{" "}
                         <span className="count-badge">{events.length}</span>
                       </h2>
-                      <p>С исходными данными каждого осмотра</p>
+                      <p className="support-copy">С исходными данными каждого осмотра</p>
                     </div>
                     <button
                       className="button secondary small"
@@ -995,43 +997,43 @@ export default function App() {
                             <h3>
                               {actions[event.action]} ·{" "}
                               {
-                                equipment.components.find(
+                                formatCopy(equipment.components.find(
                                   (item) => item.id === event.component_id,
-                                )?.name
+                                )?.name)
                               }
                             </h3>
-                            <span className="tiny muted">
+                            <span className="support-copy">
                               {date(event.created_at)}
                             </span>
                           </div>
-                          <p>{event.notes || "Без комментария"}</p>
-                          <div className="history-meta">
+                          <p className="support-copy">{formatCopy(event.notes || "Без комментария")}</p>
+                          <div className="history-meta support-copy">
                             <span>{event.author}</span>
                             <span>{event.analysis.scenario_title}</span>
                             <span>
                               {event.analysis.evaluation.alerts.length}{" "}
-                              предупрежд.
+                              предупрежд
                             </span>
                           </div>
                           <details>
                             <summary>Основания на момент осмотра</summary>
                             <div className="evidence-history">
-                              {event.analysis.image_id && <figure className="saved-evidence"><img src={`/api/images/${event.analysis.image_id}`} alt="Исходный снимок осмотра" loading="lazy"/><figcaption>Исходный снимок, сохранённый с результатом осмотра</figcaption></figure>}
+                              {event.analysis.image_id && <figure className="saved-evidence"><img src={`/api/images/${event.analysis.image_id}`} alt="Исходный снимок осмотра" loading="lazy"/><figcaption className="support-copy">Исходный снимок, сохранённый с результатом осмотра</figcaption></figure>}
                               {event.analysis.evaluation.alerts.map((alert) => (
                                 <div key={alert.id}>
                                   <strong>
-                                    {alert.rule_ids.join(", ")} · {alert.title}
+                                    {alert.rule_ids.join(", ")} · {formatCopy(alert.title)}
                                   </strong>
-                                  <p>{alert.hypothesis}</p>
+                                  <p className="support-copy">{formatCopy(alert.hypothesis)}</p>
                                 </div>
                               ))}
                               {!event.analysis.evaluation.alerts.length && (
-                                <p>
+                                <p className="support-copy">
                                   По доступным данным предупреждения не
-                                  сформированы.
+                                  сформированы
                                 </p>
                               )}
-                              <p>
+                              <p className="support-copy">
                                 Наработка:{" "}
                                 {number(
                                   event.analysis.telemetry.runtime_hours,
@@ -1048,8 +1050,8 @@ export default function App() {
                     <div className="empty">
                       <ClipboardCheck size={36} />
                       <h3>Здесь появится история оборудования</h3>
-                      <p>
-                        Зарегистрируйте первый осмотр, обслуживание или замену.
+                      <p className="support-copy">
+                        Зарегистрируйте первый осмотр, обслуживание или замену
                       </p>
                       <button
                         className="button primary"
@@ -1067,14 +1069,14 @@ export default function App() {
                   <div className="panel-heading">
                     <div>
                       <h2>12 диагностических сценариев</h2>
-                      <p>Проверяемые условия · демонстрационные пороги</p>
+                      <p className="support-copy">Проверяемые условия · демонстрационные пороги</p>
                     </div>
                     <Cpu size={22} />
                   </div>
-                  <p className="rules-intro">
+                  <p className="rules-intro support-copy">
                     Правила формируют гипотезы для предварительной проверки.
                     Отсутствующий или устаревший вход не считается нормальным
-                    показанием.
+                    показанием
                   </p>
                   <div className="rules-list">
                     {analysis.evaluation.rule_results.map((rule) => {
@@ -1094,17 +1096,17 @@ export default function App() {
                                 matching?.title ??
                                 "Диагностическое правило"}
                             </h3>
-                            <p>
-                              {rule.basis
+                            <p className="support-copy">
+                              {formatCopy(rule.basis
                                 ? `Основание: ${rule.basis}`
-                                : scenarioInfo?.description}
+                                : scenarioInfo?.description)}
                             </p>
                             {rule.missing.length > 0 && (
-                              <small>
+                              <small className="support-copy">
                                 Нет данных: {rule.missing.join(", ")}
                               </small>
                             )}
-                            {rule.reason && <small>{rule.reason}</small>}
+                            {rule.reason && <small className="support-copy">{formatCopy(rule.reason)}</small>}
                           </div>
                           <span className={`rule-status ${rule.status}`}>
                             {rule.status === "triggered"
@@ -1126,7 +1128,7 @@ export default function App() {
 
               {screen === "library" && <LibraryPanel />}
 
-              <footer className="page-footer">
+              <footer className="page-footer support-copy">
                 <span>КОНТУР · помощник инженера</span>
                 <span>Демонстрационный прототип / Кибер 102</span>
               </footer>
@@ -1146,9 +1148,9 @@ export default function App() {
           title="Демонстрационные сценарии"
           onClose={() => setDialog(null)}
         >
-          <p className="modal-intro">
+          <p className="modal-intro support-copy">
             Воспроизводимые измерения и признаки для проверки технологии. Все
-            данные синтетические.
+            данные синтетические
           </p>
           <label className="field">
             Сценарий демонстрации
@@ -1158,20 +1160,20 @@ export default function App() {
             >
               {bootstrap?.scenarios.map((item) => (
                 <option key={item.id} value={item.id}>
-                  {item.title}
+                  {formatCopy(item.title)}
                 </option>
               ))}
             </select>
           </label>
           <div className="info-box">
             {
-              bootstrap?.scenarios.find((item) => item.id === pendingScenario)
-                ?.description
+              formatCopy(bootstrap?.scenarios.find((item) => item.id === pendingScenario)
+                ?.description)
             }
           </div>
-          <p className="tiny muted">
+          <p className="support-copy">
             Переключение сценария сбрасывает анализ снимка и ручные наблюдения.
-            Сохранённая история остаётся.
+            Сохранённая история остаётся
           </p>
           <div className="modal-actions">
             <button
@@ -1200,9 +1202,9 @@ export default function App() {
           title="Записать результат осмотра"
           onClose={() => setDialog(null)}
         >
-          <p className="modal-intro">
+          <p className="modal-intro support-copy">
             Сохраним измерения, предупреждения и ваше действие в истории
-            оборудования.
+            оборудования
           </p>
           <label className="field">
             Компонент
@@ -1212,7 +1214,7 @@ export default function App() {
             >
               {equipment?.components.map((item) => (
                 <option key={item.id} value={item.id}>
-                  {item.name}
+                  {formatCopy(item.name)}
                 </option>
               ))}
             </select>
@@ -1241,9 +1243,9 @@ export default function App() {
             />
           </label>
           {recordAction === "replacement" && (
-            <p className="info-box">
+            <p className="info-box support-copy">
               Замена будет отмечена в карточке выбранного компонента. История
-              предыдущих осмотров сохранится.
+              предыдущих осмотров сохранится
             </p>
           )}
           <div className="modal-actions">
@@ -1289,14 +1291,14 @@ export default function App() {
             }}
             onResult={async (result) => {
               const run = await analyze(scenario, result);
-              if (!run) throw new Error('Снимок проанализирован, но обновить диагностику не удалось. Повторите запрос.');
+              if (!run) throw new Error('Снимок проанализирован, но обновить диагностику не удалось. Повторите запрос');
               setToast("Снимок проанализирован, диагностика обновлена");
             }}
           />
           <details className="manual-section">
             <summary>Добавить наблюдение инженера</summary>
-            <p className="tiny muted">
-              Источник будет обозначен как ручное наблюдение.
+            <p className="support-copy">
+              Источник будет обозначен как ручное наблюдение
             </p>
             <div className="manual-fields">
               <select
@@ -1353,6 +1355,23 @@ export default function App() {
           <StandPanel equipment={equipment} />
         </Modal>
       )}
+      {dialog === "profile" && (
+        <Modal title="Профиль работника" onClose={() => setDialog(null)}>
+          <div className="profile-menu">
+            <img src="/brand/employee-avatar.webp" alt="Профиль работника" width="112" height="112" />
+            <div className="profile-actions">
+              {equipment?.scenarios_available && (
+                <button className="button secondary" onClick={() => { setPendingScenario(scenario); setDialog("demo"); }}>
+                  <Settings2 size={20} />Демосценарии
+                </button>
+              )}
+              <button className="button secondary" onClick={() => setDialog("about")}>
+                <CircleHelp size={20} />О проекте
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
       {dialog === "about" && (
         <Modal
           title="КОНТУР · единый инструмент инженера"
@@ -1360,29 +1379,29 @@ export default function App() {
         >
           <div className="about-lead">
             <ShieldCheck size={36} />
-            <p>
+            <p className="support-copy">
               Камера, данные датчиков и регламент оборудования соединены в одном
-              процессе осмотра.
+              процессе осмотра
             </p>
           </div>
-          <p>
+          <p className="support-copy">
             Прототип для хакатона «Кибер 102», задача КСТ Энерго Инжиниринг.
             Предобученные модели разрешены организаторами; демонстрационные
-            данные подготовлены самостоятельно.
+            данные подготовлены самостоятельно
           </p>
           <div className="info-box">
             Изображение → видимые признаки → сопоставление с измерениями →
-            гипотеза → решение инженера → история.
+            гипотеза → решение инженера → история
           </div>
-          <p>
+          <p className="support-copy">
             Автоматически анализируются отсутствие кожуха, признаки жидкости у
             уплотнения и отсутствие крепежа. Остальные визуальные сценарии
-            используют демоданные или ручные наблюдения.
+            используют демоданные или ручные наблюдения
           </p>
-          <p className="tiny muted">
+          <p className="support-copy">
             AR привязан к маркеру демонстрационного стенда. Отсутствие видимых
             проблем не подтверждает исправность. Все нормы требуют сверки с
-            документацией изготовителя.
+            документацией изготовителя
           </p>
           <a
             className="button secondary"
@@ -1401,7 +1420,7 @@ export default function App() {
         <Modal title={component.name} onClose={() => setSelected(null)}>
           <div className="component-detail-head">
             <span className="component-code">{component.code}</span>
-            <span className="tag">{component.norm_source}</span>
+            <span className="tag">{formatCopy(component.norm_source)}</span>
           </div>
           {selectedAlerts.length ? (
             selectedAlerts.map((alert) => (
@@ -1412,19 +1431,19 @@ export default function App() {
                 <span className="eyebrow">
                   {alert.rule_ids.join(" + ")} · ДИАГНОСТИЧЕСКАЯ ГИПОТЕЗА
                 </span>
-                <h3>{alert.title}</h3>
-                <p>{alert.hypothesis}</p>
+                <h3>{formatCopy(alert.title)}</h3>
+                <p className="support-copy">{formatCopy(alert.hypothesis)}</p>
                 <h4>Основания</h4>
                 <ul className="evidence-list">
                   {alert.evidence.map((item, i) => (
                     <li key={i}>
                       <span>
                         {item.label}
-                        <small>{sourceLabel(item.source)}</small>
+                        <small className="support-copy">{sourceLabel(item.source)}</small>
                       </span>
                       <strong>
                         {String(item.value)}
-                        <small>
+                        <small className="support-copy">
                           {item.threshold ? `Условие: ${item.threshold}` : ""}
                         </small>
                       </strong>
@@ -1433,19 +1452,19 @@ export default function App() {
                 </ul>
                 <div className="recommendation">
                   <Wrench size={18} />
-                  <p>{alert.recommendation}</p>
+                  <p className="support-copy">{formatCopy(alert.recommendation)}</p>
                 </div>
               </div>
             ))
           ) : (
             <div className="info-box">
               Для этого узла предупреждений по доступным данным нет. Визуальный
-              осмотр и проверка по регламенту остаются необходимыми.
+              осмотр и проверка по регламенту остаются необходимыми
             </div>
           )}
           <div className="detail-facts">
             <div>
-              <small>Нормативный срок</small>
+              <small className="support-copy">Нормативный срок</small>
               <strong>
                 {component.norm_hours === null
                   ? "не задан"
@@ -1453,7 +1472,7 @@ export default function App() {
               </strong>
             </div>
             <div>
-              <small>Установка / замена</small>
+              <small className="support-copy">Установка / замена</small>
               <strong>
                 {component.last_replacement
                   ? date(component.last_replacement.created_at)
@@ -1503,11 +1522,11 @@ function Finding({ alert, onClick }: { alert: Alert; onClick: () => void }) {
       </span>
       <span className="finding-content">
         <span className="finding-title">
-          {alert.title}
+          {formatCopy(alert.title)}
           <ChevronRight size={15} />
         </span>
-        <span className="finding-description">{alert.hypothesis}</span>
-        <span className="finding-rule">
+        <span className="finding-description support-copy">{formatCopy(alert.hypothesis)}</span>
+        <span className="finding-rule support-copy">
           {alert.rule_ids.join(" + ")} <span>Открыть основания</span>
         </span>
       </span>

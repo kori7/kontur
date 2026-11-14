@@ -1,3 +1,4 @@
+import { formatCopy } from "../api";
 import { useState } from "react";
 import { Gauge, Loader2 } from "lucide-react";
 import type { Equipment, Finding } from "../types";
@@ -51,11 +52,11 @@ export function InputsPanel({
           <h2>
             <Gauge size={15} /> Входы осмотра
           </h2>
-          <p>
+          <p className="support-copy">
             Телеметрии у этого объекта нет. Правила читают измерения, снятые
             названным прибором, видимые признаки и журнал. Незаполненный вход
             остаётся неизвестным: правило вернёт «недостаточно данных», а не
-            «норма».
+            «норма»
           </p>
         </div>
         <span className="tag">{equipment.rules?.length ?? 0} правил</span>
@@ -77,7 +78,7 @@ export function InputsPanel({
                   <option value="present">Да</option>
                   <option value="absent">Нет</option>
                 </select>
-                <small className="tiny muted">
+                <small className="support-copy">
                   {field.instrument} · {field.basis}
                 </small>
               </label>
@@ -95,7 +96,7 @@ export function InputsPanel({
                     setNumbers({ ...numbers, [key]: event.target.value })
                   }
                 />
-                <small className="tiny muted">
+                <small className="support-copy">
                   {field.instrument} · {field.basis}
                 </small>
               </label>
@@ -109,16 +110,16 @@ export function InputsPanel({
           <div className="panel-heading">
             <div>
               <h2>Видимые признаки</h2>
-              <p>
+              <p className="support-copy">
                 Классы из каталога дефектов, применимые к этому типу. «Не
-                осмотрено» и «не обнаружено» — разные ответы.
+                осмотрено» и «не обнаружено» — разные ответы
               </p>
             </div>
           </div>
           <div className="inputs-grid">
             {classes.map((item) => (
               <label className="field" key={item.id}>
-                <span>{item.name}</span>
+                <span>{formatCopy(item.name)}</span>
                 <select
                   value={findings[item.id] ?? "unset"}
                   onChange={(event) =>

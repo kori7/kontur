@@ -1,3 +1,4 @@
+import { formatCopy } from "../api";
 import { useEffect, useState } from "react";
 import { Printer, ScanLine } from "lucide-react";
 import type { Equipment } from "../types";
@@ -28,19 +29,19 @@ export function StandPanel({ equipment }: { equipment: Equipment }) {
       <div className="stand-card">
         {qr && <img src={qr} alt={`QR-код объекта ${equipment.id}`} />}
         <div>
-          <h3>{equipment.name}</h3>
-          <p>
+          <h3>{formatCopy(equipment.name)}</h3>
+          <p className="support-copy">
             QR-код идентифицирует цифровую карточку этого объекта. Маркер Hiro
-            ниже используется отдельно для положения AR-меток.
+            ниже используется отдельно для положения AR-меток
           </p>
-          <p className="tiny muted">
+          <p className="support-copy">
             {equipment.serial
               ? `Серийный номер ${equipment.serial} · идентификатор ${equipment.id}`
               : `Идентификатор ${equipment.id}`}
           </p>
-          <p className="tiny muted">
+          <p className="support-copy">
             Каждому объекту каталога соответствует свой QR-код. Распечатанный код
-            относится только к тому объекту, для которого он сформирован.
+            относится только к тому объекту, для которого он сформирован
           </p>
         </div>
       </div>
@@ -50,11 +51,11 @@ export function StandPanel({ equipment }: { equipment: Equipment }) {
           src="/vendor/hiro.png"
           alt="Маркер Hiro для дополненной реальности"
         />
-        <p>
+        <p className="support-copy">
           Для AR откройте или распечатайте стенд целиком. Относительное
           положение схемы и маркера должно сохраняться. Схема на стенде построена
           для демонстрационного центробежного агрегата и другим типам
-          оборудования не соответствует.
+          оборудования не соответствует
         </p>
       </div>
       <div className="modal-actions">

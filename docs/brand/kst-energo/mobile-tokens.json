@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "name": "KONTUR mobile / KST Energo",
+  "status": "proposed-for-next-implementation",
+  "capturedOn": "2026-11-14",
+  "sourceWebsite": "https://www.kst-energo.ru/",
+  "brandAuthority": "../../../DESIGN.md",
+  "units": "Logical units: CSS px for the reference web layout, dp/pt for native geometry, scalable sp/text styles for native typography.",
+  "websiteColorMap": {
+    "brand": "brand",
+    "deepBlue": "deep-blue",
+    "navy": "footer-navy",
+    "background": "background",
+    "surface": "surface",
+    "surfaceSubtle": "surface-subtle",
+    "text": "text",
+    "textSecondary": "text-secondary",
+    "border": "border",
+    "divider": "divider"
+  },
+  "color": {
+    "brand": "#135AA6",
+    "brandPressed": "#0F4885",
+    "deepBlue": "#063E61",
+    "navy": "#000D24",
+    "background": "#F4F5F8",
+    "surface": "#FFFFFF",
+    "surfaceSubtle": "#F6F7F8",
+    "text": "#313132",
+    "textSecondary": "#555555",
+    "border": "#D5D9DE",
+    "divider": "#E5E7EA",
+    "fieldBorder": "#6C757D",
+    "info": "#135AA6",
+    "infoSurface": "#E8EFF7",
+    "success": "#14705E",
+    "successSurface": "#EAF6EF",
+    "warning": "#8A4B0F",
+    "warningSurface": "#FFF4E5",
+    "critical": "#B42318",
+    "criticalSurface": "#FDEDEB",
+    "unknown": "#555555",
+    "unknownSurface": "#F0F0F3",
+    "disabledText": "#555555",
+    "disabledSurface": "#E5E7EA"
+  },
+  "font": {
+    "brand": "Geologica",
+    "numeric": "IBM Plex Mono",
+    "fallback": "Arial, sans-serif",
+    "weights": [400, 500, 600]
+  },
+  "typography": {
+    "pageTitle": {"fontFamily": "Geologica", "fontSize": 28, "lineHeight": 36, "fontWeight": 500},
+    "sectionTitle": {"fontFamily": "Geologica", "fontSize": 20, "lineHeight": 28, "fontWeight": 500},
+    "cardTitle": {"fontFamily": "Geologica", "fontSize": 18, "lineHeight": 26, "fontWeight": 500},
+    "body": {"fontFamily": "Geologica", "fontSize": 16, "lineHeight": 24, "fontWeight": 400},
+    "label": {"fontFamily": "Geologica", "fontSize": 14, "lineHeight": 20, "fontWeight": 500},
+    "caption": {"fontFamily": "Geologica", "fontSize": 12, "lineHeight": 16, "fontWeight": 400},
+    "metric": {"fontFamily": "IBM Plex Mono", "fontSize": 32, "lineHeight": 40, "fontWeight": 400},
+    "button": {"fontFamily": "Geologica", "fontSize": 16, "lineHeight": 24, "fontWeight": 500}
+  },
+  "spacing": [4, 8, 12, 16, 20, 24, 32, 40, 48],
+  "radius": {"control": 16, "card": 20, "sheet": 24, "tag": 8, "round": 9999},
+  "layout": {
+    "referenceWidth": 390,
+    "testWidths": [320, 360, 390, 430, 768, 1024],
+    "mediumMinWidth": 600,
+    "expandedMinWidth": 840,
+    "screenInset": 16,
+    "cardInset": 16,
+    "cardGap": 12,
+    "sectionGap": 24,
+    "appBarMinHeight": 56,
+    "webNavigationMinHeight": 64,
+    "safeAreas": "Add actual system insets. Native navigation uses platform metrics."
+  },
+  "control": {
+    "touchTargetMin": 48,
+    "primaryMinHeight": 56,
+    "fieldMinHeight": 56,
+    "iconSize": 24,
+    "iconStroke": 2,
+    "focusWidth": 2,
+    "focusOffset": 2
+  },
+  "shadow": {"card": "none", "sheet": "0 8px 32px rgba(6,62,97,0.16)"},
+  "scrim": "rgba(0,13,36,0.4)",
+  "motion": {"pressMs": 120, "panelMs": 200, "easing": "ease", "reducedMotion": "Disable decorative motion; preserve immediate state feedback."},
+  "navigation": [
+    {"id": "overview", "label": "Обзор", "accessibleName": "Обзор оборудования"},
+    {"id": "equipment", "label": "Паспорт", "accessibleName": "Цифровой паспорт"},
+    {"id": "history", "label": "Журнал", "accessibleName": "Журнал осмотров"},
+    {"id": "rules", "label": "Правила", "accessibleName": "Правила диагностики"}
+  ],
+  "accessibility": {"textContrastMin": 4.5, "nonTextContrastMin": 3, "textScaleTest": 2},
+  "provenance": {
+    "website": "Colors listed in websiteColorMap and the Geologica family are extracted from the website. Exact source values are normative in the root DESIGN.md frontmatter.",
+    "existingProduct": "IBM Plex Mono, the four navigation IDs, and domain states come from KONTUR source code.",
+    "proposal": "All mobile geometry, text-role sizes, pressed state, semantic color assignments, field treatment, and motion rules are proposals. They are not measurements of a released mobile app."
+  }
+}

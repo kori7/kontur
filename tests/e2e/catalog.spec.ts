@@ -162,7 +162,7 @@ test("materials library shows provenance and serves the original file", async ({
   await expect(
     page.getByRole("heading", { name: "Переданные материалы" }).first(),
   ).toBeVisible();
-  await expect(page.getByText("84 файлов")).toBeVisible();
+  await expect(page.locator(".library-totals")).toContainText("Всего файлов84");
 
   const stock = page.locator(".library-card", { hasText: "pipes-009" });
   await expect(stock).toContainText("Сток с водяным знаком");

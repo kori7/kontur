@@ -1,5 +1,5 @@
 import { Wrench } from "lucide-react";
-import { number } from "../api";
+import { formatCopy, number } from "../api";
 import type { Equipment } from "../types";
 
 const units: Record<string, string> = { year: "лет", month: "мес", hour: "ч" };
@@ -44,13 +44,13 @@ export function PassportResource({ equipment }: { equipment: Equipment }) {
       <div className="panel-heading">
         <div>
           <h2>Эксплуатационный ресурс</h2>
-          <p>Значения паспорта изготовителя</p>
+          <p className="support-copy">Значения паспорта изготовителя</p>
         </div>
         <Wrench size={18} className="muted" />
       </div>
       {rows.length === 0 ? (
-        <p className="tiny muted resource-caveat">
-          Нормативных сроков для этого объекта в переданных документах нет.
+        <p className="resource-caveat support-copy">
+          Нормативных сроков для этого объекта в переданных документах нет
         </p>
       ) : (
         <ul className="assessment-list">
@@ -58,18 +58,18 @@ export function PassportResource({ equipment }: { equipment: Equipment }) {
             <li key={row.label}>
               <div>
                 <strong>{row.label}</strong>
-                <small>{row.source}</small>
+                <small className="support-copy">{formatCopy(row.source)}</small>
               </div>
               <span className="rule-status below_warning">{row.value}</span>
             </li>
           ))}
         </ul>
       )}
-      <p className="tiny muted resource-caveat" style={{ marginTop: 12 }}>
+      <p className="resource-caveat support-copy" style={{ marginTop: 12 }}>
         {equipment.commissioned_at
           ? `Ввод в эксплуатацию: ${equipment.commissioned_at}.`
-          : "Дата ввода в эксплуатацию не указана, поэтому наработка и остаток не рассчитываются."}{" "}
-        Нормативный срок не является прогнозом времени до отказа.
+          : "Дата ввода в эксплуатацию не указана, поэтому наработка и остаток не рассчитываются"}{" "}
+        Нормативный срок не является прогнозом времени до отказа
       </p>
     </section>
   );

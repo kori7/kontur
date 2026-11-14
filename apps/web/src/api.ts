@@ -29,3 +29,6 @@ export const date = (value: string) =>
 export const sourceLabel = (source: string) =>
   ({ demo: "Демоданные", manual: "Инженер", model: "ИИ-анализ" })[source] ??
   source;
+
+export const formatCopy = (value: string | null | undefined) =>
+  (value ?? "").replace(/\.+\s*$/, "");
