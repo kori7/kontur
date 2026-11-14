@@ -32,10 +32,48 @@ export interface Equipment {
   commissioned_at_status?: string;
   commissioned_at_note?: string | null;
   parameters?: Record<string, unknown>;
+  materials?: Record<string, string>;
+  resource?: {
+    service_life?: { value: number; unit: string; source: string };
+    resource_to_writeoff?: {
+      value: number;
+      unit: string;
+      comparator: string;
+      source: string;
+    };
+    warranty?: { value: number; unit: string; from: string; source: string };
+    wear_parts_limit?: {
+      components: string[];
+      value_months: number;
+      value_hours: number;
+      source: string;
+      note: string;
+    };
+  };
   documents?: string[];
   limitations?: string[];
+  measurements?: Record<string, MeasurementField>;
+  rules?: DocumentedRule[];
+  defect_classes?: { id: string; name: string; annotation: string }[];
   notice: string;
   components: Component[];
+}
+export interface MeasurementField {
+  label: string;
+  unit: string;
+  kind: "number" | "boolean";
+  instrument: string;
+  basis: string;
+}
+export interface DocumentedRule {
+  id: string;
+  title: string;
+  severity: "critical" | "warning" | "info";
+  basis: string;
+}
+export interface Finding {
+  class_id: string;
+  present: boolean;
 }
 export interface CatalogObject {
   id: string;
@@ -105,6 +143,8 @@ export interface Analysis {
   created_at: string;
   equipment_id?: string;
   equipment_type?: string;
+  measurements?: Record<string, number | boolean>;
+  findings?: Finding[];
   scenario_id: string | null;
   scenario_title: string;
   telemetry: Telemetry;
@@ -118,6 +158,8 @@ export interface Analysis {
       status: "triggered" | "clear" | "insufficient" | "not_applicable";
       missing: string[];
       reason?: string;
+      title?: string;
+      basis?: string;
     }[];
     features: Record<string, unknown>;
     source: string;

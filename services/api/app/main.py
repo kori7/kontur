@@ -13,7 +13,9 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from app.catalog import DEMO_ID, card, component_ids, equipment_type_of, list_catalog
+from app.registry import applicable_classes
 from app.demo import get_scenario, get_scenarios
+from app.diagnostics.documented import evaluate_documented, measurement_vocabulary
 from app.diagnostics.engine import evaluate
 from app.library import list_library, resolve as resolve_source
 from app.reference_data import get_reference_window, list_reference_series, organizer_assessment, organizer_thresholds
@@ -31,10 +33,19 @@ class ManualObservation(BaseModel):
     timestamp: datetime | None = None
 
 
+class Finding(BaseModel):
+    """A visual class from data/registry/defect-classes.json, confirmed or rejected by the engineer."""
+
+    class_id: str = Field(max_length=60)
+    present: bool
+
+
 class AnalyzeRequest(BaseModel):
     equipment_id: str = Field(default=DEMO_ID, max_length=60)
     scenario_id: str | None = Field(default="normal", max_length=50)
     observations: list[ManualObservation] = Field(default_factory=list, max_length=15)
+    measurements: dict[str, float | bool] = Field(default_factory=dict, max_length=20)
+    findings: list[Finding] = Field(default_factory=list, max_length=25)
     vision_id: str | None = None
     image: str | None = Field(default=None, max_length=8_000_000)
 
@@ -160,6 +171,21 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
             observations = [item for item in observations if item["kind"] not in vision_kinds]
             observations.extend(saved["observations"])
             image_id = saved.get("image_id", image_id)
+        vocabulary = measurement_vocabulary(equipment_type)
+        for key, value in request.measurements.items():
+            if key not in vocabulary:
+                raise HTTPException(422, f"Измерение «{key}» не предусмотрено для типа "
+                                         f"«{target['type_name']}»: доступные входы перечислены "
+                                         "в /api/catalog.")
+            if vocabulary[key]["kind"] == "boolean" and not isinstance(value, bool):
+                raise HTTPException(422, f"Измерение «{key}» дискретное и принимает только true или false.")
+            if vocabulary[key]["kind"] == "number" and isinstance(value, bool):
+                raise HTTPException(422, f"Измерение «{key}» числовое и логическое значение не принимает.")
+        applicable = {item["id"] for item in applicable_classes(request.equipment_id)}
+        for finding in request.findings:
+            if finding.class_id not in applicable:
+                raise HTTPException(422, f"Класс «{finding.class_id}» неприменим к типу "
+                                         f"«{target['type_name']}».")
         now = datetime.now(timezone.utc).isoformat()
         for item in request.observations:
             component = observation_components[item.kind]
@@ -183,13 +209,24 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
         if maintenance:
             telemetry["last_service_hours"] = max(telemetry["last_service_hours"] or 0,
                                                   maintenance["analysis"]["telemetry"]["runtime_hours"])
+        if scenario is not None:
+            evaluation = evaluate(telemetry, observations, equipment_type=equipment_type)
+        else:
+            # Documented objects have no telemetry: their rules read measurements the engineer took
+            # with a named instrument, visible findings and the journal.
+            evaluation = evaluate_documented(
+                equipment_type, measurements=request.measurements,
+                findings=[item.model_dump() for item in request.findings],
+                events=store.events(request.equipment_id), card=target)
         return store.save_analysis({"type": "inspection", "equipment_id": request.equipment_id,
                                     "equipment_type": equipment_type,
                                     "scenario_id": scenario["id"] if scenario else None,
                                     "scenario_title": scenario["title"] if scenario else "Осмотр без телеметрии",
                                     "telemetry": telemetry,
+                                    "measurements": request.measurements,
+                                    "findings": [item.model_dump() for item in request.findings],
                                     "observations": observations, "vision_id": request.vision_id, "image_id": image_id,
-                                    "evaluation": evaluate(telemetry, observations, equipment_type=equipment_type)})
+                                    "evaluation": evaluation})
 
     @app.get("/api/inspections")
     def history(equipment_id: str | None = None):

@@ -35,6 +35,7 @@ import type {
   Analysis,
   Bootstrap,
   Equipment,
+  Finding,
   InspectionEvent,
   VisionResult,
 } from "./types";
@@ -46,6 +47,8 @@ import { ResourceFacts } from "./components/ResourceFacts";
 import { StandPanel } from "./features/StandPanel";
 import { LibraryPanel } from "./features/LibraryPanel";
 import { SeriesPanel } from "./features/SeriesPanel";
+import { InputsPanel } from "./features/InputsPanel";
+import { PassportResource } from "./components/PassportResource";
 
 type Screen =
   | "overview"
@@ -178,6 +181,27 @@ export default function App() {
       setInspectionImage(null);
       setRecordComponent(target.components[0]?.id ?? "");
       setScreen("overview");
+    } catch (cause) {
+      setError((cause as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function analyzeDocumented(
+    measurements: Record<string, number | boolean>,
+    findings: Finding[],
+  ) {
+    setBusy(true);
+    setError("");
+    try {
+      const run = await request<Analysis>("/analyze", {
+        equipment_id: equipmentId,
+        scenario_id: null,
+        measurements,
+        findings,
+      });
+      setAnalysis(run);
+      setToast("Осмотр пересчитан по введённым данным");
     } catch (cause) {
       setError((cause as Error).message);
     } finally {
@@ -555,6 +579,15 @@ export default function App() {
                       {date(analysis.created_at)}
                     </span>
                   </div>
+                  {!equipment.scenarios_available && (
+                    <InputsPanel
+                      key={equipmentId}
+                      equipment={equipment}
+                      busy={busy}
+                      onSubmit={analyzeDocumented}
+                    />
+                  )}
+                  {equipment.scenarios_available && (
                   <div className="metrics-grid">
                     {metrics.map((item) => {
                       const v = last?.[item.key];
@@ -598,6 +631,7 @@ export default function App() {
                       );
                     })}
                   </div>
+                  )}
                   <div className="inspection-grid">
                     <section className="panel equipment-panel">
                       <div className="panel-heading">
@@ -722,6 +756,10 @@ export default function App() {
                       </div>
                     </section>
                   </div>
+                  {!equipment.scenarios_available && (
+                    <PassportResource equipment={equipment} />
+                  )}
+                  {equipment.scenarios_available && (
                   <div className="secondary-grid">
                     <section className="panel">
                       <div className="panel-heading">
@@ -795,6 +833,7 @@ export default function App() {
                       </p>
                     </section>
                   </div>
+                  )}
                   <div className="inspection-bottom">
                     <span>
                       <ClipboardCheck size={17} />
@@ -805,7 +844,12 @@ export default function App() {
                     <button
                       className="button secondary"
                       onClick={() => {
-                        setRecordComponent("pump");
+                        // "pump" is the whole-aggregate узел of the demo object only.
+                        setRecordComponent(
+                          equipment.components.some((item) => item.id === "pump")
+                            ? "pump"
+                            : (equipment.components[0]?.id ?? ""),
+                        );
                         setDialog("record");
                       }}
                     >
@@ -1045,11 +1089,16 @@ export default function App() {
                           <span className="rule-id">{rule.id}</span>
                           <div>
                             <h3>
-                              {scenarioInfo?.title ??
+                              {rule.title ??
+                                scenarioInfo?.title ??
                                 matching?.title ??
                                 "Диагностическое правило"}
                             </h3>
-                            <p>{scenarioInfo?.description}</p>
+                            <p>
+                              {rule.basis
+                                ? `Основание: ${rule.basis}`
+                                : scenarioInfo?.description}
+                            </p>
                             {rule.missing.length > 0 && (
                               <small>
                                 Нет данных: {rule.missing.join(", ")}
