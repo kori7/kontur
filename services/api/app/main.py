@@ -278,6 +278,10 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
 
         @app.get("/{path:path}")
         def frontend(path: str):
+            # An unmatched API path is an error, not a page: answering it with index.html and 200
+            # would hand HTML to a client expecting JSON and hide a wrong URL.
+            if path == "api" or path.startswith("api/"):
+                raise HTTPException(404, "Неизвестный адрес API")
             candidate = (dist / path).resolve()
             if candidate.is_relative_to(dist.resolve()) and candidate.is_file():
                 return FileResponse(candidate)

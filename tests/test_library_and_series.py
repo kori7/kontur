@@ -123,6 +123,23 @@ def test_library_addresses_files_only_through_the_manifest(client):
         resolve("../manifest.json")
 
 
+def test_unknown_api_paths_are_404_even_when_the_frontend_is_built(tmp_path, monkeypatch):
+    """With apps/web/dist present the SPA catch-all exists; it must not swallow /api/*."""
+    import app.main as main
+
+    dist = tmp_path / "root" / "apps" / "web" / "dist"
+    (dist / "assets").mkdir(parents=True)
+    (dist / "index.html").write_text("<!doctype html><title>spa</title>", encoding="utf-8")
+    monkeypatch.setattr(main, "ROOT", tmp_path / "root")
+    with TestClient(main.create_app(tmp_path / "inspection.db")) as built:
+        assert built.get("/").status_code == 200, "Фронтенд по-прежнему отдаётся."
+        assert built.get("/history").status_code == 200, "Маршруты SPA по-прежнему отдаются."
+        for path in ("/api/nope", "/api/library/..%2F..%2Fetc%2Fpasswd/file", "/api"):
+            response = built.get(path)
+            assert response.status_code == 404, path
+            assert "spa" not in response.text, f"{path}: вместо ошибки API пришла страница."
+
+
 def test_every_resolved_file_stays_inside_the_organizer_directory(client):
     root = ORGANIZER.resolve()
     for group in ("images", "documents", "series"):
