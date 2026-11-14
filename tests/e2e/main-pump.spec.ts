@@ -1,8 +1,9 @@
 import { test, expect } from "@playwright/test";
+import { chooseObject } from "./helpers";
 
 test("main pump replays the organizer's series beside their diagnosis", async ({ page }) => {
   await page.goto("/");
-  await page.getByLabel("Объект осмотра").selectOption("wilo-il65-160");
+  await chooseObject(page, "wilo-il65-160");
   await expect(page.getByRole("heading", { name: "Насос Wilo CronoLine-IL 65/160" })).toBeVisible();
   const panel = page.locator(".series-telemetry");
   await expect(panel).toContainText("Запись 500 из 500");

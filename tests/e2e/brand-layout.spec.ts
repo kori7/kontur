@@ -28,23 +28,19 @@ for (const width of [320, 768, 900, 1440]) {
   });
 }
 
-test("sidebar keeps a text brand and a full-width stand label", async ({ page }) => {
+test("sidebar keeps a text brand without demo labels", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Насосный агрегат Н-101" })).toBeVisible();
   await expect(page.locator(".sidebar .brand img")).toHaveCount(0);
-  const label = page.locator(".workspace-tag .support-copy");
-  await expect(label).toHaveText("Демонстрационный стенд");
-  const sidebarBrand = await page.locator(".sidebar .brand").boundingBox();
-  const labelBox = await label.boundingBox();
-  expect(Math.abs(labelBox!.x - sidebarBrand!.x)).toBeLessThanOrEqual(1);
-  expect(Math.abs(labelBox!.width - sidebarBrand!.width)).toBeLessThanOrEqual(1);
+  await expect(page.locator(".sidebar")).not.toContainText("Демонстрационный стенд");
+  await expect(page.locator(".breadcrumb")).toHaveCount(0);
 });
 
 test("passport text and factual labels remain readable", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-  await page.getByRole("button", { name: "Цифровой паспорт", exact: true }).click();
+  await page.locator("#passport > summary").click();
   await expect(page.locator(".passport")).toBeVisible();
   const sizes = await page.locator(".passport p, .passport-grid small, .passport-grid strong").evaluateAll((elements) => elements.map((element) => parseFloat(getComputedStyle(element).fontSize)));
   expect(sizes.length).toBeGreaterThan(0);
@@ -55,9 +51,8 @@ test("equipment caveats use readable body text and the heading omits the demo se
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Насосный агрегат Н-101" })).toBeVisible();
-  const notice = page.getByText("Карточка, телеметрия и нормативы созданы для демонстрации. Требования изготовителя не подтверждены", { exact: true });
-  await expect(notice).toBeVisible();
-  expect(await notice.evaluate((element) => parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(16);
+  // The demo pump is marked once by the scenario control; its card no longer repeats a demo notice.
+  await expect(page.getByText("Карточка, телеметрия и нормативы созданы для демонстрации", { exact: false })).toHaveCount(0);
   await expect(page.locator(".page-heading")).not.toContainText("DEMO-2026-001");
   await page.screenshot({ path: ".cache/brand-mobile.jpg", type: "jpeg" });
 });
@@ -66,7 +61,7 @@ for (const width of [320, 390]) {
   test(`series record count stays on one line at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/");
-    await page.getByRole("button", { name: "Ряды измерений", exact: true }).click();
+    await page.goto("/?screen=series");
     const count = page.getByText("500 записей", { exact: true });
     await expect(count).toBeVisible();
     const layout = await count.evaluate((element) => {

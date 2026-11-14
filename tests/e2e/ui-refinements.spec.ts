@@ -1,27 +1,13 @@
 import { test, expect } from "@playwright/test";
 
-test("stand text is centered within its horizontal rules", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/");
-  const label = page.locator(".workspace-tag .support-copy");
-  await expect(label).toHaveCSS("text-align", "center");
-  const alignment = await label.evaluate(element => {
-    const range = document.createRange();
-    range.selectNodeContents(element);
-    const text = range.getBoundingClientRect();
-    const frame = element.parentElement!.getBoundingClientRect();
-    return { x: Math.abs((text.left + text.right) / 2 - (frame.left + frame.right) / 2), y: Math.abs((text.top + text.bottom) / 2 - (frame.top + frame.bottom) / 2) };
-  });
-  expect(alignment.x).toBeLessThanOrEqual(1);
-  expect(alignment.y).toBeLessThanOrEqual(2);
-});
-
 test("materials omit duplicate counters in the summary", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Материалы", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Переданные материалы", exact: true })).toBeVisible();
+  await page.goto("/?screen=library");
+  // The page title names the screen once; the summary panel below it is «Сводка», not a second copy.
+  await expect(page.getByRole("heading", { name: "Переданные материалы", level: 1, exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Переданные материалы", level: 2, exact: true })).toHaveCount(0);
   await expect(page.getByText("84 файлов", { exact: true })).toHaveCount(0);
-  await expect(page.locator(".panel-heading").filter({ has: page.getByRole("heading", { name: "Переданные материалы", exact: true }) }).locator(".tag")).toHaveCount(0);
+  await expect(page.locator(".panel-heading").filter({ has: page.getByRole("heading", { name: "Сводка", level: 2, exact: true }) }).locator(".tag")).toHaveCount(0);
   await expect(page.locator(".library-totals")).not.toContainText("уникальных 52");
   await expect(page.locator(".library-totals > div").first().locator("strong")).toHaveText("55");
 });
@@ -30,7 +16,7 @@ for (const width of [393, 834, 1440]) {
   test(`series assessment columns align at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto("/");
-    await page.getByRole("button", { name: "Ряды измерений", exact: true }).click();
+    await page.goto("/?screen=series");
     await expect(page.locator(".assessment-result").first()).toBeVisible();
     const rows = await page.locator(".series-assessment li").evaluateAll(elements => elements.map(element => {
       const name = element.querySelector(".assessment-name")!.getBoundingClientRect();
@@ -52,13 +38,17 @@ for (const width of [393, 834, 1440]) {
 test("displayed prose omits terminal periods and retains internal punctuation", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Насосный агрегат Н-101" })).toBeVisible();
-  await expect(page.getByText("Карточка, телеметрия и нормативы созданы для демонстрации. Требования изготовителя не подтверждены", { exact: true })).toBeVisible();
-  for (const title of ["Обзор оборудования", "Цифровой паспорт", "Журнал осмотров", "Правила диагностики", "Ряды измерений", "Материалы"]) {
-    await page.getByRole("button", { name: title, exact: true }).click();
+  // Every screen, with the inspection's folded sections open, the organizer's data from the profile links.
+  for (const screen of ["overview", "objects", "history", "series", "library"]) {
+    await page.goto(`/?screen=${screen}`);
     await page.waitForLoadState("networkidle");
+    if (screen === "overview") {
+      await page.locator("#checks > summary").click();
+      await page.locator("#passport > summary").click();
+    }
     const terminalPeriods = await page.locator("main p, main small, .series-limits li").evaluateAll(elements => elements.filter(element => element.getBoundingClientRect().height && /\.$/.test(element.textContent!.trim())).map(element => element.textContent!.trim()));
-    expect(terminalPeriods, title).toEqual([]);
+    expect(terminalPeriods, screen).toEqual([]);
   }
-  await page.getByRole("button", { name: "Ряды измерений", exact: true }).click();
+  await page.goto("/?screen=series");
   await expect(page.locator(".assessment-thresholds").first()).toContainText("≥ 2.8");
 });

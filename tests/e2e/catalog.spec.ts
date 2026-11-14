@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { chooseObject } from "./helpers";
 
 // Stage B screens. Objects are split by test so repeated runs against one database stay
 // independent: recording an inspection closes the weekly rule P05 for that object, so the
@@ -10,7 +11,7 @@ async function openObject(page: Page, id: string, serial: string) {
   await expect(
     page.getByRole("heading", { name: "Насосный агрегат Н-101" }),
   ).toBeVisible();
-  await page.getByLabel("Объект осмотра").selectOption(id);
+  await chooseObject(page, id);
   await expect(page.getByRole("heading", { name: PCP_NAME })).toBeVisible();
   await expect(page.getByText(serial, { exact: false }).first()).toBeVisible();
 }
@@ -18,11 +19,12 @@ async function openObject(page: Page, id: string, serial: string) {
 test("switching to a documented object replaces demo telemetry with passport data", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?screen=objects");
+  await expect(page.locator('[data-object="pcp-21031004-1"]')).toBeVisible();
   await expect(
-    page.locator('option[value="tag-860-P-0201"]'),
-    "Позиция по проекту покрывает два агрегата и выбрать её для осмотра нельзя.",
-  ).toBeDisabled();
+    page.locator('[data-object="tag-860-P-0201"]'),
+    "Позиция по проекту покрывает два агрегата и в обход как машина не попадает.",
+  ).toHaveCount(0);
   await openObject(page, "pcp-21031004-1", "21031004-1");
 
   await expect(
@@ -55,7 +57,7 @@ test("dry-run temperature above the setpoint raises P01 with its source", async 
   await page
     .getByRole("button", { name: "Пересчитать по введённым данным" })
     .click();
-  await expect(page.getByRole("status")).toContainText("пересчитан");
+  await expect(page.locator(".toast[role=status]")).toContainText("пересчитан");
 
   const finding = page.getByRole("button", {
     name: /Достигнута уставка защиты от сухого хода/,
@@ -64,8 +66,9 @@ test("dry-run temperature above the setpoint raises P01 with its source", async 
   await expect(page.getByText("Обнаружены признаки высокого риска")).toBeVisible();
 
   await finding.click();
-  await expect(page.getByText("Температура DTS, °C")).toBeVisible();
-  await expect(page.getByText(/manuals-017/).first()).toBeVisible();
+  const componentDialog = page.getByRole("dialog", { name: "Статор", exact: true });
+  await expect(componentDialog.getByText("Температура DTS, °C")).toBeVisible();
+  await expect(componentDialog.getByText(/manuals-017/).first()).toBeVisible();
 });
 
 test("an empty inspection of a documented object never reads as normal", async ({
@@ -77,7 +80,7 @@ test("an empty inspection of a documented object never reads as normal", async (
     page.getByText("Отклонений по доступным данным нет"),
   ).toHaveCount(0);
 
-  await page.getByRole("button", { name: "Правила диагностики" }).click();
+  await page.locator("#checks > summary").click();
   const p01 = page.locator(".rule-row", { hasText: "P01" });
   await expect(p01).toContainText("Достигнута уставка защиты от сухого хода");
   await expect(p01).toContainText("Основание: manuals-017");
@@ -100,14 +103,12 @@ test("history recorded on one object stays out of another object's journal", asy
   await page.getByLabel("Компонент").selectOption("stator");
   await page.getByLabel("Комментарий").fill(note);
   await page.getByRole("button", { name: "Сохранить осмотр", exact: true }).click();
-  await expect(page.getByRole("status")).toContainText("сохранён");
+  await expect(page.locator(".toast[role=status]")).toContainText("сохранён");
 
   await page.getByRole("button", { name: "Журнал осмотров", exact: true }).click();
   await expect(page.getByText(note)).toBeVisible();
 
-  // The object picker lives on the overview only.
-  await page.getByRole("button", { name: "Обзор оборудования", exact: true }).click();
-  await page.getByLabel("Объект осмотра").selectOption("pump-101");
+  await chooseObject(page, "pump-101");
   await expect(
     page.getByRole("heading", { name: "Насосный агрегат Н-101" }),
   ).toBeVisible();
@@ -120,7 +121,7 @@ test("series replay agrees with the organizer's own label at an alarm", async ({
   page,
 }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Ряды измерений" }).click();
+  await page.goto("/?screen=series");
   await expect(
     page.getByRole("heading", { name: "Ряды измерений", exact: true }),
   ).toBeVisible();
@@ -160,7 +161,7 @@ test("materials library shows provenance and serves the original file", async ({
   page,
 }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Материалы" }).click();
+  await page.goto("/?screen=library");
   await expect(
     page.getByRole("heading", { name: "Переданные материалы" }).first(),
   ).toBeVisible();
@@ -192,11 +193,10 @@ test("materials library shows provenance and serves the original file", async ({
   expect(response.status(), "Путь из запроса не принимается.").toBe(404);
 });
 
-for (const screen of ["Ряды измерений", "Материалы"]) {
+for (const screen of ["series", "library"]) {
   test(`${screen}: mobile layout fits without horizontal overflow`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/");
-    await page.getByRole("button", { name: screen }).click();
+    await page.goto(`/?screen=${screen}`);
     await expect(page.locator(".panel").first()).toBeVisible();
     expect(
       await page.evaluate(

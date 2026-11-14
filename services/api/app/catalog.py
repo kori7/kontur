@@ -132,6 +132,8 @@ def card(equipment_id: str, events: list[dict] | None = None) -> dict:
                      ("service_life", "resource_to_writeoff", "warranty", "wear_parts_limit")
                      if key in reference},
         "documents": item.get("document_ids", []),
+        # What each supplied document is, so the passport can open it by name rather than by id.
+        "document_links": _document_links(item.get("document_ids", [])),
         "components": components,
         "measurements": measurement_vocabulary(item["equipment_type"]),
         "rules": [{"id": rule["id"], "title": rule["title"], "severity": rule["severity"],
@@ -155,6 +157,14 @@ def _telemetry(item: dict) -> dict:
             "maintenance_schedule": item.get("maintenance_schedule", []),
             "maintenance_schedule_note": item.get("maintenance_schedule_note"),
             "source_documents": item.get("source_documents", [])}
+
+
+def _document_links(ids: list[str]) -> list[dict]:
+    from app.library import list_library
+
+    known = {entry["id"]: entry for entry in list_library()["documents"]}
+    return [{"id": doc_id, "title": known[doc_id]["note"], "viewable": known[doc_id]["viewable_in_browser"]}
+            for doc_id in ids if doc_id in known]
 
 
 def _limitations(item: dict, type_item: dict) -> list[str]:

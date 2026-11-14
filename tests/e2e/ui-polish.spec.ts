@@ -25,7 +25,7 @@ test("phone equipment actions remain readable and fit in one row", async ({ page
   await page.setViewportSize({ width: 393, height: 852 });
   await page.goto("/");
   const inspection = page.getByRole("button", { name: "Начать осмотр", exact: true });
-  const identification = page.getByRole("button", { name: "QR и AR-стенд", exact: true });
+  const identification = page.getByRole("button", { name: "Опознать", exact: true });
   await expect(inspection).toBeVisible();
   const main = (await inspection.boundingBox())!;
   const secondary = (await identification.boundingBox())!;
@@ -34,7 +34,7 @@ test("phone equipment actions remain readable and fit in one row", async ({ page
   expect(secondary.x - main.x - main.width).toBeGreaterThanOrEqual(8);
   expect((await page.locator(".page-heading").boundingBox())!.height).toBeLessThan(330);
   await identification.click();
-  await expect(page.getByRole("dialog", { name: "Идентификация и AR-стенд" })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Визуальный осмотр" })).toBeVisible();
 });
 
 test("measurement selection announces the active chart metric", async ({ page }) => {
@@ -82,7 +82,7 @@ for (const width of [375, 393]) {
 test("desktop measurement table shows every column without scrolling", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/");
-  await page.getByRole("button", { name: "Ряды измерений", exact: true }).click();
+  await page.goto("/?screen=series");
   await expect(page.locator(".series-table tbody tr").first()).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
   const widths = await page.locator(".series-table-wrap").evaluate(element => ({
@@ -93,7 +93,7 @@ test("desktop measurement table shows every column without scrolling", async ({ 
 
 test("material sections have space between their boundaries", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Материалы", exact: true }).click();
+  await page.goto("/?screen=library");
   await expect(page.getByRole("heading", { name: "Изображения", exact: true })).toBeVisible();
   const sections = page.locator("main > section.panel");
   await expect(sections).toHaveCount(3);

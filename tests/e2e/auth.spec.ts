@@ -14,8 +14,16 @@ test("sign-in form leads to a workspace without service screens for an engineer"
   await page.getByLabel("Пароль").fill("not-a-real-password");
   await page.getByRole("button", { name: "Войти" }).click();
   await expect(page.getByRole("heading", { name: "Насосный агрегат Н-101" })).toBeVisible();
+  await expect(page.locator(".nav-label-short")).toHaveText(["Объекты", "Осмотр", "Журнал"]);
   await expect(page.getByRole("button", { name: "Ряды измерений" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Материалы" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Правила диагностики" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Цифровой паспорт" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Опознать" })).toBeVisible();
+  await page.getByRole("button", { name: "Журнал осмотров" }).click();
+  await expect(page.getByRole("button", { name: "Все объекты" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "План ТО" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Осмотр оборудования" }).click();
   await page.getByRole("button", { name: "Записать результат" }).click();
   await expect(page.getByLabel("Выполненное действие").locator("option")).toHaveText(["Проверка", "Замечание"]);
 });

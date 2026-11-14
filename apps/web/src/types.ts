@@ -55,6 +55,7 @@ export interface Equipment {
     };
   };
   documents?: string[];
+  document_links?: { id: string; title: string; viewable: boolean }[];
   limitations?: string[];
   measurements?: Record<string, MeasurementField>;
   rules?: DocumentedRule[];
@@ -363,4 +364,20 @@ export interface Me {
   auth_enabled: boolean;
   setup_required: boolean;
   user: User | null;
+}
+
+/** One object on the round, as the object list and the service plan show it. */
+export interface FleetRow {
+  equipment_id: string;
+  name: string;
+  serial: string | null;
+  documented: boolean;
+  type_name: string;
+  status: "critical" | "warning" | "unknown" | "normal";
+  alerts: number;
+  runtime_hours: number | null;
+  norm_hours: number | null;
+  next_service_hours: number | null;
+  due_in_hours: number | null;
+  last_event_at: string | null;
 }

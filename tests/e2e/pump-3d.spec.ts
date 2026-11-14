@@ -88,17 +88,24 @@ for (const width of [320, 393, 834, 1440]) {
 
 test("phone navigation restores distinct screens and keeps labels visible", async ({ page }) => {
   await page.setViewportSize({ width: 393, height: 852 });
+  // Old passport links open the inspection with its passport section unfolded.
   await page.goto("/?screen=equipment");
   await expect(page.locator(".passport")).toBeVisible();
-  await expect(page.locator("main h1")).toHaveText("Цифровой паспорт");
-  await expect(page.locator(".nav-label-short")).toHaveCount(6);
+  await expect(page.locator("main h1")).toHaveText("Насосный агрегат Н-101");
+  await expect(page.locator(".nav-label-short")).toHaveText(["Объекты", "Осмотр", "Журнал"]);
   for (const label of await page.locator(".nav-label-short").all()) await expect(label).toBeVisible();
+  // The tabs share the bar's width equally and line up with the content's side insets.
+  const tabs = await page.locator("nav .nav-item").evaluateAll(items => items.map(item => item.getBoundingClientRect()));
+  const content = (await page.locator(".page-heading").boundingBox())!;
+  expect(tabs.every(tab => Math.abs(tab.width - tabs[0].width) <= 1)).toBe(true);
+  expect(Math.abs(tabs[0].left - content.x)).toBeLessThanOrEqual(1);
+  expect(Math.abs(tabs.at(-1)!.right - (content.x + content.width))).toBeLessThanOrEqual(1);
   await page.getByRole("button", { name: "Журнал осмотров", exact: true }).click();
   await expect(page.locator("main h1")).toHaveText("Журнал осмотров");
   await expect(page).toHaveURL(/screen=history/);
   await page.reload();
   await expect(page.locator("main h1")).toHaveText("Журнал осмотров");
-  await page.getByRole("button", { name: "Обзор оборудования", exact: true }).click();
+  await page.getByRole("button", { name: "Осмотр оборудования", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Карта состояния", exact: true })).toBeVisible();
   await expect(page).toHaveURL(/screen=overview/);
   await page.goBack();
@@ -115,7 +122,9 @@ test("demo scenarios change actual model parts and normal clears their effects",
   const normalInlet = await canvas.getAttribute("data-inlet-color");
   const normalPump = await canvas.getAttribute("data-pump-color");
   async function scenario(id: string) {
-    await model.getByRole("button", { name: "Выбрать демосценарий", exact: true }).click();
+    // Scenarios are switched from the profile on a phone; the model card no longer repeats the switch.
+    await page.getByRole("banner").getByRole("button", { name: "Профиль работника" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Демосценарии" }).click();
     await page.getByLabel("Сценарий демонстрации").selectOption(id);
     await page.getByRole("button", { name: "Применить сценарий", exact: true }).click();
     await expect(page.getByRole("dialog")).toHaveCount(0);

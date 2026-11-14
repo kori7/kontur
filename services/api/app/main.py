@@ -97,7 +97,7 @@ class UserUpdate(BaseModel):
 # Paths open without signing in, and the permission each guarded area needs beyond signing in.
 OPEN_PATHS = {"/api/health", "/api/auth/me", "/api/auth/login", "/api/auth/setup", "/api/auth/logout"}
 AREA_PERMISSIONS = (("/api/reference/", "series"), ("/api/library", "library"), ("/api/users", "users"),
-                    ("/api/reports/", "reports"))
+                    ("/api/reports/", "reports"), ("/api/maintenance/", "reports"))
 
 
 def auth_enabled_from_environment() -> bool:
@@ -144,6 +144,10 @@ def create_app(db_path: str | Path | None = None, detector: Detector | None = No
         if user is None:
             return JSONResponse({"detail": "Войдите в систему"}, status_code=401)
         needed = next((permission for prefix, permission in AREA_PERMISSIONS if path.startswith(prefix)), None)
+        if path.startswith("/api/library/") and path.endswith("/file"):
+            # One supplied document opened from an object's passport is reference for everyone on the round;
+            # browsing and sorting the whole set stays with the master.
+            needed = None
         if needed and needed not in user["permissions"]:
             return JSONResponse({"detail": f"Раздел недоступен для роли «{user['role_name']}»"}, status_code=403)
         request.state.user = user
@@ -307,6 +311,45 @@ def create_app(db_path: str | Path | None = None, detector: Detector | None = No
 
     @app.post("/api/analyze")
     def analyze(request: AnalyzeRequest):
+        return store.save_analysis(run_analysis(request))
+
+    def fleet() -> list[dict]:
+        """Every inspectable object: state as of its last journal record (or a fresh check), and service."""
+        rows = []
+        for item in list_catalog()["objects"]:
+            if not item["inspectable"]:
+                continue
+            run = run_analysis(AnalyzeRequest(equipment_id=item["id"],
+                                              scenario_id="normal" if item["scenarios_available"] else None))
+            service = run["evaluation"]["maintenance"]
+            last = next(iter(store.events(item["id"])), None)
+            state = last["analysis"]["evaluation"] if last else run["evaluation"]
+            severities = {alert["severity"] for alert in state["alerts"]}
+            results = [rule for rule in state["rule_results"] if rule["status"] != "not_applicable"]
+            status = ("critical" if "critical" in severities else "warning" if state["alerts"]
+                      else "unknown" if not results or all(rule["status"] == "insufficient" for rule in results)
+                      else "normal")
+            rows.append({"equipment_id": item["id"], "name": item["name"], "serial": item["serial"],
+                         "documented": item["documented"], "type_name": item["type_name"],
+                         "status": status, "alerts": len(state["alerts"]),
+                         "runtime_hours": service.get("runtime_hours"), "norm_hours": service.get("norm_hours"),
+                         "next_service_hours": service.get("next_service_hours"),
+                         "due_in_hours": service.get("due_in_hours"),
+                         "last_event_at": last["created_at"] if last else None})
+        return rows
+
+    @app.get("/api/objects")
+    def objects_overview():
+        """The round: objects needing attention first; nothing is stored."""
+        order = {"critical": 0, "warning": 1, "unknown": 2, "normal": 3}
+        return sorted(fleet(), key=lambda row: (order[row["status"]], row["name"]))
+
+    @app.get("/api/maintenance/plan")
+    def maintenance_plan():
+        """Every inspectable object's motor hours and next service, soonest first; nothing is stored."""
+        return sorted(fleet(), key=lambda row: (row["due_in_hours"] is None, row["due_in_hours"] or 0, row["name"]))
+
+    def run_analysis(request: AnalyzeRequest) -> dict:
         try:
             target = card(request.equipment_id)
             components = component_ids(request.equipment_id)
@@ -420,7 +463,7 @@ def create_app(db_path: str | Path | None = None, detector: Detector | None = No
                 equipment_type, measurements=request.measurements,
                 findings=[item.model_dump() for item in request.findings],
                 events=store.events(request.equipment_id), card=target)
-        return store.save_analysis({"type": "inspection", "equipment_id": request.equipment_id,
+        return {"type": "inspection", "equipment_id": request.equipment_id,
                                     "equipment_type": equipment_type,
                                     "scenario_id": scenario["id"] if scenario else None,
                                     "scenario_title": title,
@@ -428,7 +471,7 @@ def create_app(db_path: str | Path | None = None, detector: Detector | None = No
                                     "measurements": request.measurements,
                                     "findings": [item.model_dump() for item in request.findings],
                                     "observations": observations, "vision_id": request.vision_id, "image_id": image_id,
-                                    "evaluation": evaluation})
+                                    "evaluation": evaluation}
 
     @app.get("/api/inspections")
     def history(equipment_id: str | None = None):

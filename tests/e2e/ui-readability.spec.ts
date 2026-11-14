@@ -13,6 +13,10 @@ for (const width of [393, 834, 1194]) {
       const panel = page.locator("section").filter({ has: page.getByRole("heading", { name: title, exact: true }) });
       const heading = panel.locator(".panel-heading > div");
       const badge = panel.locator(".panel-heading > .tag");
+      if (title === "Карта состояния") {
+        await expect(badge).toHaveCount(0);
+        continue;
+      }
       expect(Math.abs((await heading.boundingBox())!.x - (await badge.boundingBox())!.x)).toBeLessThanOrEqual(1);
       expect((await badge.boundingBox())!.height).toBeLessThanOrEqual(48);
     }
@@ -44,7 +48,7 @@ test("mobile worker profile provides access to demo settings", async ({ page }) 
 
 test("AR stand instructions share the readable support style", async ({ page }) => {
   await page.setViewportSize({ width: 393, height: 852 });
-  await page.goto("/");
+  await page.goto("/?screen=equipment");
   await page.getByRole("button", { name: "QR и AR-стенд", exact: true }).click();
   const instruction = page.locator(".stand-preview p");
   await expect(instruction).toHaveClass(/support-copy/);
@@ -57,17 +61,18 @@ test("supporting labels use the same style across site sections", async ({ page 
   await page.setViewportSize({ width: 393, height: 852 });
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Насосный агрегат Н-101" })).toBeVisible();
-  for (const selector of [".legend", ".inspection-bottom > span", ".equipment-type", ".diagram-caption"]) {
+  for (const selector of [".inspection-bottom > span", ".equipment-type", ".model-view-controls p"]) {
     const label = page.locator(selector).first();
     await expect(label).toHaveClass(/support-copy/);
     expect(await label.evaluate(element => parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(16);
   }
-  const canvas = await page.locator(".diagram-canvas").boundingBox();
-  const diagram = await page.locator(".pump-diagram").boundingBox();
-  expect(Math.abs(canvas!.width - diagram!.width)).toBeLessThanOrEqual(1);
+  const canvas = await page.locator(".model-scene").boundingBox();
+  const diagram = await page.locator(".pump-model").boundingBox();
+  expect(canvas!.width).toBeLessThanOrEqual(diagram!.width);
+  expect(canvas!.x).toBeGreaterThanOrEqual(diagram!.x);
   await page.getByRole("button", { name: "Журнал осмотров", exact: true }).click();
   await expect(page.locator(".history-meta").first()).toHaveClass(/support-copy/);
-  await page.getByRole("button", { name: "Ряды измерений", exact: true }).click();
+  await page.goto("/?screen=series");
   await expect(page.getByText("Ряд", { exact: true })).toHaveClass(/support-copy/);
 });
 

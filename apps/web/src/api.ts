@@ -68,6 +68,13 @@ export const sourceLabel = (source: string) =>
 export const formatCopy = (value: string | null | undefined) =>
   (value ?? "").replace(/\.+\s*$/, "");
 
+export const ACTIONS: Record<string, string> = {
+  inspection: "Проверка",
+  defect: "Замечание",
+  maintenance: "Обслуживание",
+  replacement: "Замена",
+};
+
 /** Rule ids as the inspector sees them: series setpoint rules carry internal channel keys. */
 export const ruleLabel = (id: string) =>
   id === "S-maintenance" ? "ТО" : id.startsWith("S-") ? "Ряд" : id;

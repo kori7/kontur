@@ -1,5 +1,8 @@
 import type { Analysis, Observation } from "../../types";
 
+// Status line of the demo model when the scenario sets no defects.
+export const NO_DEFECTS = "Отклонений не задано";
+
 export interface PumpVisualState {
   temperature: number | null;
   heat: number;
@@ -72,6 +75,6 @@ export function derivePumpState(analysis: Analysis): PumpVisualState {
   if (state.impellerWear) state.messages.push("Износ проточной части · условный разрез");
   if (state.serviceDue) state.messages.push("Подошёл срок планового ТО");
   if (rules.has("R10")) state.messages.push(`Манометр ${gaugePressure?.toLocaleString("ru-RU")} бар · расхождение каналов`);
-  if (!state.messages.length) state.messages.push("Демонстрационный режим · без заданных дефектов");
+  if (!state.messages.length) state.messages.push(NO_DEFECTS);
   return state;
 }

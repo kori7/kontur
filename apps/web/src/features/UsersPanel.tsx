@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
-import { UserPlus } from "lucide-react";
+import { KeyRound, UserPlus } from "lucide-react";
 import { formatCopy, request, send } from "../api";
 import type { Role, User } from "../types";
 
 const ROLE_NAMES: Record<Role, string> = { engineer: "Инженер", master: "Мастер", admin: "Администратор" };
 
-/** Administrator's list of accounts: add a person, change a role, switch an account off. */
+/** Administrator's list of accounts: add a person, change a role, reset a password, switch an account off. */
 export function UsersPanel({ me }: { me: User }) {
   const [users, setUsers] = useState<User[]>([]);
   const [form, setForm] = useState({ email: "", name: "", role: "engineer" as Role, password: "" });
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  // The account whose password is being reset, and the new temporary password typed for it.
+  const [reset, setReset] = useState<{ id: string; password: string } | null>(null);
   const load = () => request<User[]>("/users").then(setUsers).catch((cause) => setError((cause as Error).message));
   useEffect(() => {
     void load();
@@ -27,10 +29,18 @@ export function UsersPanel({ me }: { me: User }) {
       setError((cause as Error).message);
     }
   }
-  async function change(user: User, update: { role?: Role; active?: boolean }) {
+  async function change(user: User, update: { role?: Role; active?: boolean; password?: string }) {
     setError("");
+    if (update.role && !window.confirm(`Сменить роль: ${user.name} — ${ROLE_NAMES[update.role].toLowerCase()}?`)) {
+      await load();
+      return;
+    }
     try {
       await send<User>(`/users/${user.id}`, "PATCH", update);
+      if (update.password) {
+        setReset(null);
+        setMessage(`Пароль для ${user.name} сменён. Передайте его лично`);
+      }
       await load();
     } catch (cause) {
       setError((cause as Error).message);
@@ -53,6 +63,22 @@ export function UsersPanel({ me }: { me: User }) {
               <button className="button secondary" onClick={() => void change(user, { active: !user.active })}>
                 {user.active ? "Отключить" : "Включить"}
               </button>
+            )}
+            <button className="button secondary" aria-label={`Новый пароль: ${user.name}`}
+              onClick={() => setReset(reset?.id === user.id ? null : { id: user.id, password: "" })}>
+              <KeyRound size={16} />Пароль
+            </button>
+            {reset?.id === user.id && (
+              <form className="users-reset" onSubmit={(event) => {
+                event.preventDefault();
+                void change(user, { password: reset.password });
+              }}>
+                <label className="field">Новый временный пароль
+                  <input type="password" minLength={8} autoComplete="new-password" value={reset.password} required
+                    onChange={(event) => setReset({ id: user.id, password: event.target.value })} />
+                </label>
+                <button className="button primary">Сохранить</button>
+              </form>
             )}
           </li>
         ))}

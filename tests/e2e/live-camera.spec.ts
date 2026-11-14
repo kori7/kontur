@@ -134,10 +134,10 @@ test("a read nameplate opens the card of the object it names", async ({ page }) 
     status: "found", lines: ["21031004-1"],
     matches: [{ id: "pcp-21031004-1", name: "Насосный агрегат 21031004-1", serial: "21031004-1", matched: "serial" }] } }));
   await page.goto("/");
-  await page.getByRole("button", { name: "Начать осмотр" }).click();
+  // «Опознать» on the overview opens the camera straight in identification mode.
   await page.getByRole("button", { name: "Опознать" }).click();
   await page.getByRole("button", { name: "Включить камеру" }).click();
   await page.getByRole("button", { name: "Прочитать шильдик" }).click();
   await expect(page.getByRole("heading", { name: "Визуальный осмотр" })).toHaveCount(0);
-  await expect(page.locator("select").first()).toHaveValue("pcp-21031004-1");
+  await expect(page).toHaveURL(/equipment=pcp-21031004-1/);
 });

@@ -34,7 +34,10 @@ export function CameraPanel({
   componentOf,
   onComponent,
   onConfirm,
+  onReject,
   onSelectObject,
+  initialMode = "live",
+  debug = false,
 }: {
   alerts: Alert[];
   hints: { component: string; name: string; reason: string; severity: string }[];
@@ -43,7 +46,11 @@ export function CameraPanel({
   componentOf: (kind: string) => string | null;
   onComponent: (id: string) => void;
   onConfirm: (item: LiveDetection, frame: string, detector: string) => Promise<boolean>;
+  onReject: (item: LiveDetection) => void;
   onSelectObject: (id: string) => void;
+  initialMode?: "live" | "qr";
+  /** Detector timing and confidence are for whoever tunes the system, not for the round. */
+  debug?: boolean;
 }) {
   const video = useRef<HTMLVideoElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
@@ -51,7 +58,7 @@ export function CameraPanel({
   const cameraGeneration = useRef(0);
   const stream = useRef<MediaStream | null>(null);
   const scanner = useRef<{ stop: () => void } | null>(null);
-  const [mode, setMode] = useState<"live" | "ar" | "qr">("live");
+  const [mode, setMode] = useState<"live" | "ar" | "qr">(initialMode);
   const [live, setLive] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -268,7 +275,7 @@ export function CameraPanel({
     setMessage("");
     if (!navigator.mediaDevices?.getUserMedia) {
       setError(
-        "Сканирование требует HTTPS или localhost. Оборудование можно выбрать вручную в цифровом паспорте",
+        "Сканирование требует HTTPS или localhost. Оборудование можно выбрать в списке «Объект осмотра» на обзоре",
       );
       return;
     }
@@ -413,7 +420,7 @@ export function CameraPanel({
                       {item.confirmed && (
                         <span>
                           {item.label}
-                          {item.confidence !== null &&
+                          {debug && item.confidence !== null &&
                             ` · ${Math.round(item.confidence * 100)}%`}
                         </span>
                       )}
@@ -479,7 +486,7 @@ export function CameraPanel({
                 <div className="live-candidate" key={item.kind}>
                   <span>
                     {item.label}
-                    {item.confidence !== null && ` · ${Math.round(item.confidence * 100)}%`}
+                    {debug && item.confidence !== null && ` · ${Math.round(item.confidence * 100)}%`}
                   </span>
                   {decided[item.kind] === "recorded" ? (
                     <span className="candidate-state">
@@ -500,7 +507,10 @@ export function CameraPanel({
                       <button
                         className="button secondary"
                         disabled={saving !== null}
-                        onClick={() => setDecided((current) => ({ ...current, [item.kind]: "rejected" }))}
+                        onClick={() => {
+                          setDecided((current) => ({ ...current, [item.kind]: "rejected" }));
+                          onReject(item);
+                        }}
                       >
                         <X size={15} />
                         Не дефект
@@ -511,7 +521,7 @@ export function CameraPanel({
               ))}
             </div>
           )}
-          {mode === "live" && live && detector && (
+          {debug && mode === "live" && live && detector && (
             <p className="camera-message support-copy" role="status">
               {detector.ready
                 ? `Детектор: ${detector.name} · обработано кадров: ${stats.processed} · ответ сервера: ${stats.roundTripMs} мс`

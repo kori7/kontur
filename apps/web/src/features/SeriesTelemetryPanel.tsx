@@ -15,11 +15,13 @@ const CHANNELS: { key: string; label: string; unit: string; warning: number; ala
 const SERIES_NAMES: Record<string, string> = { "vibration-001": "вибрация", "temperature-001": "температура" };
 
 /** The main pump's telemetry: the organizer's series replayed record by record, with motor hours. */
-export function SeriesTelemetryPanel({ equipment, analysis, busy, onRecord }: {
+export function SeriesTelemetryPanel({ equipment, analysis, busy, onRecord, service = true }: {
   equipment: Equipment;
   analysis: Analysis;
   busy: boolean;
   onRecord: (index: number) => void;
+  /** Browsing past records and the comparison with the organizer's labels are the master's tools. */
+  service?: boolean;
 }) {
   const telemetry = equipment.telemetry!;
   const index = analysis.telemetry.record_index ?? telemetry.recorded_hours - 1;
@@ -34,10 +36,12 @@ export function SeriesTelemetryPanel({ equipment, analysis, busy, onRecord }: {
       <div className="panel-heading">
         <div>
           <h2><Activity size={18} /> Телеметрия агрегата</h2>
-          <details className="object-notes-more">
-            <summary className="support-copy">Откуда эти данные</summary>
-            <p className="support-copy">{formatCopy(telemetry.note)}</p>
-          </details>
+          {service && (
+            <details className="object-notes-more">
+              <summary className="support-copy">Откуда эти данные</summary>
+              <p className="support-copy">{formatCopy(telemetry.note)}</p>
+            </details>
+          )}
         </div>
       </div>
       <div className="series-source">
@@ -55,6 +59,7 @@ export function SeriesTelemetryPanel({ equipment, analysis, busy, onRecord }: {
       {analysis.telemetry.io_error && (
         <p className="camera-message camera-error support-copy" role="alert">{formatCopy(analysis.telemetry.io_error)}</p>
       )}
+      {service && (
       <div className="series-controls">
         <button className="button secondary" aria-label="Предыдущая запись" disabled={busy || index === 0}
           onClick={() => go(index - 1)}><ChevronLeft size={18} /></button>
@@ -67,6 +72,7 @@ export function SeriesTelemetryPanel({ equipment, analysis, busy, onRecord }: {
         <button className="button secondary" aria-label="Следующая запись"
           disabled={busy || index >= telemetry.recorded_hours - 1} onClick={() => go(index + 1)}><ChevronRight size={18} /></button>
       </div>
+      )}
       <div className="series-values">
         {CHANNELS.map((channel) => {
           const value = record[channel.key];
@@ -83,6 +89,7 @@ export function SeriesTelemetryPanel({ equipment, analysis, busy, onRecord }: {
           );
         })}
       </div>
+      {service && (
       <div className="series-compare">
         <div>
           <span className="support-copy">Вывод системы</span>
@@ -94,6 +101,7 @@ export function SeriesTelemetryPanel({ equipment, analysis, busy, onRecord }: {
             .map(([series, label]) => `${SERIES_NAMES[series] ?? series}: ${label}`).join(" · ")}</strong>
         </div>
       </div>
+      )}
       <div className="series-hours">
         <Clock3 size={18} />
         <div>

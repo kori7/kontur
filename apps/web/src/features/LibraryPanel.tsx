@@ -66,7 +66,7 @@ export function LibraryPanel() {
 
   return (
     <>
-      <section className="panel">
+      <section className="panel library-panel">
         <div className="panel-heading">
           <div>
             <h2>Сводка</h2>
@@ -104,7 +104,7 @@ export function LibraryPanel() {
         </div>
       </section>
 
-      <section className="panel">
+      <section className="panel library-panel">
         <div className="panel-heading">
           <div>
             <h2>Изображения</h2>
@@ -145,7 +145,7 @@ export function LibraryPanel() {
         )}
       </section>
 
-      <section className="panel">
+      <section className="panel library-panel">
         <div className="panel-heading">
           <div>
             <h2>Документы</h2>
