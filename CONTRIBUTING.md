@@ -1,45 +1,52 @@
-# Working together
+# Совместная работа
 
-Use `main` as the shared baseline. Create a separate branch for each change and
-review it through a pull request before merging.
+Нас двое: `kori7` и `arm4tura`. Общая база — ветка `main`. Что делать дальше, описано в [docs/plan_to_do.md](docs/plan_to_do.md).
 
-## Start a change
+## Как вносить изменения
 
-```powershell
+**Небольшие изменения** — исправления, документы, доработки в своей части — коммитьте прямо в `main`:
+
+```bash
 git switch main
 git pull --ff-only
-git switch -c feature/short-description
+# изменения, затем проверки
+git add <конкретные файлы>
+git commit
+git push
 ```
 
-Avoid editing the same files at the same time. Agree on ownership in a GitHub
-issue or the pull request description.
+**Крупные изменения** или правки в части, которой занимается другой участник, делайте в отдельной ветке. Покажите её второму участнику до слияния — через PR или просто договорившись. Перед `git push` всегда делайте `git pull --ff-only`: если он не проходит, значит, в `main` появились чужие коммиты. Тогда выполните `git pull --rebase`, а не создавайте merge-коммит. История `main` остаётся линейной.
 
-## Validate and share
+Не правьте одновременно одни и те же файлы. Общие контракты — `data/registry/` и `docs/contracts/` — меняйте только по договорённости: на них опираются обе части.
+
+Перед коммитом проверяйте, что именно добавляете (`git status`, `git diff --cached`). `git add -A` подхватывает всё подряд, в том числе чужие и временные файлы.
+
+## Проверки перед отправкой
+
+```bash
+./scripts/dev/check.sh
+```
+
+На Windows:
 
 ```powershell
-& ".\scripts\check.ps1"
-git add path/to/changed-file
-git diff --cached
-git commit -m "Describe the change"
-git push -u origin feature/short-description
+& ".\scripts\dev\check.ps1"
 ```
 
-Open a pull request into `main`, describe the behavior and include verification
-results. Ask the other contributor to review it.
+Скрипт запускает тесты Python, Ruff и сборку TypeScript/Vite. С флагом `--browser` (`-Browser` в PowerShell) он запускает ещё и сценарии Playwright: перед этим поднимите API и Vite, как описано в [README](README.md#проверки).
 
-## Local files
+Запускайте Python без флага `-I`. В изолированном режиме не видны пакеты, установленные для пользователя, и часть тестов молча пропускается.
 
-Never commit API keys, `.env`, databases, certificates, downloaded models,
-runtime binaries, virtual environments or `node_modules`. Each contributor
-prepares these locally using the instructions in `README.md` and the scripts.
+## Что не коммитить
 
-Organizer materials retain their source metadata. Keep the repository private
-unless permission to publish those materials has been confirmed.
+API-ключи, `.env`, базы данных, сертификаты, скачанные модели, рантайм llama.cpp, виртуальные окружения, `node_modules`, производные файлы (`artifacts/`, `output/`) и локальную копию папки организатора (`yandexdiskinfo/`). Всё это уже перечислено в `.gitignore`. Каждый участник готовит это у себя по README и скриптам.
 
-## Current scope
+## Материалы организатора
 
-The inspection MVP is implemented. Offline integration remains incomplete:
-reference series need API/UI integration, phone access needs LAN/HTTPS setup,
-and local model accuracy needs broader validation. Some README and coverage
-notes still describe the earlier cloud adapter; current vision code uses the
-local llama.cpp endpoint. See `docs/superpowers/plans/2026-11-13-offline-extension.md`.
+Переданные файлы лежат в `data/reference/organizer/` вместе с манифестом: исходное имя, размер и SHA-256 каждого. Новые файлы добавляются только через манифест, с контрольной суммой. Репозиторий остаётся приватным, пока не подтверждено право публиковать эти материалы.
+
+Изображения со стоковыми водяными знаками и сгенерированные изображения нельзя использовать для обучения и публикации. Их классификация — в `data/registry/sources.json`.
+
+## Коммиты
+
+Сообщение коммита — на английском: короткий заголовок в повелительном наклонении, затем, если нужно, объяснение, *почему* сделано изменение. Автор — ваша учётная запись GitHub (`git config --global user.name` и `user.email`), а не обезличенное имя.
