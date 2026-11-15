@@ -1,4 +1,4 @@
-import { formatCopy, request, sendFrame } from "../api";
+import { formatCopy, reach, request, sendFrame } from "../api";
 import { useEffect, useRef, useState } from "react";
 import { Camera, Check, CircleStop, Crosshair, Loader2, ScanLine, ScanText, Video, View, X } from "lucide-react";
 import type {
@@ -247,7 +247,7 @@ export function CameraPanel({
     target.getContext("2d")!.drawImage(source, 0, 0, target.width, target.height);
     const blob = await new Promise<Blob | null>((resolve) => target.toBlob(resolve, "image/jpeg", 0.9));
     try {
-      const response = await fetch("/api/nameplate", { method: "POST", headers: { "Content-Type": "image/jpeg" }, body: blob });
+      const response = await reach("/api/nameplate", { method: "POST", headers: { "Content-Type": "image/jpeg" }, body: blob });
       const answer = await response.json();
       if (!response.ok) throw new Error(answer.detail ?? "Не удалось прочитать табличку");
       if (answer.status === "found") {

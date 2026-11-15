@@ -149,3 +149,30 @@ def test_every_resolved_file_stays_inside_the_organizer_directory(client):
             path, media_type, name = resolve(item["id"])
             assert path.resolve().is_relative_to(root)
             assert path.is_file() and media_type and name
+
+
+def test_the_built_app_is_installable_and_its_worker_is_served(tmp_path, monkeypatch):
+    """The phone installs the app from its manifest; the service worker must come back as a script."""
+    import app.main as main
+
+    dist = tmp_path / "root" / "apps" / "web" / "dist"
+    (dist / "assets").mkdir(parents=True)
+    (dist / "index.html").write_text("<!doctype html><title>spa</title>", encoding="utf-8")
+    (dist / "manifest.webmanifest").write_text('{"name": "КОНТУР"}', encoding="utf-8")
+    (dist / "sw.js").write_text("self.addEventListener('fetch', () => {});", encoding="utf-8")
+    monkeypatch.setattr(main, "ROOT", tmp_path / "root")
+    with TestClient(main.create_app(tmp_path / "inspection.db")) as built:
+        manifest = built.get("/manifest.webmanifest")
+        assert manifest.headers["content-type"].startswith("application/manifest+json")
+        assert built.get("/sw.js").headers["content-type"].split(";")[0] in ("text/javascript", "application/javascript")
+
+
+def test_the_shipped_manifest_points_at_icons_that_exist():
+    public = Path(__file__).resolve().parents[1] / "apps" / "web" / "public"
+    manifest = json.loads((public / "manifest.webmanifest").read_text(encoding="utf-8"))
+    assert manifest["display"] == "standalone" and manifest["start_url"].startswith("/")
+    sizes = {icon["sizes"] for icon in manifest["icons"]}
+    assert {"192x192", "512x512"} <= sizes
+    assert any(icon.get("purpose") == "maskable" for icon in manifest["icons"])
+    for icon in manifest["icons"]:
+        assert (public / icon["src"].lstrip("/")).is_file(), icon["src"]

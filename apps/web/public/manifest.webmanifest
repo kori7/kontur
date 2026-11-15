@@ -1,0 +1,17 @@
+{
+  "name": "КОНТУР — осмотр оборудования",
+  "short_name": "КОНТУР",
+  "description": "Помощник инженера по осмотру насосного оборудования: камера, датчики, регламент и журнал.",
+  "lang": "ru",
+  "start_url": "/?screen=objects",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4F5F8",
+  "theme_color": "#135AA6",
+  "icons": [
+    { "src": "/brand/kontur-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/brand/kontur-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/brand/kontur-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -611,7 +611,9 @@ def create_app(db_path: str | Path | None = None, detector: Detector | None = No
                 raise HTTPException(404, "Неизвестный адрес API")
             candidate = (dist / path).resolve()
             if candidate.is_relative_to(dist.resolve()) and candidate.is_file():
-                return FileResponse(candidate)
+                # Python does not know the web app manifest type; browsers want it to install the app.
+                media = "application/manifest+json" if candidate.suffix == ".webmanifest" else None
+                return FileResponse(candidate, media_type=media)
             return FileResponse(dist / "index.html")
 
     return app

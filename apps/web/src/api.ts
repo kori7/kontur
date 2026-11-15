@@ -1,5 +1,14 @@
+/** fetch, with a lost connection said in words instead of the browser's «Failed to fetch». */
+export async function reach(input: string, init?: RequestInit): Promise<Response> {
+  try {
+    return await fetch(input, init);
+  } catch {
+    throw new Error("Нет связи с сервером КОНТУР. Проверьте Wi-Fi и повторите");
+  }
+}
+
 export async function request<T>(path: string, body?: unknown): Promise<T> {
-  const response = await fetch(`/api${path}`, {
+  const response = await reach(`/api${path}`, {
     method: body === undefined ? "GET" : "POST",
     headers:
       body === undefined ? undefined : { "Content-Type": "application/json" },
@@ -20,7 +29,7 @@ export async function request<T>(path: string, body?: unknown): Promise<T> {
   return response.json() as Promise<T>;
 }
 export async function send<T>(path: string, method: "PATCH" | "DELETE", body?: unknown): Promise<T> {
-  const response = await fetch(`/api${path}`, {
+  const response = await reach(`/api${path}`, {
     method,
     headers: body === undefined ? undefined : { "Content-Type": "application/json" },
     body: body === undefined ? undefined : JSON.stringify(body),
@@ -36,7 +45,7 @@ export async function sendFrame<T>(
   frameNo: number,
   frame: Blob,
 ): Promise<T> {
-  const response = await fetch(
+  const response = await reach(
     `/api/live/sessions/${encodeURIComponent(sessionId)}/frames/${frameNo}`,
     { method: "POST", headers: { "Content-Type": "image/jpeg" }, body: frame },
   );
