@@ -400,7 +400,8 @@ export function CameraPanel({
                   return (
                     <button
                       type="button"
-                      className={`vision-box live-box ${item.confirmed ? "confirmed" : "tentative"}`}
+                      className={`vision-box live-box ${item.confirmed ? "confirmed" : "tentative"}${
+                        y1 < 0.15 ? " label-below" : ""}${x2 > 0.65 ? " label-right" : ""}`}
                       key={i}
                       aria-label={`${item.label}: открыть карточку узла`}
                       title={`${item.label}${item.confidence !== null ? ` · ${Math.round(item.confidence * 100)}%` : ""}`}
@@ -417,11 +418,11 @@ export function CameraPanel({
                     >
                       {/* Only confirmed signs are labelled: several dashed guesses with text would
                           cover the very part the engineer is looking at. */}
+                      {/* The full name above the box (below it near the top edge), the model's confidence under it. */}
                       {item.confirmed && (
-                        <span>
-                          {item.label}
-                          {debug && item.confidence !== null &&
-                            ` · ${Math.round(item.confidence * 100)}%`}
+                        <span className="box-label">
+                          <strong>{item.label}</strong>
+                          {item.confidence !== null && <small>{Math.round(item.confidence * 100)}%</small>}
                         </span>
                       )}
                     </button>

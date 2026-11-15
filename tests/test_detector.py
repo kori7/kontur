@@ -79,6 +79,40 @@ def test_rfdetr_threshold_comes_from_env_then_evaluation_then_default(monkeypatc
     assert rfdetr_threshold(checkpoint) == 0.4
 
 
+def test_each_class_keeps_its_own_measured_threshold(monkeypatch, tmp_path):
+    import io
+    from types import SimpleNamespace
+
+    from PIL import Image
+
+    from app.detector import RfDetrDetector, rfdetr_class_thresholds
+
+    checkpoint = tmp_path / "checkpoint_best_total.pth"
+    (tmp_path / "threshold.json").write_text(
+        '{"threshold": 0.1, "per_class": {"frame_corrosion": 0.4}}', encoding="utf-8")
+    monkeypatch.delenv("KONTUR_DETECTOR_THRESHOLD", raising=False)
+    assert rfdetr_class_thresholds(checkpoint) == {"frame_corrosion": 0.4}
+    asked = []
+
+    class Model:
+        class_names = ["kontur-defects", "guard_missing", "frame_corrosion"]
+
+        def predict(self, image, threshold, include_source_image):
+            asked.append(threshold)
+            return SimpleNamespace(xyxy=SimpleNamespace(tolist=lambda: [[0, 0, 5, 5], [5, 5, 9, 9], [1, 1, 3, 3]]),
+                                   confidence=SimpleNamespace(tolist=lambda: [0.2, 0.3, 0.5]),
+                                   class_id=SimpleNamespace(tolist=lambda: [1, 2, 2]))
+
+    detector = RfDetrDetector(checkpoint, 0.1, model=Model(), per_class=rfdetr_class_thresholds(checkpoint))
+    buffer = io.BytesIO()
+    Image.new("RGB", (10, 10)).save(buffer, "JPEG")
+    found = detector.detect(buffer.getvalue())
+    assert asked == [0.1], "Модель спрашивают с самым низким порогом, отсев — по классам"
+    assert [(item.kind, item.confidence) for item in found] == [("guard_missing", 0.2), ("frame_corrosion", 0.5)]
+    monkeypatch.setenv("KONTUR_DETECTOR_THRESHOLD", "0.3")
+    assert rfdetr_class_thresholds(checkpoint) == {}, "Ручной порог из окружения отменяет пороги по классам"
+
+
 def test_rfdetr_without_a_trained_model_is_explained(monkeypatch, tmp_path):
     monkeypatch.setenv("KONTUR_DETECTOR", "rfdetr")
     monkeypatch.setenv("KONTUR_DETECTOR_CHECKPOINT", str(tmp_path / "missing.pth"))

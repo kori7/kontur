@@ -2,7 +2,6 @@ import { formatCopy } from "../api";
 import { useEffect, useState } from "react";
 import { Printer, ScanLine } from "lucide-react";
 import type { Equipment } from "../types";
-import { PumpSvg } from "../components/PumpDiagram";
 import { modelProfile } from "../components/pump3d/profiles";
 
 export function StandPanel({ equipment }: { equipment: Equipment }) {
@@ -56,16 +55,14 @@ export function StandPanel({ equipment }: { equipment: Equipment }) {
           </>
         ) : (
           <>
-            <PumpSvg />
+            <img className="stand-model" src="/models/pump-assembly-normal.png" alt="3D-модель насосного агрегата" />
             <img
               src="/vendor/hiro.png"
               alt="Маркер Hiro для дополненной реальности"
             />
             <p className="support-copy">
-              Для AR откройте или распечатайте стенд целиком. Относительное
-              положение схемы и маркера должно сохраняться. Схема на стенде построена
-              для демонстрационного центробежного агрегата и другим типам
-              оборудования не соответствует
+              Для AR откройте или распечатайте стенд целиком: положение агрегата и
+              маркера друг относительно друга должно сохраняться
             </p>
           </>
         )}

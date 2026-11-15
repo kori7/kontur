@@ -63,7 +63,7 @@ footer{font-size:2.6mm;line-height:1.4;color:#6B737D}
 <body>
 <div class="toolbar">
   <button type="button" onclick="print()">Распечатать стенд</button>
-  <span>Печатайте на A4, альбомная ориентация, масштаб 100%. Лист целиком: AR-метки привязаны к положению схемы относительно маркера</span>
+  <span>Печатайте на A4, альбомная ориентация, масштаб 100%. Лист целиком: AR-метки привязаны к положению агрегата относительно маркера</span>
 </div>
 <div class="sheet">
   <header>
@@ -81,9 +81,9 @@ footer{font-size:2.6mm;line-height:1.4;color:#6B737D}
   </header>
   <main>
     <div class="board">
-      <img class="pump" src="/demo/normal.svg" alt="Схема центробежного насосного агрегата: двигатель, кожух муфты, насос, манометр">
+      <img class="pump" src="/models/pump-assembly-normal.png" alt="3D-модель центробежного насосного агрегата: двигатель, кожух муфты, насос, манометр">
       <img class="marker" src="/vendor/hiro.png" alt="Маркер Hiro для AR-меток">
-      <div class="marker-note"><strong>Маркер AR</strong>Не закрывайте и не сгибайте. Метки узлов появляются на схеме, пока маркер в кадре</div>
+      <div class="marker-note"><strong>Маркер AR</strong>Не закрывайте и не сгибайте. Метки узлов появляются на агрегате, пока маркер в кадре</div>
     </div>
     <aside>
       <section class="card">
@@ -111,10 +111,20 @@ footer{font-size:2.6mm;line-height:1.4;color:#6B737D}
   </main>
   <ol class="steps">
     <li><span><strong>Опознайте агрегат</strong>QR-код справа или выбор из каталога</span></li>
-    <li><span><strong>Живой осмотр</strong>Камера на схему: рамки — найденные признаки, подтверждённое уходит в журнал с кадром</span></li>
+    <li><span><strong>Живой осмотр</strong>Камера на агрегат: рамки — найденные признаки, подтверждённое уходит в журнал с кадром</span></li>
     <li><span><strong>AR-метки узлов</strong>Вкладка «AR-метки», камера на маркер Hiro, нажмите на метку узла</span></li>
   </ol>
-  <footer>Схема синтетическая и относится только к демонстрационному агрегату Н-101: данные и нормативы выдуманы. Стенд показывает привязку меток к известной схеме, это не автоматическое определение узлов произвольного оборудования.</footer>
+  <footer>Модель синтетическая и относится только к демонстрационному агрегату Н-101: данные и нормативы выдуманы. Стенд показывает привязку меток к известному изображению, это не автоматическое определение узлов произвольного оборудования.</footer>
 </div>
+<script>
+// ?variant=leak or ?variant=guard-missing prints the same stand with that defect on the 3D model, to show
+// the trained detector a sign it has to find; the AR geometry stays the same.
+const variant = new URLSearchParams(location.search).get('variant');
+if (variant === 'leak' || variant === 'guard-missing') {
+  const pump = document.querySelector('.board .pump');
+  pump.src = `/models/pump-assembly-${variant}.png`;
+  pump.alt += variant === 'leak' ? ' · течь у уплотнения' : ' · без кожуха муфты';
+}
+</script>
 </body>
 </html>

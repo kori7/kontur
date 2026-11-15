@@ -20,7 +20,7 @@ ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / "services" / "api"))
 
-from kontur_training import CLASSES, choose_threshold  # noqa: E402
+from kontur_training import choose_class_thresholds, choose_threshold, evaluate  # noqa: E402
 
 from app.detector import MODELS, MODELS_DIR, RFDETR_CHECKPOINT, OwlDetector, RfDetrDetector  # noqa: E402
 from app.live import MAX_SIDE  # noqa: E402
@@ -75,20 +75,27 @@ def main() -> None:
         width, height = image["width"], image["height"]
         found = detector.detect(frame(folder / image["file_name"]))
         images.append({
+            "file": image["file_name"],
             "truth": [(kind, (box[0] / width, box[1] / height, box[2] / width, box[3] / height))
                       for kind, box in truth[image["id"]]],
             "predicted": [(item.kind, item.bbox, item.confidence or 0.0) for item in found]})
 
-    threshold, stats = choose_threshold(images, THRESHOLDS, args.min_precision)
+    threshold, _ = choose_threshold(images, THRESHOLDS, args.min_precision)
+    per_class = choose_class_thresholds(images, THRESHOLDS, args.min_precision)
     percent = lambda value: "—" if value is None else f"{value * 100:.0f}%"  # noqa: E731
     lines = [f"# {detector.name}: {args.split}, {len(images)} фото",
-             f"Порог {threshold} (наибольшая полнота при точности не ниже {args.min_precision:.0%})", "",
-             "| Класс | Полнота по рамкам | Точность | Замечен на фото с дефектом | Рамок в разметке |",
-             "|---|---|---|---|---|"]
-    for kind in CLASSES:
-        item = stats[kind]
-        lines.append(f"| {kind} | {percent(item['recall'])} | {percent(item['precision'])} | "
+             f"Порог у каждого класса свой: наибольшая полнота при точности не ниже {args.min_precision:.0%}", "",
+             "| Класс | Порог | Полнота по рамкам | Точность | Замечен на фото с дефектом | Рамок в разметке |",
+             "|---|---|---|---|---|---|"]
+    for kind, value in per_class.items():
+        item = evaluate(images, value)[kind]
+        lines.append(f"| {kind} | {value} | {percent(item['recall'])} | {percent(item['precision'])} | "
                      f"{item['photos_found']} из {item['photos']} | {item['tp'] + item['fn']} |")
+    # Pictures with nothing wrong in them: how often the detector still reports something.
+    clean = [image for image in images if not image["truth"]]
+    noisy = [image for image in clean if any(score >= per_class.get(kind, threshold)
+                                               for kind, _, score in image["predicted"])]
+    lines += ["", f"Снимки без дефектов: рамка хотя бы одна на {len(noisy)} из {len(clean)}"]
     text = "\n".join(lines)
     print(text)
     (ROOT / "artifacts").mkdir(exist_ok=True)
@@ -96,7 +103,7 @@ def main() -> None:
     if args.model == "rfdetr" and args.split == "test":
         # The server reads this file, so the threshold in use is the one measured here.
         (args.checkpoint.parent / "threshold.json").write_text(json.dumps({
-            "threshold": threshold, "min_precision": args.min_precision, "photos": len(images),
+            "threshold": threshold, "per_class": per_class, "min_precision": args.min_precision, "photos": len(images),
             "dataset": str(args.dataset), "evaluated_at": __import__("datetime").datetime.now().isoformat(
                 timespec="seconds")}, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"Порог записан рядом с моделью: {args.checkpoint.parent / 'threshold.json'}")

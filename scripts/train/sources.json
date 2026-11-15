@@ -1,14 +1,48 @@
 {
-  "note": "Источники выборки для дообучения детектора. Каждая выгрузка Roboflow в формате COCO кладётся в .models/rfdetr/sources/<id>/ (train/, valid/, test/). Классы, которых нет в classes, останавливают сборку; null — фон. exclude — файлы, которые нельзя использовать (водяные знаки фотостоков и т. п.). Публичные фото никогда не попадают в test: проверка идёт только на собственных снимках команды.",
+  "note": "Источники выборки для дообучения детектора. Каждая выгрузка Roboflow в формате COCO кладётся в .models/rfdetr/sources/<id>/ (train/, valid/, test/). Классы, которых нет в classes, останавливают сборку; null — фон. exclude — файлы, которые нельзя использовать (водяные знаки фотостоков и т. п.). Публичные фото попадают в test только как отложенная часть самого набора, очищенная от почти-копий кадров train (import-parquet.py --drop-near-train); такая проверка говорит о наборе, а не об объекте заказчика — для объекта нужны собственные снимки команды.",
   "sources": [
+    {
+      "id": "corrosion-rf100",
+      "url": "https://huggingface.co/datasets/Francesco/corrosion-bi3q3",
+      "author": "Roboflow 100 (corrosion-bi3q3, Roboflow Universe)",
+      "license": "CC BY 4.0",
+      "version": "RF100, выгрузка Roboflow июль 2022; parquet с Hugging Face",
+      "split": "keep",
+      "classes": {
+        "corrosion": "frame_corrosion",
+        "slippage": null,
+        "crack": null
+      },
+      "exclude": [],
+      "exclude_note": "Снимки с дрона: мосты и трубы, не насосная. В test 75 почти-копий кадров train убраны при импорте."
+    },
+    {
+      "id": "stand",
+      "url": "рендеры учебного стенда (scripts/train/render-stand.mjs, augment-stand.py)",
+      "author": "команда КОНТУР",
+      "license": "собственные рендеры",
+      "version": "стенд A4: норма, течь, нет кожуха",
+      "split": "keep",
+      "classes": {
+        "guard_missing": "guard_missing",
+        "seal_leak_excessive": "seal_leak_excessive"
+      },
+      "exclude": []
+    },
     {
       "id": "corrosion-detection",
       "url": "https://universe.roboflow.com/corrosion-l4cqs/corrosion-detection-npdhd",
       "author": "Corrosion (Roboflow Universe)",
       "license": "MIT",
       "version": "указать номер версии при скачивании",
-      "split": {"train": "train", "valid": "valid", "test": "valid"},
-      "classes": {"corrosion": "frame_corrosion"},
+      "split": {
+        "train": "train",
+        "valid": "valid",
+        "test": "valid"
+      },
+      "classes": {
+        "corrosion": "frame_corrosion"
+      },
       "exclude": []
     },
     {
@@ -17,7 +51,11 @@
       "author": "oceans Workspace (Roboflow Universe)",
       "license": "CC BY 4.0",
       "version": "своя версия после копирования (Fork): у автора готовых версий нет",
-      "split": {"train": "train", "valid": "valid", "test": "valid"},
+      "split": {
+        "train": "train",
+        "valid": "valid",
+        "test": "valid"
+      },
       "classes": {
         "Loose bolt": "loose_bolt",
         "Missing bolt": "missing_bolt",

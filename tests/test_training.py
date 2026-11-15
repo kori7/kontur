@@ -111,3 +111,14 @@ def test_threshold_choice_prefers_recall_within_the_precision_floor():
     threshold, stats = training.choose_threshold(images, [0.1, 0.2, 0.3, 0.5, 0.9], min_precision=0.6)
     assert threshold == 0.3
     assert stats["frame_corrosion"]["recall"] == 1.0
+
+
+def test_class_thresholds_follow_the_same_rule_per_class():
+    box = (0.1, 0.1, 0.4, 0.4)
+    images = [
+        {"truth": [("guard_missing", box)], "predicted": [("guard_missing", box, 0.9)]},
+        {"truth": [("frame_corrosion", box)], "predicted": [("frame_corrosion", box, 0.6),
+                                                            ("frame_corrosion", (0.6, 0.6, 0.9, 0.9), 0.2)]},
+    ]
+    chosen = training.choose_class_thresholds(images, [0.1, 0.3, 0.5, 0.9])
+    assert chosen == {"guard_missing": 0.9, "frame_corrosion": 0.5}

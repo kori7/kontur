@@ -167,6 +167,26 @@ def evaluate(images: list[dict], threshold: float, iou_limit: float = 0.5) -> di
     return stats
 
 
+def choose_class_thresholds(images: list[dict], candidates, min_precision: float = 0.5) -> dict[str, float]:
+    """The same rule as ``choose_threshold``, class by class, for the classes the test photos contain.
+
+    A class that never reaches ``min_precision`` gets the threshold with its best precision, so it at
+    least stays as quiet as the model allows.
+    """
+    chosen = {}
+    for kind in CLASSES:
+        rows = [(threshold, evaluate(images, threshold)[kind]) for threshold in sorted(candidates, reverse=True)]
+        if not rows or rows[0][1]["tp"] + rows[0][1]["fn"] == 0:
+            continue
+        good = [(row["recall"] or 0.0, threshold) for threshold, row in rows
+                if row["precision"] is not None and row["precision"] >= min_precision]
+        if good:
+            chosen[kind] = max(good, key=lambda item: (item[0], item[1]))[1]
+        else:
+            chosen[kind] = max(rows, key=lambda item: (item[1]["precision"] or 0.0, item[0]))[0]
+    return chosen
+
+
 def choose_threshold(images: list[dict], candidates, min_precision: float = 0.5) -> tuple[float, dict]:
     """The threshold with the highest recall over all classes whose precision is still ≥ ``min_precision``.
 

@@ -32,6 +32,10 @@ def main() -> None:
     parser.add_argument("--accumulate", type=int, default=4, help="шагов накопления градиента")
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--device", default=None, help="mps, cuda или cpu; по умолчанию — лучшее доступное")
+    parser.add_argument("--progress", choices=["tqdm", "rich", "none"], default="tqdm",
+                        help="полоса прогресса: без неё не видно ни скорости, ни сколько осталось")
+    parser.add_argument("--single-scale", action="store_true",
+                        help="учить на родном разрешении модели: на Mac многомасштабное обучение до 672 px в разы дольше")
     parser.add_argument("--dataset", type=Path, default=DATASET)
     parser.add_argument("--output", type=Path, default=OUTPUT)
     args = parser.parse_args()
@@ -46,12 +50,16 @@ def main() -> None:
                "grad_accum_steps": args.accumulate, "lr": args.lr, "output_dir": str(args.output)}
     if args.device:
         options["device"] = args.device
+    if args.single_scale:
+        options["multi_scale"] = False
+    if args.progress != "none":
+        options["progress_bar"] = args.progress
     started = time.time()
     model.train(**options)
     args.output.mkdir(parents=True, exist_ok=True)
     sources = args.dataset / "SOURCES.json"
     (args.output / "TRAINING.json").write_text(json.dumps({
-        "size": args.size, "epochs": args.epochs, "batch": args.batch, "accumulate": args.accumulate,
+        "size": args.size, "epochs": args.epochs, "single_scale": args.single_scale, "batch": args.batch, "accumulate": args.accumulate,
         "lr": args.lr, "rfdetr": rfdetr.__version__ if hasattr(rfdetr, "__version__") else None,
         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "minutes": round((time.time() - started) / 60, 1),

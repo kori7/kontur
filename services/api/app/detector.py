@@ -164,10 +164,14 @@ class RfDetrDetector:
     the customer counts a missed defect as worse than a false alarm.
     """
 
-    def __init__(self, checkpoint: Path, threshold: float = 0.3, model=None, label: str = "RF-DETR, дообучен"):
+    def __init__(self, checkpoint: Path, threshold: float = 0.3, model=None, label: str = "RF-DETR, дообучен",
+                 per_class: dict[str, float] | None = None):
         self.checkpoint = Path(checkpoint)
         self.label = label
         self.threshold = threshold
+        # Classes differ in how sure the model is when right: corrosion on a real photo is never as clean
+        # as a drawn leak, so each class can keep the threshold measured for it.
+        self.per_class = per_class or {}
         self.ready = False
         self.state = "загружается"
         self.device = "auto"
@@ -198,10 +202,12 @@ class RfDetrDetector:
 
         image = Image.open(io.BytesIO(jpeg)).convert("RGB")
         with self._lock:
-            found = self._model.predict(image, threshold=self.threshold, include_source_image=False)
+            lowest = min([self.threshold, *self.per_class.values()])
+            found = self._model.predict(image, threshold=lowest, include_source_image=False)
             names = self._model.class_names
-        return detections_from_rfdetr(found.xyxy.tolist(), found.confidence.tolist(), found.class_id.tolist(),
-                                      names, image.width, image.height)
+        return [item for item in detections_from_rfdetr(found.xyxy.tolist(), found.confidence.tolist(),
+                                                        found.class_id.tolist(), names, image.width, image.height)
+                if (item.confidence or 0) >= self.per_class.get(item.kind, self.threshold)]
 
 
 def detections_from_rfdetr(xyxy, confidence, class_id, names, width: int, height: int) -> list[Detection]:
@@ -227,6 +233,17 @@ def rfdetr_threshold(checkpoint: Path) -> float:
         return 0.3
 
 
+def rfdetr_class_thresholds(checkpoint: Path) -> dict[str, float]:
+    """Per-class thresholds evaluate-detector.py measured; none when KONTUR_DETECTOR_THRESHOLD overrides."""
+    if os.getenv("KONTUR_DETECTOR_THRESHOLD"):
+        return {}
+    try:
+        chosen = json.loads((checkpoint.parent / "threshold.json").read_text(encoding="utf-8"))
+        return {kind: float(value) for kind, value in chosen.get("per_class", {}).items()}
+    except (OSError, ValueError, TypeError, AttributeError):
+        return {}
+
+
 def from_environment():
     """The detector named by KONTUR_DETECTOR (owlvit, owlv2 or rfdetr), or a stand-in that says why not."""
     choice = os.getenv("KONTUR_DETECTOR", "").strip().lower()
@@ -240,7 +257,7 @@ def from_environment():
             import rfdetr  # noqa: F401
         except ImportError:
             return NullDetector("не установлен rfdetr (requirements-detector.txt)")
-        return RfDetrDetector(checkpoint, rfdetr_threshold(checkpoint))
+        return RfDetrDetector(checkpoint, rfdetr_threshold(checkpoint), per_class=rfdetr_class_thresholds(checkpoint))
     if choice not in MODELS:
         return NullDetector(f"неизвестный KONTUR_DETECTOR={choice}")
     folder = Path(os.getenv("KONTUR_DETECTOR_DIR", MODELS_DIR / choice))

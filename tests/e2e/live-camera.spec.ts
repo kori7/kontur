@@ -42,7 +42,8 @@ async function startLive(page: Page) {
 
 async function expectBoxOnRectangle(page: Page) {
   const box = page.locator(".live-frame .vision-box");
-  await expect(box).toContainText("Проверка рамки · 90%");
+  await expect(box.locator(".box-label strong")).toHaveText("Проверка рамки");
+  await expect(box.locator(".box-label small")).toHaveText("90%");
   const [video, drawn] = await Promise.all([
     page.locator(".live-frame video").boundingBox(),
     box.boundingBox(),
