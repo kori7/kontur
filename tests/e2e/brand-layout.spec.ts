@@ -47,13 +47,14 @@ test("passport text and factual labels remain readable", async ({ page }) => {
   expect(Math.min(...sizes)).toBeGreaterThanOrEqual(14);
 });
 
-test("equipment caveats use readable body text and the heading omits the demo serial", async ({ page }) => {
+test("the heading names the point and carries no demo notice", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Насосный агрегат Н-101" })).toBeVisible();
   // The demo pump is marked once by the scenario control; its card no longer repeats a demo notice.
   await expect(page.getByText("Карточка, телеметрия и нормативы созданы для демонстрации", { exact: false })).toHaveCount(0);
-  await expect(page.locator(".page-heading")).not.toContainText("DEMO-2026-001");
+  // The point on the round is the serial number, the same rule for every object.
+  await expect(page.locator(".page-heading")).toContainText("Точка: DEMO-2026-001");
   await page.screenshot({ path: ".cache/brand-mobile.jpg", type: "jpeg" });
 });
 

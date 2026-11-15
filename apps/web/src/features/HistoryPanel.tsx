@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowDownToLine, ClipboardCheck, FileSpreadsheet, FileText, Wrench } from "lucide-react";
-import { ACTIONS, date, formatCopy, number, request, ruleLabel } from "../api";
+import { ACTIONS, RESULTS, SOURCES, date, formatCopy, number, recordResult, request, ruleLabel } from "../api";
 import type { CatalogObject, Equipment, FleetRow, InspectionEvent } from "../types";
 
 const PERIODS: Record<string, { label: string; hours: number | null }> = {
@@ -54,7 +54,7 @@ export function HistoryPanel({ equipment, events, objects, analysisId, can, onRe
   const shown = source.filter((event) =>
     (since === null || new Date(event.created_at).getTime() >= since)
     && (!action || event.action === action)
-    && (!remarksOnly || event.action === "defect" || event.analysis.evaluation.alerts.length > 0));
+    && (!remarksOnly || recordResult(event) === "remark"));
   const cardOf = (id: string | undefined) => (!id || id === equipment.id ? equipment : cards[id]);
   const objectName = (id: string | undefined) => objects.find((item) => item.id === id)?.name ?? id ?? equipment.name;
 
@@ -137,7 +137,7 @@ export function HistoryPanel({ equipment, events, objects, analysisId, can, onRe
               <span className="support-copy">Действие</span>
               <select value={action} onChange={(event) => setAction(event.target.value)}>
                 <option value="">Все</option>
-                {Object.entries(ACTIONS).map(([id, label]) => <option key={id} value={id}>{label}</option>)}
+                {Object.entries(ACTIONS).filter(([id]) => id !== "defect").map(([id, label]) => <option key={id} value={id}>{label}</option>)}
               </select>
             </label>
             <label className="history-check">
@@ -163,21 +163,34 @@ export function HistoryPanel({ equipment, events, objects, analysisId, can, onRe
                   </span>
                 )}
                 <div>
-                  <div className="history-title">
-                    <h3>
-                      {ACTIONS[event.action]} · {formatCopy(card?.components.find((item) => item.id === event.component_id)?.name ?? event.component_id)}
-                    </h3>
-                    <span className="support-copy">{date(event.created_at)}</span>
-                  </div>
-                  <p className="support-copy">{formatCopy(event.notes || "Без комментария")}</p>
-                  <div className="history-meta support-copy">
-                    {scope === "all" && <span>{objectName(event.equipment_id)}</span>}
-                    <span>{event.author}</span>
-                    <span>{alerts.length ? `${alerts.length} предупрежд.` : "без предупреждений"}</span>
-                  </div>
+                  {/* One template for every record: who and when, where, then fields; prose only if a person wrote it. */}
+                  <p className="record-meta support-copy">{date(event.created_at)} · {event.author}</p>
+                  <h3 className="record-where">
+                    {scope === "all" ? `${objectName(event.equipment_id)} → ` : ""}
+                    {formatCopy(card?.components.find((item) => item.id === event.component_id)?.name ?? event.component_id)}
+                  </h3>
+                  <dl className="record-fields">
+                    <dt>Действие</dt>
+                    {/* Older «Замечание» records were inspections with a remark; the result field now says so. */}
+                    <dd>{ACTIONS[event.action === "defect" ? "inspection" : event.action]}</dd>
+                    <dt>Результат</dt>
+                    <dd><span className={`record-result ${recordResult(event)}`}>{RESULTS[recordResult(event)]}</span></dd>
+                    {(event.source || event.finding) && (
+                      <>
+                        <dt>Источник</dt>
+                        <dd>{[SOURCES[event.source ?? ""], event.finding].filter(Boolean).join(" · ")}</dd>
+                      </>
+                    )}
+                    {event.notes && (
+                      <>
+                        <dt>Комментарий</dt>
+                        <dd>{formatCopy(event.notes)}</dd>
+                      </>
+                    )}
+                  </dl>
                   {alerts.length > 0 && (
                     <details>
-                      <summary>Основания на момент осмотра</summary>
+                      <summary>Сработавшие правила: {alerts.length}</summary>
                       <div className="evidence-history">
                         {alerts.map((alert) => (
                           <div key={alert.id}>

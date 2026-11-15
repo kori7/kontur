@@ -48,3 +48,29 @@
 .section-fold>summary h2{font-size:20px;font-weight:500;color:#1F2933;display:flex;align-items:center;gap:8px}.section-fold>summary .support-copy{margin-right:4px}
 .service-plan{margin-bottom:16px}
 @media(max-width:640px){.history-filters{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 16px}.history-filters .segmented,.history-filters .history-check{grid-column:1/-1}.history-filters .segmented button{flex:1}.history-filters .field{min-width:0}.history-filters select{width:100%}}
+.record-meta{margin:0 0 4px;font-size:14px}.record-where{margin:0 0 10px;font-size:18px;font-weight:500}
+.record-fields{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 16px;margin:0 0 6px;font-size:16px}.record-fields dt{color:#5B6470}.record-fields dd{margin:0;color:#1F2933;overflow-wrap:anywhere}
+.record-result{display:inline-flex;align-items:center;gap:6px;font-weight:500}.record-result::before{content:"";width:10px;height:10px;border-radius:50%;background:#9AA3AD}.record-result.ok::before{background:#2F855A}.record-result.remark::before{background:#B7791F}.record-result.rejected::before{background:#9AA3AD}.record-result.done::before{background:#135AA6}
+.header-status{display:inline-flex;align-items:center;gap:8px;margin:12px 0 0;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font-size:15px;line-height:1.4}.header-status strong{font-weight:500}.header-status-dot{width:10px;height:10px;border-radius:50%;background:#9AA3AD;flex-shrink:0}.header-status.normal .header-status-dot{background:#48BB78}.header-status.warning .header-status-dot{background:#F6AD55}.header-status.critical .header-status-dot{background:#FC8181}
+.todo-panel,.readings-panel{margin-bottom:16px}.todo-clear{padding:0 22px 18px;margin:0}.todo-panel .findings-list{padding-bottom:8px}
+.readings{display:flex;flex-direction:column;padding:0 22px 16px}.reading{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;width:100%;min-height:60px;padding:10px 12px;border:0;border-top:1px solid #edf0f3;background:none;text-align:left;font:inherit;color:inherit;border-radius:0}.reading:first-child{border-top:0}button.reading{cursor:pointer}button.reading[aria-pressed=true]{background:#F4F5F8;border-radius:12px}.reading-name{display:flex;flex-direction:column;gap:2px;min-width:0}.reading-label{font-size:16px;font-weight:500}.reading-value{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}.reading-value strong,.reading-value .metric-value{font-size:20px;font-weight:500}.reading-value small{font-size:13px}.reading-value input,.reading-value select{width:150px;min-height:48px;text-align:right}.reading.warning .reading-value strong,.reading.warning .metric-value{color:#8A4B0F}.reading.critical .reading-value strong{color:#B42318}.reading.warning{background:#faf4e7;border-radius:12px}.reading.critical{background:#fbefeb;border-radius:12px}
+@media(max-width:640px){.readings{padding:0 12px 12px}.reading-value input,.reading-value select{width:130px}}
+.todo-panel .panel-heading{flex-direction:row;align-items:center;justify-content:space-between;flex-wrap:nowrap}.todo-panel .status-checks{margin-left:auto;white-space:nowrap}
+.record-fields{grid-template-columns:104px minmax(0,1fr)}
+/* One size for every value control in «Замеры», text never clipped. */
+.readings .reading-value input,.readings .reading-value select{width:190px;height:48px;min-height:48px;margin:0;padding:0 36px 0 14px;font-size:16px;line-height:1.2;text-align:left;border-radius:12px;text-overflow:ellipsis}.readings .reading-value input{padding-right:14px}
+.readings-subhead{margin:8px 22px 0;padding-top:16px;border-top:1px solid #edf0f3;font-size:18px;font-weight:500}
+@media(max-width:640px){.readings .reading-value input,.readings .reading-value select{width:140px}.readings-subhead{margin-inline:12px}}
+/* Journal header: compact report buttons and filters. */
+.report-actions{gap:8px}.report-actions .button{min-height:40px;height:40px;padding:0 14px;font-size:15px;border-radius:12px}
+.history-filters select{height:44px;min-height:44px;padding:0 32px 0 12px;font-size:16px;border-radius:12px}.segmented button{min-height:44px}.history-check{min-height:40px}
+@media(max-width:640px){.panel-heading .report-actions{width:100%;justify-content:flex-start}.report-actions .button{flex:1;padding:0 8px}}
+/* Every record starts its text at the same place, with or without a photo. */
+.history-item>.history-photo,.history-item>.history-icon{width:56px;height:56px;flex:0 0 56px;border-radius:12px}.history-item>.history-icon{display:grid;place-items:center}
+.todo-panel .todo-clear{padding:0 0 18px}
+/* Box label: the whole name on one line above the box, the confidence under it; never cut off. */
+.vision-box.live-box .box-label{position:absolute;left:-2px;top:auto;bottom:calc(100% + 2px);display:flex;flex-direction:column;align-items:flex-start;gap:1px;width:max-content;max-width:min(260px,70vw);padding:4px 8px;border-radius:8px;background:#a96045;color:#fff;white-space:normal;overflow:visible;text-overflow:clip;text-align:left;line-height:1.25}
+.vision-box.live-box .box-label strong{font-size:14px;font-weight:500}.vision-box.live-box .box-label small{font-size:12px;opacity:.9}
+.vision-box.live-box.label-below .box-label{bottom:auto;top:calc(100% + 2px)}
+.vision-box.live-box.label-right .box-label{left:auto;right:-2px;align-items:flex-end;text-align:right}
+.live-frame{overflow:visible}

@@ -31,7 +31,9 @@ test("switching to a documented object replaces demo telemetry with passport dat
     page.getByRole("button", { name: "Демосценарии" }),
     "Демосценарии принадлежат pump-101 и на паспортном объекте не предлагаются.",
   ).toHaveCount(0);
-  await expect(page.getByText("Входы осмотра")).toBeVisible();
+  await expect(page.locator("#readings").getByRole("heading", { name: "Замеры" })).toBeVisible();
+  // Passport life limits and the notes about the card's data sit in the passport section.
+  await page.locator("#passport > summary").click();
   const resource = page.locator(".service-panel", {
     hasText: "Значения паспорта изготовителя",
   });
@@ -100,7 +102,7 @@ test("history recorded on one object stays out of another object's journal", asy
   await page
     .getByRole("button", { name: "Записать результат", exact: true })
     .click();
-  await page.getByLabel("Компонент").selectOption("stator");
+  await page.getByLabel("Узел осмотра").selectOption("stator");
   await page.getByLabel("Комментарий").fill(note);
   await page.getByRole("button", { name: "Сохранить осмотр", exact: true }).click();
   await expect(page.locator(".toast[role=status]")).toContainText("сохранён");

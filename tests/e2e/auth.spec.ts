@@ -25,7 +25,7 @@ test("sign-in form leads to a workspace without service screens for an engineer"
   await expect(page.getByRole("heading", { name: "План ТО" })).toHaveCount(0);
   await page.getByRole("button", { name: "Осмотр оборудования" }).click();
   await page.getByRole("button", { name: "Записать результат" }).click();
-  await expect(page.getByLabel("Выполненное действие").locator("option")).toHaveText(["Проверка", "Замечание"]);
+  await expect(page.getByLabel("Выполненное действие").locator("option")).toHaveText(["Проверка"]);
 });
 
 test("first run asks for an administrator", async ({ page }) => {

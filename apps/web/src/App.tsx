@@ -19,7 +19,6 @@ import {
   LayoutDashboard,
   List,
   Loader2,
-  MapPin,
   Plus,
   ScanLine,
   ScanText,
@@ -45,7 +44,7 @@ import type {
 } from "./types";
 import { Modal } from "./components/Modal";
 import { PumpDiagram } from "./components/PumpDiagram";
-import { Sparkline, TrendChart } from "./components/Charts";
+import { TrendChart } from "./components/Charts";
 import { CameraPanel } from "./features/CameraPanel";
 import { ResourceFacts } from "./components/ResourceFacts";
 import { StandPanel } from "./features/StandPanel";
@@ -55,6 +54,7 @@ import { InputsPanel } from "./features/InputsPanel";
 import { PassportResource } from "./components/PassportResource";
 import { UsersPanel } from "./features/UsersPanel";
 import { SeriesTelemetryPanel } from "./features/SeriesTelemetryPanel";
+import { ReadingRows } from "./components/ReadingRows";
 import { HistoryPanel } from "./features/HistoryPanel";
 import { ObjectsPanel } from "./features/ObjectsPanel";
 import { modelProfile } from "./components/pump3d/profiles";
@@ -87,6 +87,7 @@ const metrics = [
     unit: "мм/с",
     icon: Waves,
     baseline: "База 2,0 мм/с",
+    norm: "до 3 мм/с",
   },
   {
     key: "temperature",
@@ -94,6 +95,7 @@ const metrics = [
     unit: "°C",
     icon: Thermometer,
     baseline: "База 60 °C",
+    norm: "до 70 °C",
   },
   {
     key: "current_a",
@@ -101,6 +103,7 @@ const metrics = [
     unit: "А",
     icon: Zap,
     baseline: "База 20 А",
+    norm: "до 22 А",
   },
   {
     key: "inlet_pressure",
@@ -108,6 +111,7 @@ const metrics = [
     unit: "бар",
     icon: Gauge,
     baseline: "База 2,0 бар",
+    norm: "от 1,7 бар",
   },
 ];
 
@@ -130,6 +134,7 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
   const [recordComponent, setRecordComponent] = useState("pump");
   const [recordAction, setRecordAction] = useState("inspection");
   const [note, setNote] = useState("");
+  const [recordOutcome, setRecordOutcome] = useState<"ok" | "remark">("ok");
   const [manualKind, setManualKind] = useState("guard_missing");
   const [manualPresent, setManualPresent] = useState(true);
   const [cameraMode, setCameraMode] = useState<"live" | "qr">("live");
@@ -293,6 +298,8 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
         component_id: recordComponent,
         action: recordAction,
         notes: note,
+        // Maintenance and replacement record work done; the server states that result itself.
+        ...(["maintenance", "replacement"].includes(recordAction) ? {} : { result: recordOutcome }),
       });
       const [history, card] = await Promise.all([
         request<InspectionEvent[]>(
@@ -385,11 +392,22 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
     setCameraMode(mode);
     setDialog("camera");
   }
-  // What the engineer decided at the pump goes to the journal, so the master sees rejections too.
-  async function journalNote(analysisId: string, componentId: string, notes: string) {
+  /** The record form arrives filled in: the part that needs attention, «Проверка», the current outcome. */
+  function openRecord(componentId?: string) {
+    const target = componentId
+      ?? alerts[0]?.component_id
+      ?? (equipment?.components.some((item) => item.id === "pump") ? "pump" : equipment?.components[0]?.id ?? "");
+    setRecordComponent(target);
+    setRecordAction("inspection");
+    setRecordOutcome(alerts.some((alert) => !componentId || alert.component_id === componentId) ? "remark" : "ok");
+    setDialog("record");
+  }
+  // What the engineer decided at the pump goes to the journal as fields, so the master sees rejections too.
+  async function journalNote(analysisId: string, componentId: string,
+    fields: { result: "ok" | "remark" | "rejected"; source: "camera" | "manual"; finding: string }) {
     try {
       await request("/inspections", {
-        analysis_id: analysisId, equipment_id: equipmentId, component_id: componentId, action: "inspection", notes,
+        analysis_id: analysisId, equipment_id: equipmentId, component_id: componentId, action: "inspection", ...fields,
       });
       setEvents(await request<InspectionEvent[]>(`/inspections?equipment_id=${encodeURIComponent(equipmentId)}`));
     } catch (cause) {
@@ -436,6 +454,22 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
     analysis?.evaluation.rule_results.filter(
       (item) => item.status !== "not_applicable",
     ).length ?? 0;
+  const statusTone = critical ? "critical" : alerts.length ? "warning" : insufficient || evaluated === 0 ? "insufficient" : "normal";
+  const statusTitle = critical
+    ? "Обнаружены признаки высокого риска"
+    : alerts.length
+      ? "Рекомендуется проверка"
+      : evaluated === 0
+        ? "Правил для этого типа оборудования пока нет"
+        : insufficient === evaluated
+          ? "Данных недостаточно для оценки"
+          : insufficient
+            ? "Часть проверок недоступна"
+            : "Отклонений по доступным данным нет";
+  // What the checks still lack, in words, for the «Что сделать» block.
+  const missingInputs = equipment && analysis
+    ? [...new Set(analysis.evaluation.rule_results.flatMap((rule) => rule.missing).map((key) => inputLabel(key, equipment)))]
+    : [];
   const last = analysis?.telemetry.samples.at(-1);
   const currentMetric = metrics.find((item) => item.key === metric)!;
   const sampleValues = (key: string): (number | null)[] =>
@@ -580,18 +614,19 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
                             : equipment.name}
                   </h1>
                   {screen === "overview" ? (
-                    <div className="equipment-meta">
-                      {equipment.type_name !== equipment.name && (
-                        <span className="equipment-type support-copy">{equipment.type_name}</span>
-                      )}
-                      {equipment.documented && equipment.serial && (
-                        <span className="equipment-type support-copy">Зав. № {equipment.serial}</span>
-                      )}
-                      <p className="location support-copy">
-                        <MapPin size={14} />
-                        {equipment.location}
+                    <>
+                      <div className="equipment-meta">
+                        {/* The point on the round is the serial number until the customer numbers the points. */}
+                        <span className="equipment-type support-copy">
+                          Точка: {equipment.serial ?? "—"} · {equipment.location}
+                        </span>
+                      </div>
+                      <p className={`header-status ${statusTone}`} role="status">
+                        <span className="header-status-dot" aria-hidden="true" />
+                        <strong>{statusTitle}</strong>
+                        {alerts.length > 0 && <span>· {alerts.length} замеч.</span>}
                       </p>
-                    </div>
+                    </>
                   ) : objectScreen && (
                     // The journal names the object it shows; the round itself lists every object.
                     <div className="equipment-meta">
@@ -627,70 +662,43 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
                 />
               )}
 
-              {screen === "overview" && notices.length > 0 && (
-                <section className="equipment-context" aria-label="О данных объекта">
-                  {(
-                    <div className="equipment-notices">
-                      <p className="object-note support-copy">
-                        <TriangleAlert size={20} /> <span>{formatCopy(notices[0])}</span>
-                      </p>
-                      {notices.length > 1 && (
-                        <details className="object-notes-more">
-                          <summary className="support-copy">Ещё о данных: {notices.length - 1}</summary>
-                          {notices.slice(1).map((text) => (
-                            <p className="object-note support-copy" key={text}>
-                              <CircleHelp size={20} /> <span>{formatCopy(text)}</span>
-                            </p>
-                          ))}
-                        </details>
-                      )}
-                    </div>
-                  )}
-                </section>
-              )}
-
               {screen === "overview" && (
                 <>
-                  <div
-                    className={`status-strip ${critical ? "critical" : alerts.length ? "warning" : insufficient || evaluated === 0 ? "insufficient" : "normal"}`}
-                  >
-                    <div className="status-copy">
-                      {alerts.length || insufficient || evaluated === 0 ? (
-                        <TriangleAlert size={19} />
-                      ) : (
-                        <CheckCircle2 size={19} />
+                  {/* One template for every object: what to do, readings, parts, record. */}
+                  <section className="panel todo-panel">
+                    <div className="panel-heading">
+                      <div>
+                        <h2>Что сделать</h2>
+                      </div>
+                      {evaluated > 0 && (
+                        <button className="text-button status-checks" onClick={openChecks}>
+                          Проверки <ArrowRight size={13} />
+                        </button>
                       )}
-                      <strong>
-                        {critical
-                          ? "Обнаружены признаки высокого риска"
-                          : alerts.length
-                            ? "Рекомендуется проверка"
-                            : evaluated === 0
-                              ? "Правил для этого типа оборудования пока нет"
-                              : insufficient === evaluated
-                                ? "Данных недостаточно для оценки"
-                                : insufficient
-                                  ? "Часть проверок недоступна"
-                                  : "Отклонений по доступным данным нет"}
-                      </strong>
-                      <span className="support-copy">
-                        {alerts.length
-                          ? `${alerts.length} предупрежд. · откройте основания`
-                          : evaluated === 0
-                            ? "Насосные правила к этому типу не применяются · осмотр ведётся вручную"
-                            : "Предварительный анализ · исправность не подтверждена"}
-                      </span>
                     </div>
-                    <span className="updated support-copy">
-                      <Clock3 size={13} />
-                      {date(analysis.created_at)}
-                    </span>
-                    {evaluated > 0 && (
-                      <button className="text-button status-checks" onClick={openChecks}>
-                        Проверки <ArrowRight size={13} />
-                      </button>
-                    )}
-                  </div>
+                    <div className="findings-list">
+                      {alerts.map((alert) => (
+                        <Finding key={alert.id} alert={alert} onClick={() => setSelected(alert.component_id)} />
+                      ))}
+                      {missingInputs.length > 0 && (
+                        <button className="finding info todo-measure"
+                          onClick={() => document.getElementById("readings")?.scrollIntoView({ behavior: "smooth", block: "start" })}>
+                          <span className="finding-icon"><Gauge size={17} /></span>
+                          <span className="finding-content">
+                            <span className="finding-title">Внести замеры <ChevronRight size={15} /></span>
+                            <span className="finding-description support-copy">
+                              {missingInputs.slice(0, 4).join(", ")}{missingInputs.length > 4 ? ` и ещё ${missingInputs.length - 4}` : ""}
+                            </span>
+                          </span>
+                        </button>
+                      )}
+                      {!alerts.length && !missingInputs.length && (
+                        <p className="todo-clear support-copy">
+                          {evaluated ? "Отклонений нет — осмотрите узлы камерой" : "Правил для этого типа нет — осмотрите узлы камерой"}
+                        </p>
+                      )}
+                    </div>
+                  </section>
                   {equipment.telemetry && (
                     <SeriesTelemetryPanel equipment={equipment} analysis={analysis} busy={busy}
                       onRecord={(index) => void analyzeSeries(index)} service={can("series")} />
@@ -703,11 +711,72 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
                       onSubmit={analyzeDocumented}
                     />
                   )}
+                  {equipment.scenarios_available && (
+                    <>
+                      <section className="panel readings-panel" id="readings">
+                        <div className="panel-heading">
+                          <div>
+                            <h2><Gauge size={18} /> Замеры</h2>
+                            <p className="support-copy">Нажмите на строку — график ниже</p>
+                          </div>
+                        </div>
+                        <ReadingRows rows={[
+                          ...metrics.map((item) => {
+                            const v = last?.[item.key];
+                            const warning = typeof v === "number" && (item.key === "temperature" ? v > 70
+                              : item.key === "vibration" ? v > 3 : item.key === "inlet_pressure" ? v < 1.7 : v > 22);
+                            return {
+                              key: item.key,
+                              label: item.label,
+                              className: "reading-metric",
+                              level: warning ? ("warning" as const) : ("" as const),
+                              pressed: metric === item.key,
+                              onSelect: () => setMetric(item.key),
+                              norm: item.norm,
+                              source: "Датчик",
+                              value: <span className="metric-value">{number(v)} <small>{item.unit}</small></span>,
+                            };
+                          }),
+                          {
+                            key: "runtime",
+                            label: "Наработка",
+                            source: maintenance?.runtime_hours == null ? "Счётчик моточасов · нет данных" : "Счётчик моточасов",
+                            value: <span className="metric-value">{number(maintenance?.runtime_hours, 0)} <small>ч</small></span>,
+                            norm: maintenance?.norm_hours
+                              ? `${number(maintenance.norm_hours, 0)} ч${maintenance.due_in_hours == null ? "" : maintenance.due_in_hours <= 0
+                                ? " · ТО наступило" : ` · ТО через ${number(maintenance.due_in_hours, 0)} ч`}`
+                              : undefined,
+                          },
+                        ]} />
+                      </section>
+                      <section className="panel trend-panel">
+                      <div className="panel-heading panel-heading--responsive">
+                        <div>
+                          <h2>Динамика измерений</h2>
+                          <p className="support-copy">
+                            {currentMetric.label} · {currentMetric.unit}
+                          </p>
+                        </div>
+                        <span className="tag panel-meta support-copy">
+                          <Clock3 size={12} />
+                          10 минут
+                        </span>
+                      </div>
+                      <TrendChart
+                        values={sampleValues(metric)}
+                        labels={analysis.telemetry.samples.map(
+                          (item) => item.at,
+                        )}
+                        unit={currentMetric.unit}
+                      />
+                    </section>
+                    </>
+                  )}
                   <div className="inspection-grid">
                     <section className={`panel equipment-panel${profile ? " equipment-panel--3d" : ""}`}>
                       <div className="panel-heading panel-heading--responsive">
                         <div>
-                          <h2>Карта состояния</h2>
+                          <h2>Узлы</h2>
                         </div>
                       </div>
                       {profile ? (
@@ -775,158 +844,7 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
                       </div>
                       )}
                     </section>
-                  {equipment.scenarios_available && (
-                  <div className="metrics-grid">
-                    {metrics.map((item) => {
-                      const v = last?.[item.key];
-                      const warning =
-                        typeof v === "number" &&
-                        (item.key === "temperature"
-                          ? v > 70
-                          : item.key === "vibration"
-                            ? v > 3
-                            : item.key === "inlet_pressure"
-                              ? v < 1.7
-                              : v > 22);
-                      return (
-                        <button
-                          key={item.key}
-                          className={`metric-card ${metric === item.key ? "selected" : ""}`}
-                          aria-pressed={metric === item.key}
-                          onClick={() => setMetric(item.key)}
-                        >
-                          <div className="metric-label">
-                            <item.icon size={17} />
-                            <span className="metric-name">{item.label}</span>
-                            {metric === item.key
-                              ? <CheckCircle2 className="metric-selection" size={16} aria-hidden="true" />
-                              : <ArrowUpRight className="metric-selection" size={16} aria-hidden="true" />}
-                          </div>
-                          <div className="metric-main">
-                            <span>
-                              {number(v)}
-                              <small className="support-copy">{item.unit}</small>
-                            </span>
-                            <Sparkline
-                              values={sampleValues(item.key)}
-                              color={warning ? "var(--warning)" : "var(--brand)"}
-                            />
-                          </div>
-                          <p className="support-copy">
-                            {item.baseline}
-                            <span
-                              className={`small-dot ${warning ? "amber" : ""}`}
-                            />
-                          </p>
-                        </button>
-                      );
-                    })}
                   </div>
-                  )}
-                    {/* With nothing triggered the status strip has already said so; an empty panel would repeat it. */}
-                    {alerts.length > 0 && (
-                    <section className="panel findings-panel">
-                      <div className="panel-heading">
-                        <div>
-                          <h2>
-                            Требует внимания{" "}
-                            <span className="count-badge">{alerts.length}</span>
-                          </h2>
-                        </div>
-                        <Activity size={19} className="muted" />
-                      </div>
-                      <div className="findings-list">
-                        {alerts.map((alert) => (
-                          <Finding
-                            key={alert.id}
-                            alert={alert}
-                            onClick={() => setSelected(alert.component_id)}
-                          />
-                        ))}
-                      </div>
-                      {(
-                        <div className="findings-footer support-copy">
-                          <span>{insufficient ? `${insufficient} правил: недостаточно данных` : `Оценено правил: ${evaluated}`}</span>
-                          <button className="text-button" onClick={openChecks}>
-                            Все правила
-                            <ArrowRight size={13} />
-                          </button>
-                        </div>
-                      )}
-                    </section>
-                    )}
-                  </div>
-                  {!equipment.scenarios_available && !equipment.telemetry && (
-                    <PassportResource equipment={equipment} />
-                  )}
-                  {equipment.scenarios_available && (
-                  <div className="secondary-grid">
-                    <section className="panel trend-panel">
-                      <div className="panel-heading panel-heading--responsive">
-                        <div>
-                          <h2>Динамика измерений</h2>
-                          <p className="support-copy">
-                            {currentMetric.label} · {currentMetric.unit}
-                          </p>
-                        </div>
-                        <span className="tag panel-meta support-copy">
-                          <Clock3 size={12} />
-                          10 минут
-                        </span>
-                      </div>
-                      <TrendChart
-                        values={sampleValues(metric)}
-                        labels={analysis.telemetry.samples.map(
-                          (item) => item.at,
-                        )}
-                        unit={currentMetric.unit}
-                      />
-                    </section>
-                    <section className="panel service-panel">
-                      <div className="panel-heading">
-                        <div>
-                          <h2>Эксплуатационный ресурс</h2>
-                        </div>
-                        <Wrench size={18} className="muted" />
-                      </div>
-                      <div className="resource-body">
-                      <div className="resource-number">
-                        <span className="resource-value">{number(maintenance?.runtime_hours, 0)}</span>{" "}
-                        <small className="support-copy">моточасов</small>
-                      </div>
-                      <div className="progress-track">
-                        <span
-                          style={{
-                            width: `${Math.min(100, ((maintenance?.runtime_hours ?? 0) / (maintenance?.norm_hours || 1)) * 100)}%`,
-                          }}
-                        />
-                      </div>
-                      <div className="resource-range">
-                        <span className="support-copy">Наработка агрегата</span>
-                        <span className="support-copy">
-                          {number(maintenance?.norm_hours, 0)} ч · норматив
-                        </span>
-                      </div>
-                      <div className="service-next">
-                          <strong>
-                            {maintenance?.runtime_hours == null
-                              ? "Недостаточно данных о наработке"
-                              : analysis.telemetry.last_service_hours == null ? "Нет сведений о последнем ТО"
-                              : maintenance?.due_in_hours == null ? "Дальнейший график ТО не задан"
-                              : maintenance.due_in_hours <= 0
-                                ? "Срок обслуживания наступил"
-                                : `До следующего ТО: ${number(maintenance.due_in_hours, 0)} ч`}
-                          </strong>
-                          <p className="support-copy">
-                            Нормативный остаток:{" "}
-                            {number(maintenance?.remaining_hours, 0)} ч
-                          </p>
-                      </div>
-                      <p className="resource-caveat support-copy">Не прогноз времени до отказа</p>
-                      </div>
-                    </section>
-                  </div>
-                  )}
                   <div className="inspection-bottom">
                     <span className="support-copy">
                       <ClipboardCheck size={17} />
@@ -934,18 +852,7 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
                         ? `Последняя запись: ${date(events[0].created_at)}`
                         : "Осмотр ещё не зарегистрирован"}
                     </span>
-                    <button
-                      className="button primary"
-                      onClick={() => {
-                        // "pump" is the whole-aggregate узел of the demo object only.
-                        setRecordComponent(
-                          equipment.components.some((item) => item.id === "pump")
-                            ? "pump"
-                            : (equipment.components[0]?.id ?? ""),
-                        );
-                        setDialog("record");
-                      }}
-                    >
+                    <button className="button primary" onClick={() => openRecord()}>
                       <Plus size={17} />
                       Записать результат
                     </button>
@@ -1022,6 +929,16 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
                     <h2>Паспорт и документы</h2>
                     <span className="support-copy">{equipment.components.length} узлов</span>
                   </summary>
+                  {notices.length > 0 && (
+                    <div className="equipment-notices section-fold-note">
+                      {notices.map((text) => (
+                        <p className="object-note support-copy" key={text}>
+                          <CircleHelp size={20} /> <span>{formatCopy(text)}</span>
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                  {!equipment.scenarios_available && !equipment.telemetry && <PassportResource equipment={equipment} />}
                   <section className="panel passport">
                     <div>
                       <h2>{equipment.model ?? equipment.name}</h2>
@@ -1148,7 +1065,7 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
                   objects={catalogObjects}
                   analysisId={analysis.id}
                   can={can}
-                  onRecord={() => setDialog("record")}
+                  onRecord={() => openRecord()}
                   onExport={exportHistory}
                   onOpenObject={(id) => {
                     if (id === equipmentId) setScreen("overview");
@@ -1161,9 +1078,6 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
 
               {screen === "library" && <LibraryPanel />}
 
-              <footer className="page-footer support-copy">
-                <span>КОНТУР · Кибер 102</span>
-              </footer>
             </>
           )}
         </main>
@@ -1230,7 +1144,7 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
           onClose={() => setDialog(null)}
         >
           <label className="field">
-            Компонент
+            Узел осмотра
             <select
               value={recordComponent}
               onChange={(event) => setRecordComponent(event.target.value)}
@@ -1249,6 +1163,7 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
               onChange={(event) => setRecordAction(event.target.value)}
             >
               {Object.entries(actions)
+                .filter(([key]) => key !== "defect")
                 .filter(([key]) => !["maintenance", "replacement"].includes(key) || can("record_maintenance"))
                 .map(([key, label]) => (
                 <option key={key} value={key}>
@@ -1257,14 +1172,23 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
               ))}
             </select>
           </label>
+          {!["maintenance", "replacement"].includes(recordAction) && (
+            <label className="field">
+              Результат
+              <select value={recordOutcome} onChange={(event) => setRecordOutcome(event.target.value as "ok" | "remark")}>
+                <option value="ok">Норма</option>
+                <option value="remark">Замечание</option>
+              </select>
+            </label>
+          )}
           <label className="field">
-            Комментарий
+            Комментарий, если нужен
             <textarea
-              rows={4}
+              rows={3}
               maxLength={2000}
               value={note}
               onChange={(event) => setNote(event.target.value)}
-              placeholder="Что проверили, что обнаружили и какие работы выполнены"
+              placeholder="Необязательно"
             />
           </label>
           {recordAction === "replacement" && (
@@ -1304,7 +1228,7 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
             onConfirm={confirmLiveFinding}
             onReject={(item) => {
               const component = componentOf(item.kind) ?? equipment?.components[0]?.id;
-              if (analysis && component) void journalNote(analysis.id, component, `Камера: «${item.label}» — не дефект, отклонено инженером`);
+              if (analysis && component) void journalNote(analysis.id, component, { result: "rejected", source: "camera", finding: item.label });
             }}
             initialMode={cameraMode}
             debug={can("users")}
@@ -1358,8 +1282,9 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
                       (item) => item.source === "manual" && item.kind === manualKind,
                     )?.component_id;
                     if (component) {
-                      void journalNote(result.id, component,
-                        `Наблюдение инженера: ${MANUAL_KINDS[manualKind].toLowerCase()} — ${manualPresent ? "наблюдается" : "не наблюдается"}`);
+                      void journalNote(result.id, component, {
+                        result: manualPresent ? "remark" : "ok", source: "manual", finding: MANUAL_KINDS[manualKind],
+                      });
                     }
                   }
                 }}
@@ -1519,9 +1444,8 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
             <button
               className="button primary"
               onClick={() => {
-                setRecordComponent(component.id);
                 setSelected(null);
-                setDialog("record");
+                openRecord(component.id);
               }}
             >
               <ClipboardCheck size={16} />
@@ -1549,7 +1473,7 @@ function Finding({ alert, onClick }: { alert: Alert; onClick: () => void }) {
           {formatCopy(alert.title)}
           <ChevronRight size={15} />
         </span>
-        <span className="finding-description support-copy">{formatCopy(alert.hypothesis)}</span>
+        <span className="finding-description support-copy">{formatCopy(alert.recommendation)}</span>
         <span className="finding-rule support-copy">
           {alert.rule_ids.map(ruleLabel).join(" + ")} <span>Открыть основания</span>
         </span>

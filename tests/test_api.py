@@ -75,3 +75,18 @@ def test_manual_image_evidence_is_retrievable_after_recording(tmp_path):
         assert image.content.startswith(b"\x89PNG")
         assert "image/png" in image.headers["content-type"]
         assert client.get("/api/images/missing").status_code == 404
+
+
+def test_a_record_states_its_result_as_a_field(tmp_path):
+    with TestClient(create_app(tmp_path / "app.db")) as client:
+        normal = client.post("/api/analyze", json={"scenario_id": "normal"}).json()
+        warned = client.post("/api/analyze", json={"scenario_id": "r06"}).json()
+        for run, extra in ((normal, {}), (warned, {}), (normal, {"result": "rejected", "source": "camera",
+                                                                  "finding": "Жидкость, течь"})):
+            client.post("/api/inspections", json={"analysis_id": run["id"], "component_id": "seal",
+                                                  "action": "inspection", **extra})
+        client.post("/api/inspections", json={"analysis_id": normal["id"], "component_id": "pump",
+                                              "action": "maintenance"})
+        events = client.get("/api/inspections").json()
+    assert [event["result"] for event in events] == ["done", "rejected", "remark", "ok"]
+    assert events[1]["source"] == "camera" and events[1]["finding"] == "Жидкость, течь"

@@ -172,7 +172,8 @@ def test_confirmed_finding_feeds_the_rules_and_the_journal_with_its_frame(tmp_pa
         assert any("R11" in alert["rule_ids"] for alert in body["analysis"]["evaluation"]["alerts"])
         event = client.get("/api/inspections", params={"equipment_id": "pump-101"}).json()[0]
         assert (event["action"], event["component_id"]) == ("defect", "guard")
-        assert "уверенность 62%" in event["notes"] and "подтверждён инженером" in event["notes"]
+        assert (event["result"], event["source"]) == ("remark", "camera")
+        assert event["finding"].endswith("62%") and event["notes"] == "", "Найденное — полями, без сгенерированного текста"
         assert client.get(f"/api/images/{body['analysis']['image_id']}").status_code == 200
 
 

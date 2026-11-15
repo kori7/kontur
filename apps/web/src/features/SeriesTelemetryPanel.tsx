@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Activity, ChevronLeft, ChevronRight, Clock3 } from "lucide-react";
 import { formatCopy, number } from "../api";
 import type { Analysis, Equipment } from "../types";
+import { ReadingRows } from "../components/ReadingRows";
 
 // The organizer's setpoints from the series descriptions; values above them are highlighted.
 const CHANNELS: { key: string; label: string; unit: string; warning: number; alarm?: number }[] = [
@@ -32,10 +33,10 @@ export function SeriesTelemetryPanel({ equipment, analysis, busy, onRecord, serv
   const ours = analysis.evaluation.alerts.map((alert) => alert.title);
   const go = (next: number) => onRecord(Math.min(Math.max(next, 0), telemetry.recorded_hours - 1));
   return (
-    <section className="panel series-telemetry">
+    <section className="panel series-telemetry readings-panel" id="readings">
       <div className="panel-heading">
         <div>
-          <h2><Activity size={18} /> Телеметрия агрегата</h2>
+          <h2><Activity size={18} /> Замеры</h2>
           {service && (
             <details className="object-notes-more">
               <summary className="support-copy">Откуда эти данные</summary>
@@ -44,6 +45,22 @@ export function SeriesTelemetryPanel({ equipment, analysis, busy, onRecord, serv
           )}
         </div>
       </div>
+      <ReadingRows rows={CHANNELS.map((channel) => {
+        const value = record[channel.key];
+        const level = typeof value !== "number" ? "" : channel.alarm !== undefined && value > channel.alarm
+          ? "critical" : value > channel.warning ? "warning" : "";
+        return {
+          key: channel.key,
+          label: channel.label,
+          className: "series-value",
+          level,
+          value: <strong>{number(value, 2)} <small>{channel.unit}</small></strong>,
+          norm: Number.isFinite(channel.warning)
+            ? `до ${channel.warning}${channel.alarm ? ` · тревога > ${channel.alarm}` : ""}` : undefined,
+          source: analysis.telemetry.io ? "Датчик · сервер ввода/вывода" : "Датчик · история ряда",
+        };
+      })} />
+      {service && (
       <div className="series-source">
         {analysis.telemetry.io ? (
           <span className="tag live">
@@ -56,6 +73,7 @@ export function SeriesTelemetryPanel({ equipment, analysis, busy, onRecord, serv
           Текущее значение
         </button>
       </div>
+      )}
       {analysis.telemetry.io_error && (
         <p className="camera-message camera-error support-copy" role="alert">{formatCopy(analysis.telemetry.io_error)}</p>
       )}
@@ -73,22 +91,6 @@ export function SeriesTelemetryPanel({ equipment, analysis, busy, onRecord, serv
           disabled={busy || index >= telemetry.recorded_hours - 1} onClick={() => go(index + 1)}><ChevronRight size={18} /></button>
       </div>
       )}
-      <div className="series-values">
-        {CHANNELS.map((channel) => {
-          const value = record[channel.key];
-          const level = typeof value !== "number" ? "" : channel.alarm !== undefined && value > channel.alarm
-            ? "critical" : value > channel.warning ? "warning" : "";
-          return (
-            <div key={channel.key} className={`series-value ${level}`}>
-              <span className="support-copy">{channel.label}</span>
-              <strong>{number(value, 2)} <small>{channel.unit}</small></strong>
-              {Number.isFinite(channel.warning) && (
-                <span className="support-copy">пред. &gt; {channel.warning}{channel.alarm ? ` · тревога > ${channel.alarm}` : ""}</span>
-              )}
-            </div>
-          );
-        })}
-      </div>
       {service && (
       <div className="series-compare">
         <div>

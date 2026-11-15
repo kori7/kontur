@@ -1,21 +1,22 @@
 import { test, expect } from "@playwright/test";
 
 for (const width of [320, 393, 834, 1440]) {
-  test(`measurement cards align their labels and readings at ${width}px`, async ({ page }) => {
+  test(`reading rows keep names and values in their columns at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Насосный агрегат Н-101" })).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
-    const positions = await page.locator(".metric-card").evaluateAll(elements => elements.map(element => {
-      const card = element.getBoundingClientRect();
-      return {
-        label: element.querySelector(".metric-label")!.getBoundingClientRect().y - card.y,
-        value: element.querySelector(".metric-main > span")!.getBoundingClientRect().y - card.y,
-      };
+    const rows = await page.locator("#readings .reading").evaluateAll(elements => elements.map(element => {
+      const row = element.getBoundingClientRect();
+      const name = element.querySelector(".reading-label")!.getBoundingClientRect();
+      const value = element.querySelector(".reading-value")!.getBoundingClientRect();
+      return { nameLeft: name.left - row.left, valueRight: row.right - value.right, overlap: name.right > value.left + 1 };
     }));
-    for (const position of positions) {
-      expect(Math.abs(position.label - positions[0].label)).toBeLessThanOrEqual(1);
-      expect(Math.abs(position.value - positions[0].value)).toBeLessThanOrEqual(1);
+    expect(rows.length).toBe(5);
+    for (const row of rows) {
+      expect(Math.abs(row.nameLeft - rows[0].nameLeft)).toBeLessThanOrEqual(1);
+      expect(Math.abs(row.valueRight - rows[0].valueRight)).toBeLessThanOrEqual(1);
+      expect(row.overlap).toBe(false);
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });
@@ -39,45 +40,14 @@ test("phone equipment actions remain readable and fit in one row", async ({ page
 
 test("measurement selection announces the active chart metric", async ({ page }) => {
   await page.goto("/");
-  const metrics = page.locator(".metric-card");
+  const metrics = page.locator(".reading-metric");
+  await expect(metrics).toHaveCount(4);
   await expect(metrics.first()).toHaveAttribute("aria-pressed", "true");
   await metrics.nth(1).click();
   await expect(metrics.nth(1)).toHaveAttribute("aria-pressed", "true");
   await expect(metrics.first()).toHaveAttribute("aria-pressed", "false");
   await expect(page.locator(".trend-panel .panel-heading p")).toContainText("Температура");
 });
-
-for (const width of [375, 393]) {
-  test(`phone measurement names fit before and after selection at ${width}px`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 1000 });
-    await page.goto("/");
-    await expect(page.locator(".metric-card")).toHaveCount(4);
-    await page.evaluate(() => document.fonts.ready);
-
-    for (const selectTemperature of [false, true]) {
-      if (selectTemperature) await page.locator(".metric-card").nth(1).click();
-      const names = await page.locator(".metric-name").evaluateAll(elements => elements.map(element => {
-        const bounds = element.getBoundingClientRect();
-        const range = document.createRange();
-        range.selectNodeContents(element);
-        const fragments = [...range.getClientRects()];
-        const marker = element.parentElement!.querySelector(".metric-selection")!;
-        const markerBounds = marker.getBoundingClientRect();
-        return {
-          text: element.textContent,
-          fits: fragments.every(fragment => fragment.left >= bounds.left - 1 && fragment.right <= bounds.right + 1),
-          overlapsMarker: fragments.some(fragment =>
-            markerBounds.width > 0 && fragment.left < markerBounds.right && fragment.right > markerBounds.left &&
-            fragment.top < markerBounds.bottom && fragment.bottom > markerBounds.top),
-        };
-      }));
-      for (const name of names) {
-        expect(name.fits, `${name.text} must fit its label`).toBe(true);
-        expect(name.overlapsMarker, `${name.text} must not overlap its selection marker`).toBe(false);
-      }
-    }
-  });
-}
 
 test("desktop measurement table shows every column without scrolling", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });

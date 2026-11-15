@@ -13,6 +13,8 @@ from html import escape
 from io import BytesIO
 
 ACTIONS = {"inspection": "Проверка", "defect": "Замечание", "maintenance": "Обслуживание", "replacement": "Замена"}
+RESULTS = {"ok": "Норма", "remark": "Замечание", "rejected": "Отклонено", "done": "Выполнено"}
+SOURCES = {"camera": "Камера", "manual": "Вручную", "sensor": "Датчик"}
 SEVERITY = {"critical": "Критично", "warning": "Внимание", "info": "Информация"}
 STATUS = {"triggered": "Сработало", "clear": "Не сработало", "insufficient": "Недостаточно данных",
           "not_applicable": "Не применяется"}
@@ -61,6 +63,8 @@ def build(card: dict, events: list[dict], analysis: dict | None, author: str) ->
         "journal": [{"at": _local(event["created_at"]), "action": ACTIONS.get(event["action"], event["action"]),
                      "component": components.get(event["component_id"], {}).get("name", event["component_id"]),
                      "author": event["author"], "notes": event["notes"] or "",
+                     "result": RESULTS.get(event.get("result") or "", ""),
+                     "source": SOURCES.get(event.get("source") or "", ""), "finding": event.get("finding") or "",
                      "alerts": len(event["analysis"].get("evaluation", {}).get("alerts", [])),
                      "image_id": event["analysis"].get("image_id")} for event in events],
     }
@@ -115,9 +119,10 @@ def to_xlsx(data: dict) -> bytes:
               [[item["id"], item["status"], item["missing"], item["reason"]] for item in inspection["rules"]],
               [10, 22, 50, 50])
     table(book.create_sheet("Журнал"), ["Дата", "Действие", "Узел", "Автор", "Комментарий", "Предупреждений",
-                                         "Кадр"],
+                                         "Кадр", "Результат", "Источник", "Признак"],
           [[item["at"], item["action"], item["component"], item["author"], item["notes"], item["alerts"],
-            "есть" if item["image_id"] else ""] for item in data["journal"]], [17, 15, 24, 22, 60, 15, 8])
+            "есть" if item["image_id"] else "", item["result"], item["source"], item["finding"]]
+           for item in data["journal"]], [17, 15, 24, 22, 40, 15, 8, 14, 12, 30])
     table(book.create_sheet("Узлы"), ["Код", "Узел", "Норматив", "Установлен", "Последняя замена", "Источник норматива"],
           [[item["code"], item["name"], item["norm"], item["installed"], item["replaced"], item["source"]]
            for item in data["components"]], [12, 30, 12, 14, 18, 60])
@@ -147,8 +152,9 @@ def to_html(data: dict) -> str:
                   f"<th>Чего не хватает / почему не применяется</th></tr>{rules}</table></section>")
     journal = "".join(
         f"<tr><td>{e(item['at'])}</td><td>{e(item['action'])}</td><td>{e(item['component'])}</td>"
+        f"<td>{e(item['result'])}</td><td>{e(' · '.join(filter(None, [item['source'], item['finding']])))}</td>"
         f"<td>{e(item['author'])}</td><td>{e(item['notes'])}</td></tr>" for item in data["journal"]
-    ) or "<tr><td colspan='5'>Записей нет</td></tr>"
+    ) or "<tr><td colspan='7'>Записей нет</td></tr>"
     components = "".join(
         f"<tr><td>{e(item['code'])}</td><td>{e(item['name'])}</td><td>{e(item['norm'])}</td>"
         f"<td>{e(item['installed'])}</td><td>{e(item['replaced'])}</td></tr>" for item in data["components"])
@@ -177,6 +183,6 @@ footer{{margin-top:24px;font-size:12px;color:#5B6470}}
 <main class="page"><h1>Отчёт об осмотре</h1>
 <p class="muted">КОНТУР · сформирован {e(data['generated_at'])} · {e(data['generated_by'])}</p>
 <h2>Объект</h2><table>{rows}</table>{alerts}
-<h2>Журнал</h2><table class="grid"><tr><th>Дата</th><th>Действие</th><th>Узел</th><th>Автор</th><th>Комментарий</th></tr>{journal}</table>
+<h2>Журнал</h2><table class="grid"><tr><th>Дата</th><th>Действие</th><th>Узел</th><th>Результат</th><th>Источник</th><th>Автор</th><th>Комментарий</th></tr>{journal}</table>
 <h2>Узлы и нормативы</h2><table class="grid"><tr><th>Код</th><th>Узел</th><th>Норматив</th><th>Установлен</th><th>Последняя замена</th></tr>{components}</table>
 <footer>{e(LIMITS)}</footer></main></body></html>"""

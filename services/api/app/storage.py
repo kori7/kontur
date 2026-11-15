@@ -24,6 +24,10 @@ class Store:
             if "equipment_id" not in columns:
                 # A database written before the catalogue existed can only hold demo-object events.
                 db.execute("ALTER TABLE events ADD COLUMN equipment_id TEXT NOT NULL DEFAULT 'pump-101'")
+            # What the record found and where that came from, as fields; older records leave them empty.
+            for column in ("result", "source", "finding"):
+                if column not in columns:
+                    db.execute(f"ALTER TABLE events ADD COLUMN {column} TEXT NOT NULL DEFAULT ''")
 
     @contextmanager
     def _connect(self):
@@ -64,16 +68,18 @@ class Store:
         return json.loads(row["payload"])
 
     def add_event(self, analysis_id: str, equipment_id: str, component_id: str,
-                  action: str, notes: str, author: str) -> dict:
+                  action: str, notes: str, author: str, *, result: str = "", source: str = "",
+                  finding: str = "") -> dict:
         self.analysis(analysis_id)
         event = {"id": str(uuid4()), "created_at": datetime.now(timezone.utc).isoformat(),
                  "analysis_id": analysis_id, "equipment_id": equipment_id, "component_id": component_id,
-                 "action": action, "notes": notes, "author": author}
+                 "action": action, "notes": notes, "author": author,
+                 "result": result, "source": source, "finding": finding}
         with self._connect() as db:
             db.execute("""INSERT INTO events (id, created_at, analysis_id, equipment_id, component_id,
-                                              action, notes, author)
+                                              action, notes, author, result, source, finding)
                           VALUES (:id, :created_at, :analysis_id, :equipment_id, :component_id,
-                                  :action, :notes, :author)""", event)
+                                  :action, :notes, :author, :result, :source, :finding)""", event)
         return event
 
     def events(self, equipment_id: str | None = None) -> list[dict]:

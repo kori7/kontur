@@ -2,6 +2,7 @@ import { formatCopy } from "../api";
 import { useState } from "react";
 import { Gauge, Loader2 } from "lucide-react";
 import type { Equipment, Finding } from "../types";
+import { ReadingRows, type Reading } from "../components/ReadingRows";
 
 type FindingState = "unset" | "present" | "absent";
 
@@ -45,90 +46,62 @@ export function InputsPanel({
     onSubmit(measurements, collected);
   }
 
+  const rows: Reading[] = vocabulary.map(([key, field]) => ({
+    key,
+    label: `${field.label}${field.unit ? `, ${field.unit}` : ""}`,
+    source: `Вручную · ${field.instrument}`,
+    value: field.kind === "boolean" ? (
+      <select aria-label={field.label} value={flags[key] ?? "unset"}
+        onChange={(event) => setFlags({ ...flags, [key]: event.target.value as FindingState })}>
+        <option value="unset">Не проверено</option>
+        <option value="present">Да</option>
+        <option value="absent">Нет</option>
+      </select>
+    ) : (
+      <input aria-label={field.label} inputMode="decimal" placeholder="—" value={numbers[key] ?? ""}
+        onChange={(event) => setNumbers({ ...numbers, [key]: event.target.value })} />
+    ),
+  }));
+
   return (
-    <section className="panel">
+    <section className="panel readings-panel" id="readings">
       <div className="panel-heading">
         <div>
           <h2>
-            <Gauge size={15} /> Входы осмотра
+            <Gauge size={18} /> Замеры
           </h2>
           <p className="support-copy">
-            Телеметрии нет — введите, что измерили. Пустое поле правило считает
-            «нет данных», а не «норма»
+            Датчиков нет — введите, что измерили. Пустое поле — «нет данных», а не «норма»
           </p>
         </div>
-        <span className="tag">{equipment.rules?.length ?? 0} правил</span>
       </div>
 
-      {vocabulary.length > 0 && (
-        <div className="inputs-grid">
-          {vocabulary.map(([key, field]) =>
-            field.kind === "boolean" ? (
-              <label className="field" key={key}>
-                <span>{field.label}</span>
-                <select
-                  value={flags[key] ?? "unset"}
-                  onChange={(event) =>
-                    setFlags({ ...flags, [key]: event.target.value as FindingState })
-                  }
-                >
-                  <option value="unset">Не проверялось</option>
-                  <option value="present">Да</option>
-                  <option value="absent">Нет</option>
-                </select>
-                <small className="support-copy" title={field.basis}>{field.instrument}</small>
-              </label>
-            ) : (
-              <label className="field" key={key}>
-                <span>
-                  {field.label}
-                  {field.unit ? `, ${field.unit}` : ""}
-                </span>
-                <input
-                  inputMode="decimal"
-                  placeholder="не измерено"
-                  value={numbers[key] ?? ""}
-                  onChange={(event) =>
-                    setNumbers({ ...numbers, [key]: event.target.value })
-                  }
-                />
-                <small className="support-copy" title={field.basis}>{field.instrument}</small>
-              </label>
-            ),
-          )}
-        </div>
-      )}
+      {rows.length > 0 && <ReadingRows rows={rows} />}
 
       {classes.length > 0 && (
         <>
           <div className="panel-heading">
             <div>
-              <h2>Видимые признаки</h2>
+              <h3 className="readings-subhead">Видимые признаки</h3>
               <p className="support-copy">
                 «Не осмотрено» и «не обнаружено» — разные ответы
               </p>
             </div>
           </div>
-          <div className="inputs-grid">
-            {classes.map((item) => (
-              <label className="field" key={item.id}>
-                <span>{formatCopy(item.name)}</span>
-                <select
-                  value={findings[item.id] ?? "unset"}
-                  onChange={(event) =>
-                    setFindings({
-                      ...findings,
-                      [item.id]: event.target.value as FindingState,
-                    })
-                  }
-                >
-                  <option value="unset">Не осмотрено</option>
-                  <option value="present">Признак есть</option>
-                  <option value="absent">Признак не обнаружен</option>
-                </select>
-              </label>
-            ))}
-          </div>
+          {/* Visible signs are rows of the same table: what to look at, what was seen. */}
+          <ReadingRows rows={classes.map((item) => ({
+            key: item.id,
+            label: formatCopy(item.name),
+            source: "Визуально",
+            value: (
+              <select aria-label={formatCopy(item.name)} value={findings[item.id] ?? "unset"}
+                onChange={(event) => setFindings({ ...findings, [item.id]: event.target.value as FindingState })}>
+                <option value="unset">Не осмотрено</option>
+                <option value="present">Есть</option>
+                <option value="absent">Нет</option>
+              </select>
+            ),
+          }))} />
         </>
       )}
 

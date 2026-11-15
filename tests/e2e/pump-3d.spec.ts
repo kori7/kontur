@@ -106,7 +106,7 @@ test("phone navigation restores distinct screens and keeps labels visible", asyn
   await page.reload();
   await expect(page.locator("main h1")).toHaveText("Журнал осмотров");
   await page.getByRole("button", { name: "Осмотр оборудования", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Карта состояния", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Узлы", exact: true })).toBeVisible();
   await expect(page).toHaveURL(/screen=overview/);
   await page.goBack();
   await expect(page.locator("main h1")).toHaveText("Журнал осмотров");

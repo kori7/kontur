@@ -6,28 +6,18 @@ for (const width of [393, 834, 1194]) {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Насосный агрегат Н-101" })).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
-    const unit = page.getByText("моточасов", { exact: true });
-    expect(await unit.evaluate((element) => parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(16);
-    await expect(unit).toHaveClass(/support-copy/);
-    for (const title of ["Карта состояния", "Динамика измерений"]) {
-      const panel = page.locator("section").filter({ has: page.getByRole("heading", { name: title, exact: true }) });
-      const heading = panel.locator(".panel-heading > div");
-      const badge = panel.locator(".panel-heading > .tag");
-      if (title === "Карта состояния") {
-        await expect(badge).toHaveCount(0);
-        continue;
-      }
-      expect(Math.abs((await heading.boundingBox())!.x - (await badge.boundingBox())!.x)).toBeLessThanOrEqual(1);
-      expect((await badge.boundingBox())!.height).toBeLessThanOrEqual(48);
-    }
-    const baseline = await page.locator(".resource-number").evaluate((element) => {
-      const range = document.createRange();
-      range.selectNodeContents(element.firstChild!);
-      return range.getBoundingClientRect().left;
-    });
-    for (const selector of [".resource-range", ".service-next strong", ".service-next p", ".resource-caveat"]) {
-      expect(Math.abs((await page.locator(selector).first().boundingBox())!.x - baseline)).toBeLessThanOrEqual(1);
-    }
+    // Reading details (norm and source) use the shared support style at a readable size.
+    const detail = page.locator("#readings .reading-name small").first();
+    expect(await detail.evaluate((element) => parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(14);
+    await expect(detail).toHaveClass(/support-copy/);
+    await expect(page.locator("#readings")).toContainText("Счётчик моточасов");
+    const parts = page.locator("section").filter({ has: page.getByRole("heading", { name: "Узлы", exact: true }) });
+    await expect(parts.locator(".panel-heading > .tag")).toHaveCount(0);
+    const trend = page.locator("section").filter({ has: page.getByRole("heading", { name: "Динамика измерений", exact: true }) });
+    const heading = trend.locator(".panel-heading > div");
+    const badge = trend.locator(".panel-heading > .tag");
+    expect(Math.abs((await heading.boundingBox())!.x - (await badge.boundingBox())!.x)).toBeLessThanOrEqual(1);
+    expect((await badge.boundingBox())!.height).toBeLessThanOrEqual(48);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });
 }
@@ -71,7 +61,7 @@ test("supporting labels use the same style across site sections", async ({ page 
   expect(canvas!.width).toBeLessThanOrEqual(diagram!.width);
   expect(canvas!.x).toBeGreaterThanOrEqual(diagram!.x);
   await page.getByRole("button", { name: "Журнал осмотров", exact: true }).click();
-  await expect(page.locator(".history-meta").first()).toHaveClass(/support-copy/);
+  await expect(page.locator(".record-meta").first()).toHaveClass(/support-copy/);
   await page.goto("/?screen=series");
   await expect(page.getByText("Ряд", { exact: true })).toHaveClass(/support-copy/);
 });

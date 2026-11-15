@@ -75,6 +75,16 @@ export const ACTIONS: Record<string, string> = {
   replacement: "Замена",
 };
 
+export const RESULTS: Record<string, string> = { ok: "Норма", remark: "Замечание", rejected: "Отклонено", done: "Выполнено" };
+export const SOURCES: Record<string, string> = { camera: "Камера", manual: "Вручную", sensor: "Датчик" };
+
+/** A record's outcome; older records without the field get the same answer the server would give. */
+export function recordResult(event: { action: string; result?: string; analysis: { evaluation: { alerts: unknown[] } } }) {
+  if (event.result) return event.result;
+  if (event.action === "maintenance" || event.action === "replacement") return "done";
+  return event.action === "defect" || event.analysis.evaluation.alerts.length ? "remark" : "ok";
+}
+
 /** Rule ids as the inspector sees them: series setpoint rules carry internal channel keys. */
 export const ruleLabel = (id: string) =>
   id === "S-maintenance" ? "ТО" : id.startsWith("S-") ? "Ряд" : id;

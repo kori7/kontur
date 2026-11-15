@@ -12,7 +12,7 @@ test("diagnose, inspect a component, save and reopen history", async ({
   await page.getByRole("button", { name: "Применить сценарий" }).click();
   await expect(page.getByText("R06", { exact: false }).first()).toBeVisible();
   await page.getByRole("button", { name: "Записать результат" }).click();
-  await page.getByLabel("Компонент").selectOption("seal");
+  await page.getByLabel("Узел осмотра").selectOption("seal");
   await page.getByLabel("Комментарий").fill("Проверка сквозного сценария");
   await page
     .getByRole("button", { name: "Сохранить осмотр", exact: true })
@@ -46,7 +46,7 @@ test('missing measurements are shown as unknown, not healthy or expired', async 
   await page.getByLabel('Сценарий демонстрации').selectOption('missing_data');
   await page.getByRole('button',{name:'Применить сценарий'}).click();
   await expect(page.getByText('Данных недостаточно для оценки',{exact:true})).toBeVisible();
-  await expect(page.getByText('Недостаточно данных о наработке',{exact:true})).toBeVisible();
+  await expect(page.locator('#readings .reading',{hasText:'Наработка'})).toContainText('нет данных');
 });
 
 test("manual observations accumulate and replacement resets only the selected component", async ({page}) => {
@@ -60,7 +60,7 @@ test("manual observations accumulate and replacement resets only the selected co
   }
   await expect(page.getByText('R11',{exact:false}).first()).toBeVisible();
   await page.getByRole('button',{name:'Записать результат',exact:true}).click();
-  await page.getByLabel('Компонент').selectOption('seal');
+  await page.getByLabel('Узел осмотра').selectOption('seal');
   await page.getByLabel('Выполненное действие').selectOption('replacement');
   await page.getByRole('button',{name:'Сохранить осмотр',exact:true}).click();
   await expect(page.locator('.toast[role=status]')).toContainText('сохранён');

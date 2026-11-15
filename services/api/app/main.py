@@ -69,6 +69,19 @@ class EventRequest(BaseModel):
     action: Literal["inspection", "defect", "maintenance", "replacement"]
     notes: str = Field(default="", max_length=2000)
     author: str = Field(default="Демо-инженер", min_length=1, max_length=100)
+    # Left empty, the result follows from the action and the inspection it records.
+    result: Literal["ok", "remark", "rejected", "done"] | None = None
+    source: Literal["camera", "manual", "sensor", ""] = ""
+    finding: str = Field(default="", max_length=120)
+
+
+def event_result(action: str, analysis: dict) -> str:
+    """The outcome a record states when its author did not choose one."""
+    if action in ("maintenance", "replacement"):
+        return "done"
+    if action == "defect" or analysis["evaluation"]["alerts"]:
+        return "remark"
+    return "ok"
 
 
 class ImageRequest(BaseModel):
@@ -500,7 +513,9 @@ def create_app(db_path: str | Path | None = None, detector: Detector | None = No
         # With sign-in on, the author is whoever is signed in; the request cannot name someone else.
         author = user["name"] if auth_enabled else request.author.strip()
         return store.add_event(request.analysis_id, request.equipment_id, request.component_id,
-                               request.action, request.notes.strip(), author)
+                               request.action, request.notes.strip(), author,
+                               result=request.result or event_result(request.action, run),
+                               source=request.source, finding=request.finding.strip())
 
     @app.post("/api/vision")
     async def analyze_image(request: ImageRequest):
@@ -568,12 +583,11 @@ def create_app(db_path: str | Path | None = None, detector: Detector | None = No
         run = analyze(AnalyzeRequest(
             equipment_id=request.equipment_id, scenario_id=request.scenario_id, observations=observations,
             findings=[Finding(class_id=finding, present=True)] if finding else [], image=request.image))
-        certainty = f", уверенность {round(request.confidence * 100)}%" if request.confidence is not None else ""
-        source = f" ({request.detector}{certainty})" if request.detector else ""
-        note = (f"{request.label}: признак найден камерой{source} и подтверждён инженером. "
-                "Кадр сохранён вместе с осмотром.")
+        # The record states what was found and by what as fields; the frame stays with the inspection.
         author = http.state.user["name"] if auth_enabled else request.author.strip()
-        event = store.add_event(run["id"], request.equipment_id, component, "defect", note, author)
+        certainty = f" · {round(request.confidence * 100)}%" if request.confidence is not None else ""
+        event = store.add_event(run["id"], request.equipment_id, component, "defect", "", author,
+                                result="remark", source="camera", finding=f"{request.label}{certainty}")
         return {"analysis": run, "event": event, "component_id": component}
 
     @app.get("/api/images/{image_id}")

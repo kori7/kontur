@@ -247,6 +247,10 @@ export interface InspectionEvent {
   notes: string;
   author: string;
   analysis: Analysis;
+  /** Empty on records written before results became fields. */
+  result?: "ok" | "remark" | "rejected" | "done" | "";
+  source?: "camera" | "manual" | "sensor" | "";
+  finding?: string;
 }
 export interface SeriesChannel {
   key: string;

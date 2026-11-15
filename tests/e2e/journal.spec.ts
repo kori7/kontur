@@ -35,5 +35,8 @@ test("an engineer's manual observation is written to the journal", async ({ page
   await page.getByRole("button", { name: "Учесть в диагностике" }).click();
   await expect(page.locator(".toast")).toContainText("записано в журнал");
   await page.getByRole("button", { name: "Журнал осмотров", exact: true }).click();
-  await expect(page.locator(".history-item").first()).toContainText("Наблюдение инженера: кожух отсутствует — не наблюдается");
+  const record = page.locator(".history-item").first();
+  await expect(record.locator(".record-fields")).toContainText("Норма");
+  await expect(record.locator(".record-fields")).toContainText("Вручную · Кожух отсутствует");
+  await expect(record, "Найденное — полями, без сгенерированной фразы").not.toContainText("Наблюдение инженера:");
 });
