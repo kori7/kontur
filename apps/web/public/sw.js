@@ -2,7 +2,8 @@
 // Pages go to the network first, so a new build is picked up at once; static files are served from the
 // cache and refreshed behind the scenes. /api is never cached: an inspection must read live data, and
 // without the server the app says so instead of showing stale readings.
-const CACHE = "kontur-shell-v1";
+// v2 drops v1 caches, which could hold another page under «/».
+const CACHE = "kontur-shell-v2";
 const SHELL = ["/", "/manifest.webmanifest", "/brand/kontur-icon-192.png", "/brand/support-copy.css"];
 
 self.addEventListener("install", (event) => {
@@ -22,14 +23,21 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api/")) return;
   if (request.mode === "navigate") {
+    // The app is one page at «/» (screens are query parameters). ar.html, stand.html and
+    // presentation.html are pages of their own, often inside a frame: each is kept under its own
+    // address and never answered with the app, or the AR frame would show a second copy of it.
+    const page = url.pathname.endsWith(".html") && url.pathname !== "/index.html";
+    const key = page ? url.pathname : "/";
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put("/", copy));
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE).then((cache) => cache.put(key, copy));
+          }
           return response;
         })
-        .catch(() => caches.match("/")),
+        .catch(() => caches.match(key).then((cached) => cached || Response.error())),
     );
     return;
   }

@@ -58,14 +58,26 @@ const worker = await app.evaluate(async () => (await navigator.serviceWorker.rea
 await app.waitForTimeout(1500);
 await app.reload();
 await app.waitForLoadState('networkidle');
+// The AR page lives in a frame of the camera dialog: offline it must stay itself, never become the app.
+await app.goto(`${base}/ar.html`);
+await app.waitForLoadState('networkidle');
+await app.goto(`${base}/?screen=objects`);
+await app.waitForLoadState('networkidle');
 await installed.setOffline(true);
-await app.reload();
+await app.goto(`${base}/ar.html`).catch(() => undefined);
+const arOffline = await app.title();
+await app.goto(`${base}/?screen=objects`).catch(() => undefined);
 const shell = await app.title();
 await app.waitForTimeout(1500);
 const offlineText = (await app.locator('body').innerText()).replace(/\s+/g, ' ').slice(0, 160);
 await browser.close();
 console.log(`Сервис-воркер: ${worker ?? 'не зарегистрирован'}; без сети открылось: ${shell || '—'}`);
 console.log(`Без сети на экране: ${offlineText}`);
+console.log(`AR без сети: ${arOffline || '—'}`);
+if (arOffline.includes('осмотр оборудования')) {
+  console.log('Вместо страницы AR без сети открылось само приложение');
+  process.exit(1);
+}
 if (!['activating', 'activated'].includes(worker) || !shell.includes('КОНТУР') || offlineText.includes('Failed to fetch')) {
   console.log('Приложение без сети не открылось из кэша');
   process.exit(1);
