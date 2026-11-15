@@ -616,9 +616,10 @@ export default function App({ user, onSignOut }: { user: User; onSignOut: () => 
                   {screen === "overview" ? (
                     <>
                       <div className="equipment-meta">
-                        {/* The point on the round is the serial number until the customer numbers the points. */}
+                        {/* The point on the round is the serial number until the customer numbers the points;
+                            without a serial there is no point to name, so the line is just the location. */}
                         <span className="equipment-type support-copy">
-                          Точка: {equipment.serial ?? "—"} · {equipment.location}
+                          {equipment.serial ? `Точка: ${equipment.serial} · ` : ""}{equipment.location}
                         </span>
                       </div>
                       <p className={`header-status ${statusTone}`} role="status">
